@@ -16,12 +16,12 @@ public class GamingBlogDbContext : DbContext
         .HasKey(at => new { at.ArticleId, at.TagId});
         
         modelBuilder.Entity<ArticleTag>()
-        .HasOne(at => at._Article)
+        .HasOne(at => at.Article)
         .WithMany(at => at.ArticleTags)
         .HasForeignKey(at => at.ArticleId);
 
         modelBuilder.Entity<ArticleTag>()
-        .HasOne(at => at._Tag)
+        .HasOne(at => at.Tag)
         .WithMany(at => at.ArticleTags)
         .HasForeignKey(at => at.TagId);
     }
