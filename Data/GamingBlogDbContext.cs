@@ -4,10 +4,10 @@ namespace GamingBlog.API.Data;
 
 public class GamingBlogDbContext : DbContext
 {
-    DbSet<Article> Articles => Set<Article>();
-    DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
-    DbSet<Tag> Tags => Set<Tag>();
-    public GamingBlogDbContext(DbContextOptions<DbContext> options): base(options)
+    public DbSet<Article> Articles => Set<Article>();
+    public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public GamingBlogDbContext(DbContextOptions<GamingBlogDbContext> options): base(options)
     {
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

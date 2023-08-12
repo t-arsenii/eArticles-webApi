@@ -9,7 +9,10 @@ builder.Services.AddDbContext<GamingBlogDbContext>(opts =>{
 
 var app = builder.Build();
 app.MapControllers();
-
-// app.MapGet("/", () => "Hello World!");
-
+bool cmdLineInit = (app.Configuration["INITDB"] ?? "false") == "true";
+if(app.Environment.IsDevelopment() && cmdLineInit)
+{
+    Console.WriteLine("Seeding DB");
+    app.SeedInitialData();
+}
 app.Run();
