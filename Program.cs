@@ -1,11 +1,14 @@
 using GamingBlog.API.Data;
 using Microsoft.EntityFrameworkCore;
+using GamingBlog.API.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<GamingBlogDbContext>(opts =>{
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
 });
+builder.Services.AddScoped<IArticlesRepository, DbMSSqlRepository>();
 
 var app = builder.Build();
 app.MapControllers();
