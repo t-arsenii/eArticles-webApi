@@ -13,6 +13,7 @@ public class DbMSSqlRepository : IArticlesRepository
 
     public void Create(Article article)
     {
+        article.Published_Date = DateTime.Now;
         _dbContext.Articles.Add(article);
         _dbContext.SaveChanges();
     }

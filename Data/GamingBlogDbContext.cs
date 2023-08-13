@@ -24,6 +24,10 @@ public class GamingBlogDbContext : DbContext
         .HasOne(at => at.Tag)
         .WithMany(at => at.ArticleTags)
         .HasForeignKey(at => at.TagId);
+
+        modelBuilder.Entity<Article>()
+        .Property(a => a.Article_type)
+        .HasConversion<string>();
     }
     
 }

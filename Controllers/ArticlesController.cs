@@ -28,12 +28,16 @@ public class ArticlesController : ControllerBase
     [HttpGet("Page{currentPage:int}")]
     public IActionResult GetPage(int currentPage = 1)
     {
-        IEnumerable<Article>? articles = _repo.GetPage(currentPage); 
+        IEnumerable<Article>? articles = _repo.GetPage(currentPage);
+        if(articles == null || !articles.Any())
+        {
+            return NotFound();
+        } 
         return Ok(articles);
     }
 
     [HttpPost]
-    public IActionResult Create(Article article)
+    public IActionResult Create([FromBody]Article article)
     {
         _repo.Create(article);
         return Ok(article);
@@ -41,7 +45,7 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpPut]
-    public IActionResult Update(Article article)
+    public IActionResult Update([FromBody]Article article)
     {
         _repo.Update(article);
         return Ok(article);
