@@ -16,7 +16,7 @@ public record CreateArticleDto(
     string Description,
     string Content,
     string Article_Type,
-    string Img_Url,
+    string? Img_Url,
     List<string> ArticleTags
 );
 

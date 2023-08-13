@@ -1,6 +1,6 @@
 using GamingBlog.API.Data;
 using Microsoft.EntityFrameworkCore;
-using GamingBlog.API.Data.Repositories;
+using GamingBlog.API.Services.Repositories;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
