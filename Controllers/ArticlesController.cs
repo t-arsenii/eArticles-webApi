@@ -29,19 +29,25 @@ public class ArticlesController : ControllerBase
         return Ok(article.AsDto(tags));
     }
 
-    [HttpGet("Page{currentPage:int}")]
-    public IActionResult GetPage(int currentPage = 1)
+    [HttpGet("getItems")]
+    public IActionResult GetPage(int pageNumber = 1, int pageSize = 10)
     {
-        if (currentPage <= 0)
+        if (pageNumber <= 0)
         {
             return NotFound();
         }
-        IEnumerable<Article>? articles = _repo.GetPage(currentPage);
+        IEnumerable<Article>? articles = _repo.GetPage(pageNumber, pageSize);
         if (articles == null || !articles.Any())
         {
             return NotFound();
         }
-        return Ok(articles);
+        List<ArticleDTO> articleDTOs = new List<ArticleDTO>();
+        List<string>? tags;
+        foreach(var article in articles){
+            tags = _repo.GetArticleTags(article.Id);
+            articleDTOs.Add(article.AsDto(tags)!);
+        }
+        return Ok(articleDTOs);
     }
 
     [HttpPost]
@@ -66,7 +72,7 @@ public class ArticlesController : ControllerBase
             return BadRequest();
         }
         var article_Tags = _repo.GetArticleTags(created_article.Id);
-        return Ok(created_article.AsDto(article_Tags ?? new List<string>()));
+        return Ok(created_article.AsDto(article_Tags));
     }
 
     [HttpPut]

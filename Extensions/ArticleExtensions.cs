@@ -7,8 +7,12 @@ namespace GamingBlog.API.Extensions;
 
 public static class ArticleExtensions
 {
-    public static ArticleDTO? AsDto(this Article article, List<string> tagNames)
+    public static ArticleDTO? AsDto(this Article article, List<string>? tagNames = null)
     {
+        if(tagNames == null)
+        {
+            tagNames = new List<string>();
+        }
         return new ArticleDTO(
             article.Id,
             article.Title,

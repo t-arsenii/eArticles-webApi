@@ -6,7 +6,6 @@ namespace GamingBlog.API.Services.Repositories;
 
 public class DbMSSqlRepository : IArticlesRepository
 {
-    readonly int PageSize = 5;
     readonly GamingBlogDbContext _dbContext;
 
     public DbMSSqlRepository(GamingBlogDbContext dbContext)
@@ -55,7 +54,17 @@ public class DbMSSqlRepository : IArticlesRepository
 
     public Article? Get(int id)
     {
-        return _dbContext.Articles.Find(id);
+        Article? article = _dbContext.Articles.Find(id);
+        if (article == null)
+        {
+            return null;
+        }
+        if(article.ArticleTags == null)
+        {
+            return article;
+        }
+        article.Include
+
     }
 
     public List<string>? GetArticleTags(int id)
@@ -73,12 +82,12 @@ public class DbMSSqlRepository : IArticlesRepository
         return tags;
     }
 
-    public IEnumerable<Article>? GetPage(int currentPage = 1)
+    public IEnumerable<Article>? GetPage(int currentPage = 1, int pageSize = 10)
     {
         return _dbContext.Articles
             .OrderBy(ar => ar.Id)
-            .Skip((currentPage - 1) * PageSize)
-            .Take(PageSize);
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize);
     }
 
     public void Update(Article article)
