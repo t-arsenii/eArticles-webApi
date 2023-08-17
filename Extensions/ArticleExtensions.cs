@@ -7,13 +7,15 @@ namespace GamingBlog.API.Extensions;
 
 public static class ArticleExtensions
 {
-    public static ArticleDTO? AsDto(this Article article, List<string>? tagNames = null)
+    public static ArticleDto AsDto(this Article article)
     {
-        if(tagNames == null)
+        List<string>? tagNames = new();
+        tagNames = article.Tags.Select(t => t.Title).ToList();
+        if (!tagNames.Any())
         {
-            tagNames = new List<string>();
+            tagNames = null;
         }
-        return new ArticleDTO(
+        return new ArticleDto(
             article.Id,
             article.Title,
             article.Description,

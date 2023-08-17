@@ -12,22 +12,27 @@ public class GamingBlogDbContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ArticleTag>()
-        .HasKey(at => new { at.ArticleId, at.TagId});
-        
-        modelBuilder.Entity<ArticleTag>()
-        .HasOne(at => at.Article)
-        .WithMany(at => at.ArticleTags)
-        .HasForeignKey(at => at.ArticleId);
-
-        modelBuilder.Entity<ArticleTag>()
-        .HasOne(at => at.Tag)
-        .WithMany(at => at.ArticleTags)
-        .HasForeignKey(at => at.TagId);
-
         modelBuilder.Entity<Article>()
         .Property(a => a.Article_type)
         .HasConversion<string>();
+
+         modelBuilder.Entity<Article>()
+        .HasMany(e => e.Tags)
+        .WithMany(e => e.Articles)
+        .UsingEntity<ArticleTag>();
+
+        // modelBuilder.Entity<ArticleTag>()
+        // .HasKey(at => new { at.ArticleId, at.TagId});
+        
+        // modelBuilder.Entity<ArticleTag>()
+        // .HasOne(at => at.Article)
+        // .WithMany(at => at.ArticleTags)
+        // .HasForeignKey(at => at.ArticleId);
+
+        // modelBuilder.Entity<ArticleTag>()
+        // .HasOne(at => at.Tag)
+        // .WithMany(at => at.ArticleTags)
+        // .HasForeignKey(at => at.TagId);
     }
     
 }

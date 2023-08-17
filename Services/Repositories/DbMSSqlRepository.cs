@@ -13,28 +13,20 @@ public class DbMSSqlRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public Article? Create(Article article, List<string> tagNames)
+    public Article? Create(Article newArticle, IEnumerable<string>? tagNames = null)
     {
-        var newArticle = new Article
+        if (tagNames != null && tagNames.Any())
         {
-            Title = article.Title,
-            Description = article.Description,
-            Content = article.Content,
-            Article_type = article.Article_type,
-            Published_Date = article.Published_Date,
-            Img_Url = article.Img_Url,
-            ArticleTags = new List<ArticleTag>()
-        };
-        foreach (var tagName in tagNames)
-        {
-            var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
-            if (tag == null)
+            foreach (var tagName in tagNames)
             {
-                tag = new Tag { Title = tagName };
-                _dbContext.Tags.Add(tag);
+                var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
+                if (tag == null)
+                {
+                    tag = new Tag { Title = tagName };
+                    _dbContext.Tags.Add(tag);
+                }
+                newArticle.Tags.Add(tag);
             }
-            var articleTag = new ArticleTag { Article = newArticle, Tag = tag };
-            newArticle.ArticleTags.Add(articleTag);
         }
         newArticle.Published_Date = DateTime.Now;
         _dbContext.Articles.Add(newArticle);
@@ -42,29 +34,21 @@ public class DbMSSqlRepository : IArticlesRepository
         return newArticle;
     }
 
-    public void Delete(int id)
+    public Article? Delete(int id)
     {
         Article? articleToDelete = _dbContext.Articles.Find(id);
-        if (articleToDelete != null)
+        if (articleToDelete == null)
         {
-            _dbContext.Articles.Remove(articleToDelete);
-            _dbContext.SaveChanges();
+            return null;
         }
+        _dbContext.Articles.Remove(articleToDelete);
+        _dbContext.SaveChanges();
+        return articleToDelete;
     }
 
     public Article? Get(int id)
     {
-        Article? article = _dbContext.Articles.Find(id);
-        if (article == null)
-        {
-            return null;
-        }
-        if(article.ArticleTags == null)
-        {
-            return article;
-        }
-        article.Include
-
+        return _dbContext.Articles.Include(ar => ar.Tags).FirstOrDefault(ar => ar.Id == id);
     }
 
     public List<string>? GetArticleTags(int id)
@@ -74,7 +58,7 @@ public class DbMSSqlRepository : IArticlesRepository
         {
             return null;
         }
-        var tags = article.ArticleTags?.Select(at => at.Tag?.Title).ToList();
+        var tags = article.Tags?.Select(t => t.Title).ToList();
         if (tags?.Count() == 0 || tags == null)
         {
             return null;
@@ -85,13 +69,33 @@ public class DbMSSqlRepository : IArticlesRepository
     public IEnumerable<Article>? GetPage(int currentPage = 1, int pageSize = 10)
     {
         return _dbContext.Articles
+            .Include(ar => ar.ArticleTags)
+            .ThenInclude(ar_tag => ar_tag.Tag)
             .OrderBy(ar => ar.Id)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize);
     }
 
-    public void Update(Article article)
+    public Article? Update(Article updateArticle, IEnumerable<string>? tagNames = null)
     {
-        _dbContext.Articles.Update(article);
+        Article? article = Get(updateArticle.Id);
+        if(article == null)
+        {
+            return null;
+        }
+        if (tagNames != null && tagNames.Any())
+        {
+            foreach (var tagName in tagNames)
+            {
+                var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
+                if (tag != null)
+                {
+                    updateArticle.Tags.Add(tag);
+                }
+            }
+        }
+        _dbContext.Articles.Update(updateArticle);
+        _dbContext.SaveChanges();
+        return updateArticle;
     }
 }

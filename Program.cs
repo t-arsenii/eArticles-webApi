@@ -2,6 +2,7 @@ using GamingBlog.API.Data;
 using Microsoft.EntityFrameworkCore;
 using GamingBlog.API.Services.Repositories;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
@@ -9,8 +10,8 @@ builder.Services
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
-;
 
 builder.Services.AddDbContext<GamingBlogDbContext>(opts =>
 {

@@ -20,5 +20,6 @@ public class Article
             return _img_Url;
         }
     }
-    public ICollection<ArticleTag>? ArticleTags{ get; set;}
+    public List<ArticleTag> ArticleTags{ get; } = new();
+    public List<Tag> Tags { get; } = new();
 }

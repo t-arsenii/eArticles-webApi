@@ -25,8 +25,7 @@ public class ArticlesController : ControllerBase
         {
             return NotFound();
         }
-        var tags = _repo.GetArticleTags(id);
-        return Ok(article.AsDto(tags));
+        return Ok(article.AsDto());
     }
 
     [HttpGet("getItems")]
@@ -41,11 +40,10 @@ public class ArticlesController : ControllerBase
         {
             return NotFound();
         }
-        List<ArticleDTO> articleDTOs = new List<ArticleDTO>();
-        List<string>? tags;
-        foreach(var article in articles){
-            tags = _repo.GetArticleTags(article.Id);
-            articleDTOs.Add(article.AsDto(tags)!);
+        List<ArticleDto> articleDTOs = new List<ArticleDto>();
+        foreach (var article in articles)
+        {
+            articleDTOs.Add(article.AsDto());
         }
         return Ok(articleDTOs);
     }
@@ -57,39 +55,52 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        ArticleType a_type = (ArticleType)Enum.Parse(typeof(ArticleType), articleDto.Article_Type);
-        Article artcile = new Article()
-        {
-            Title = articleDto.Title,
-            Description = articleDto.Description,
-            Content = articleDto.Content,
-            Article_type = a_type,
-            Img_Url = articleDto.Img_Url!
-        };
+        Article artcile = CreateArticleFromDto(articleDto);
         var created_article = _repo.Create(artcile, articleDto.ArticleTags);
         if (created_article == null)
         {
             return BadRequest();
         }
-        var article_Tags = _repo.GetArticleTags(created_article.Id);
-        return Ok(created_article.AsDto(article_Tags));
+        return Ok(created_article.AsDto());
     }
 
     [HttpPut]
-    public IActionResult Update([FromBody] Article article)
+    public IActionResult Update([FromBody] UpdateArticleDto articleDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        _repo.Update(article);
-        return Ok(article);
+        Article article = CreateArticleFromDto(articleDto);
+        Article? updated_article = _repo.Update(article);
+        if(updated_article == null)
+        {
+            return NotFound();
+        }
+        return Ok(updated_article.AsDto());
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        _repo.Delete(id);
+        Article? article = _repo.Delete(id);
+        if(article == null)
+        {
+            return NotFound();
+        }
         return Ok($"Deleted article with id {id}");
+    }
+
+    private Article CreateArticleFromDto(BaseArticleDto articleDTO)
+    {
+        ArticleType a_type = (ArticleType)Enum.Parse(typeof(ArticleType), articleDTO.Article_Type);
+        return new Article()
+        {
+            Title = articleDTO.Title,
+            Description = articleDTO.Description,
+            Content = articleDTO.Content,
+            Article_type = a_type,
+            Img_Url = articleDTO.Img_Url!
+        };
     }
 }
