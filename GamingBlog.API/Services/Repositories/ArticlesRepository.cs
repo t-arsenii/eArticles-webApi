@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GamingBlog.API.Services.Repositories;
 
-public class DbMSSqlRepository : IArticlesRepository
+public class ArticlesRepository : IArticlesRepository
 {
     readonly GamingBlogDbContext _dbContext;
 
-    public DbMSSqlRepository(GamingBlogDbContext dbContext)
+    public ArticlesRepository(GamingBlogDbContext dbContext)
     {
         _dbContext = dbContext;
     }

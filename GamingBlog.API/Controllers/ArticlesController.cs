@@ -5,6 +5,7 @@ using GamingBlog.API.Data.Dtos;
 using GamingBlog.API.Data.Enums;
 using GamingBlog.API.Extensions;
 using GamingBlog.API.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GamingBlog.API.Controllers;
 
@@ -49,6 +50,7 @@ public class ArticlesController : ControllerBase
         return Ok(articleDTOs);
     }
 
+    [Authorize]
     [HttpPost]
     public IActionResult Create([FromBody] CreateArticleDto articleDto)
     {
@@ -65,6 +67,7 @@ public class ArticlesController : ControllerBase
         return Ok(created_article.AsDto());
     }
 
+    [Authorize]
     [HttpPut]
     public IActionResult Update([FromBody] UpdateArticleDto articleDto)
     {
@@ -81,6 +84,7 @@ public class ArticlesController : ControllerBase
         return Ok(updated_article.AsDto());
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {

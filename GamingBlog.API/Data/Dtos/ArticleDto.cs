@@ -38,9 +38,9 @@ public record CreateArticleDto(
         string Description,
     [Required]
     [StringLength(
-        100,
-        MinimumLength = 3000,
-        ErrorMessage = "The Content must be between 5 and 100 characters."
+        3000,
+        MinimumLength = 10,
+        ErrorMessage = "The Content must be between 10 and 3000 characters."
     )]
         string Content,
     [Required] string Article_Type,

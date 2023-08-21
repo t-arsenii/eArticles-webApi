@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using GamingBlog.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
@@ -19,7 +22,7 @@ builder.Services.AddDbContext<GamingBlogDbContext>(opts =>
 {
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
 });
-builder.Services.AddScoped<IArticlesRepository, DbMSSqlRepository>();
+builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services
     .AddIdentityCore<IdentityUser>(options =>
     {
@@ -33,7 +36,29 @@ builder.Services
     })
     .AddEntityFrameworkStores<GamingBlogDbContext>();
 builder.Services.AddScoped<JwtService>();
+var Configuration = builder.Configuration;
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(
+        (options) =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidAudience = Configuration["Jwt:Audience"],
+                ValidIssuer = Configuration["Jwt:Issuer"],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]!)
+                )
+            };
+        }
+    );
 var app = builder.Build();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 bool cmdLineInit = (app.Configuration["INITDB"] ?? "false") == "true";
 if (app.Environment.IsDevelopment() && cmdLineInit)
