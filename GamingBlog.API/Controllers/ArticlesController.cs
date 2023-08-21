@@ -4,6 +4,7 @@ using GamingBlog.API.Models;
 using GamingBlog.API.Data.Dtos;
 using GamingBlog.API.Data.Enums;
 using GamingBlog.API.Extensions;
+using GamingBlog.API.Data;
 
 namespace GamingBlog.API.Controllers;
 
@@ -28,8 +29,8 @@ public class ArticlesController : ControllerBase
         return Ok(article.AsDto());
     }
 
-    [HttpGet("getItems")]
-    public IActionResult GetPage(int pageNumber = 1, int pageSize = 10)
+    [HttpGet]
+    public IActionResult GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
     {
         if (pageNumber <= 0)
         {
@@ -73,7 +74,7 @@ public class ArticlesController : ControllerBase
         }
         Article article = CreateArticleFromDto(articleDto);
         Article? updated_article = _repo.Update(article);
-        if(updated_article == null)
+        if (updated_article == null)
         {
             return NotFound();
         }
@@ -84,7 +85,7 @@ public class ArticlesController : ControllerBase
     public IActionResult Delete(int id)
     {
         Article? article = _repo.Delete(id);
-        if(article == null)
+        if (article == null)
         {
             return NotFound();
         }

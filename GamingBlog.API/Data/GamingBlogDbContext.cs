@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using GamingBlog.API.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 namespace GamingBlog.API.Data;
 
-public class GamingBlogDbContext : DbContext
+public class GamingBlogDbContext : IdentityUserContext<IdentityUser>
 {
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
@@ -12,6 +15,8 @@ public class GamingBlogDbContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Article>()
         .Property(a => a.Article_type)
         .HasConversion<string>();

@@ -86,7 +86,6 @@ public class ArticlesControllerTests
                 expectedCreatedArticle.Tags.Select(t => t.Title).ToList(),
                 expectedCreatedArticle.Img_Url
             );
-        CreateArticleDto validArticleDto = createArticleDto;
 
         mockRepository
             .Setup(repo => repo.Create(It.IsAny<Article>(), It.IsAny<List<string>>()))
@@ -130,9 +129,62 @@ public class ArticlesControllerTests
             Times.Never
         );
     }
+
     [Fact]
-    public void UpdateArticleTest(){
+    public void UpdateArticleTest()
+    {
         Mock<IArticlesRepository> mockRepository = new();
-        
+
+        Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
+
+        var expectedCreatedArticle = articles.First();
+
+        UpdateArticleDto updateArticleDto =
+            new(
+                expectedCreatedArticle.Title,
+                expectedCreatedArticle.Description,
+                expectedCreatedArticle.Content,
+                expectedCreatedArticle.Article_type.ToString(),
+                expectedCreatedArticle.Tags.Select(t => t.Title).ToList(),
+                expectedCreatedArticle.Img_Url
+            );
+
+        mockRepository
+            .Setup(repo => repo.Update(It.IsAny<Article>(), It.IsAny<List<string>>()))
+            .Returns(expectedCreatedArticle);
+
+        var controller = new ArticlesController(mockRepository.Object);
+
+        //Act
+        var result = controller.Update(updateArticleDto);
+
+        //Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var updatedArticleDto = Assert.IsType<ArticleDto>(okResult.Value);
+
+        Assert.Equal(expectedCreatedArticle.Id, updatedArticleDto.Id);
+
+        mockRepository.Verify(
+            repo => repo.Update(It.IsAny<Article>(), It.IsAny<IEnumerable<string>>()),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public void DeleteArticleTest()
+    {
+        //Arrange
+        Mock<IArticlesRepository> mockRepository = new();
+        Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
+        var expectedDeletedArticle = articles.First();
+        mockRepository.Setup(repo => repo.Delete(It.IsAny<int>())).Returns(expectedDeletedArticle);
+        ArticlesController controller = new(mockRepository.Object);
+        //Act
+        var result = controller.Delete(expectedDeletedArticle.Id);
+        //Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        int deletedArticleId = int.Parse(Assert.IsType<string>(okResult.Value).Split(' ').Last());
+        Assert.Equal(deletedArticleId, expectedDeletedArticle.Id);
+        mockRepository.Verify(repo => repo.Delete(It.IsAny<int>()), Times.Once);
     }
 }
