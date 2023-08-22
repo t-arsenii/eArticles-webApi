@@ -1,5 +1,6 @@
 using GamingBlog.API.Data.Dtos;
 using GamingBlog.API.Services;
+using GamingBlog.API.Services.Repositories;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,11 @@ namespace GamingBlog.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private UserManager<IdentityUser> _userManager;
-    private JwtService _jwtService;
+    IUsersRepository _usersRepository;
 
-    public UsersController(UserManager<IdentityUser> userManager, JwtService jwtService)
+    public UsersController(IUsersRepository usersRepository)
     {
-        _userManager = userManager;
-        _jwtService = jwtService;
+        _usersRepository = usersRepository;
     }
 
     [HttpPost]
@@ -26,10 +25,7 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var result = await _userManager.CreateAsync(
-            new IdentityUser() { UserName = createUserDto.UserName, Email = createUserDto.Email, },
-            createUserDto.Password
-        );
+        var result = await _usersRepository.Create(createUserDto);
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors);
@@ -40,7 +36,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(string id)
     {
-        IdentityUser? user = await _userManager.FindByIdAsync(id);
+        IdentityUser? user = await _usersRepository.GetUserById(id);
         if (user == null)
         {
             return NotFound();
@@ -51,7 +47,7 @@ public class UsersController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUserName(string username)
     {
-        IdentityUser? user = await _userManager.FindByNameAsync(username);
+        IdentityUser? user = await _usersRepository.GetUserByUserName(username);
         if (user == null)
         {
             return NotFound();
@@ -67,17 +63,17 @@ public class UsersController : ControllerBase
             return BadRequest(ModelState);
 
         }
-        IdentityUser? user = await _userManager.FindByNameAsync(userData.UserName);
+        IdentityUser? user = await _usersRepository.GetUserByUserName(userData.UserName);
         if (user == null)
         {
             return NotFound("Bad credentials");
         }
-        var isPasswordValid = await _userManager.CheckPasswordAsync(user, userData.Password);
+        var isPasswordValid = await _usersRepository.IsPasswordValid(user, userData.Password);
         if(!isPasswordValid)
         {
             return NotFound("Bad credentials");
         }
-        var authenticationResponse = _jwtService.CreateToken(user);
+        var authenticationResponse = _usersRepository.AuthenticateUser(user);
         return Ok(authenticationResponse);
     }
 }

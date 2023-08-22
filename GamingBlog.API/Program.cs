@@ -56,6 +56,7 @@ builder.Services
             };
         }
     );
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();

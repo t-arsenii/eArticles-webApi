@@ -14,9 +14,9 @@ public class UsersRepository : IUsersRepository
         _jwtService = jwtService;
     }
 
-    public AuthenticationResponse? AuthenticateUser(AuthenticationRequest userData)
+    public AuthenticationResponse? AuthenticateUser(IdentityUser userData)
     {
-        throw new NotImplementedException();
+        return _jwtService.CreateToken(userData);
     }
 
     public async Task<IdentityResult> Create(CreateUserDto userData)
@@ -27,13 +27,16 @@ public class UsersRepository : IUsersRepository
         );
     }
 
-    public IdentityUser? GetUserById(string id)
+    public async Task<IdentityUser?> GetUserById(string id)
     {
-        throw new NotImplementedException();
+        return await _userManager.FindByIdAsync(id);
     }
 
-    public IdentityUser? GetUserByUserName(string userName)
+    public async Task<IdentityUser?> GetUserByUserName(string userName)
     {
-        throw new NotImplementedException();
+        return await _userManager.FindByNameAsync(userName);
+    }
+    public async Task<bool> IsPasswordValid(IdentityUser user, string password){
+        return await _userManager.CheckPasswordAsync(user, password);
     }
 }
