@@ -35,13 +35,16 @@ builder.Services
         options.Password.RequireLowercase = false;
     })
     .AddEntityFrameworkStores<GamingBlogDbContext>();
+
 builder.Services.AddScoped<JwtService>();
+
 var Configuration = builder.Configuration;
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(
         (options) =>
         {
+            options.SaveToken = true;
             options.TokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateIssuer = true,
