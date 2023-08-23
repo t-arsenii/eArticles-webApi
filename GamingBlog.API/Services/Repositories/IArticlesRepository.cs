@@ -4,7 +4,7 @@ namespace GamingBlog.API.Services.Repositories;
 
 public interface IArticlesRepository
 {
-    public Article? Create(Article article, IEnumerable<string>? tagNames = null);
+    public Task<Article?> Create(Article article, IEnumerable<string>? tagNames = null);
     public Article? Get(int id);
     public List<String>? GetArticleTags(int id);
     public IEnumerable<Article>? GetPage(int currentPage = 1, int pageSize = 10);
