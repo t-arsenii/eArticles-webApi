@@ -13,7 +13,7 @@ public class ArticlesRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public Article? Create(Article newArticle, IEnumerable<string>? tagNames = null)
+    public async Task<Article?> Create(Article newArticle, IEnumerable<string>? tagNames = null)
     {
         if (tagNames != null && tagNames.Any())
         {
@@ -29,31 +29,34 @@ public class ArticlesRepository : IArticlesRepository
             }
         }
         newArticle.Published_Date = DateTime.Now;
-        _dbContext.Articles.Add(newArticle);
-        _dbContext.SaveChanges();
+        await _dbContext.Articles.AddAsync(newArticle);
+        await _dbContext.SaveChangesAsync();
         return newArticle;
     }
 
-    public Article? Delete(int id)
+    public async Task<Article?> Delete(int id)
     {
-        Article? articleToDelete = _dbContext.Articles.Find(id);
+        Article? articleToDelete = await _dbContext.Articles.FindAsync(id);
         if (articleToDelete == null)
         {
             return null;
         }
         _dbContext.Articles.Remove(articleToDelete);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return articleToDelete;
     }
 
-    public Article? Get(int id)
+    public async Task<Article?> Get(int id)
     {
-        return _dbContext.Articles.Include(ar => ar.Tags).FirstOrDefault(ar => ar.Id == id);
+        return await _dbContext.Articles
+            .Include(ar => ar.Tags)
+            .FirstOrDefaultAsync(ar => ar.Id == id);
     }
 
-    public List<string>? GetArticleTags(int id)
+    public async Task<IEnumerable<string>?> GetArticleTags(int id)
     {
-        var article = Get(id);
+        var article = await Get(id);
+
         if (article == null)
         {
             return null;
@@ -64,22 +67,31 @@ public class ArticlesRepository : IArticlesRepository
             return null;
         }
         return tags;
+
+        // if (article != null && article.Tags != null && article.Tags.Count() != 0)
+        // {
+        //     foreach (var tag in article.Tags)
+        //     {
+        //         yield return tag.Title;
+        //     }
+        // }
     }
 
-    public IEnumerable<Article>? GetPage(int currentPage = 1, int pageSize = 10)
+    public async Task<IEnumerable<Article>?> GetPage(int currentPage = 1, int pageSize = 10)
     {
-        return _dbContext.Articles
+        return await _dbContext.Articles
             .Include(ar => ar.ArticleTags)
             .ThenInclude(ar_tag => ar_tag.Tag)
             .OrderBy(ar => ar.Id)
             .Skip((currentPage - 1) * pageSize)
-            .Take(pageSize);
+            .Take(pageSize)
+            .ToListAsync();
     }
 
-    public Article? Update(Article updateArticle, IEnumerable<string>? tagNames = null)
+    public async Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null)
     {
-        Article? article = Get(updateArticle.Id);
-        if(article == null)
+        Article? article = await Get(updateArticle.Id);
+        if (article == null)
         {
             return null;
         }
@@ -95,7 +107,7 @@ public class ArticlesRepository : IArticlesRepository
             }
         }
         _dbContext.Articles.Update(updateArticle);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return updateArticle;
     }
 }
