@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace GamingBlog.API.Data;
 
-public class GamingBlogDbContext : IdentityUserContext<IdentityUser>
+public class GamingBlogDbContext : IdentityUserContext<User>
 {
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();

@@ -8,6 +8,7 @@ using GamingBlog.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using GamingBlog.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
@@ -24,7 +25,7 @@ builder.Services.AddDbContext<GamingBlogDbContext>(opts =>
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services
-    .AddIdentityCore<IdentityUser>(options =>
+    .AddIdentityCore<User>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.User.RequireUniqueEmail = true;

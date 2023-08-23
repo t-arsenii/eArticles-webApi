@@ -1,4 +1,5 @@
 using GamingBlog.API.Data.Dtos;
+using GamingBlog.API.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace GamingBlog.API.Services.Repositories;
@@ -6,8 +7,8 @@ namespace GamingBlog.API.Services.Repositories;
 public interface IUsersRepository
 {
     Task<IdentityResult> Create(CreateUserDto userDto);
-    Task<IdentityUser?> GetUserById(string id);
-    Task<IdentityUser?> GetUserByUserName(string userName);
-    AuthenticationResponse? AuthenticateUser(IdentityUser user);
-    Task<bool> IsPasswordValid(IdentityUser user, string password);
+    Task<User?> GetUserById(string id);
+    Task<User?> GetUserByUserName(string userName);
+    AuthenticationResponse? AuthenticateUser(User user);
+    Task<bool> IsPasswordValid(User user, string password);
 }
