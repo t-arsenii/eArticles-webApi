@@ -20,9 +20,9 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult Get(int id)
+    public async Task<IActionResult> Get(int id)
     {
-        Article? article = _repo.Get(id);
+        Article? article = await _repo.Get(id);
         if (article == null)
         {
             return NotFound();
@@ -31,13 +31,16 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetPage([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5)
+    public async Task<IActionResult> GetPage(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5
+    )
     {
         if (pageNumber <= 0)
         {
             return NotFound();
         }
-        IEnumerable<Article>? articles = _repo.GetPage(pageNumber, pageSize);
+        IEnumerable<Article>? articles = await _repo.GetPage(pageNumber, pageSize);
         if (articles == null || !articles.Any())
         {
             return NotFound();
@@ -52,14 +55,14 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public IActionResult Create([FromBody] CreateArticleDto articleDto)
+    public async Task<IActionResult> Create([FromBody] CreateArticleDto articleDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        Article artcile = CreateArticleFromDto(articleDto);
-        var created_article = _repo.Create(artcile, articleDto.ArticleTags);
+        Article artcile = articleDto.AsArticle();
+        var created_article = await _repo.Create(artcile, articleDto.ArticleTags);
         if (created_article == null)
         {
             return BadRequest();
@@ -69,14 +72,14 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpPut]
-    public IActionResult Update([FromBody] UpdateArticleDto articleDto)
+    public async Task<IActionResult> Update([FromBody] UpdateArticleDto articleDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        Article article = CreateArticleFromDto(articleDto);
-        Article? updated_article = _repo.Update(article);
+        Article article = articleDto.AsArticle();
+        Article? updated_article = await _repo.Update(article);
         if (updated_article == null)
         {
             return NotFound();
@@ -86,26 +89,13 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        Article? article = _repo.Delete(id);
+        Article? article = await _repo.Delete(id);
         if (article == null)
         {
             return NotFound();
         }
         return Ok($"Deleted article with id {id}");
-    }
-
-    private Article CreateArticleFromDto(BaseArticleDto articleDTO)
-    {
-        ArticleType a_type = (ArticleType)Enum.Parse(typeof(ArticleType), articleDTO.Article_Type);
-        return new Article()
-        {
-            Title = articleDTO.Title,
-            Description = articleDTO.Description,
-            Content = articleDTO.Content,
-            Article_type = a_type,
-            Img_Url = articleDTO.Img_Url!
-        };
     }
 }

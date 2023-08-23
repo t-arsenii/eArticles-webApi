@@ -11,11 +11,11 @@ namespace GamingBlog.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    IUsersRepository _usersRepository;
+    IUsersRepository _repo;
 
     public UsersController(IUsersRepository usersRepository)
     {
-        _usersRepository = usersRepository;
+        _repo = usersRepository;
     }
 
     [HttpPost]
@@ -25,7 +25,7 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var result = await _usersRepository.Create(createUserDto);
+        var result = await _repo.Create(createUserDto);
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors);
@@ -36,7 +36,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(string id)
     {
-        IdentityUser? user = await _usersRepository.GetUserById(id);
+        IdentityUser? user = await _repo.GetUserById(id);
         if (user == null)
         {
             return NotFound();
@@ -47,7 +47,7 @@ public class UsersController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUserName(string username)
     {
-        IdentityUser? user = await _usersRepository.GetUserByUserName(username);
+        IdentityUser? user = await _repo.GetUserByUserName(username);
         if (user == null)
         {
             return NotFound();
@@ -63,17 +63,17 @@ public class UsersController : ControllerBase
             return BadRequest(ModelState);
 
         }
-        IdentityUser? user = await _usersRepository.GetUserByUserName(userData.UserName);
+        IdentityUser? user = await _repo.GetUserByUserName(userData.UserName);
         if (user == null)
         {
             return NotFound("Bad credentials");
         }
-        var isPasswordValid = await _usersRepository.IsPasswordValid(user, userData.Password);
+        var isPasswordValid = await _repo.IsPasswordValid(user, userData.Password);
         if(!isPasswordValid)
         {
             return NotFound("Bad credentials");
         }
-        var authenticationResponse = _usersRepository.AuthenticateUser(user);
+        var authenticationResponse = _repo.AuthenticateUser(user);
         return Ok(authenticationResponse);
     }
 }
