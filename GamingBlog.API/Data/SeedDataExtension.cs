@@ -1,17 +1,30 @@
 using GamingBlog.API.Models;
 using Microsoft.EntityFrameworkCore;
 using GamingBlog.API.Data.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace GamingBlog.API.Data;
 
 public static class SeedDataExtension
 {
-    public static void SeedInitialData(this WebApplication app)
+    public static async void SeedInitialData(this WebApplication app)
     {
-        GamingBlogDbContext? DbContext = app.Services.CreateScope().ServiceProvider.GetService<GamingBlogDbContext>();
+        GamingBlogDbContext? DbContext = app.Services
+            .CreateScope()
+            .ServiceProvider.GetService<GamingBlogDbContext>();
+        UserManager<User>? userManager = app.Services
+            .CreateScope()
+            .ServiceProvider.GetService<UserManager<User>>();
         DbContext!.Database.Migrate();
         if (!DbContext.Articles.Any() && !DbContext.ArticleTags.Any() && !DbContext.Tags.Any()!)
         {
+            User[] users = new User[]
+            {
+                new User() { UserName = "user1", Email = "newuser1@example.com" },
+                new User() { UserName = "user2", Email = "newuser2@example.com" },
+                new User() { UserName = "user3", Email = "newuser3@example.com" }
+            };
+
             Article[] articles = new Article[]
             {
                 new()
@@ -54,6 +67,12 @@ public static class SeedDataExtension
                 new ArticleTag() { Article = articles[0], Tag = tags[1], },
                 new ArticleTag() { Article = articles[0], Tag = tags[2], }
             };
+            users[0].Articles.Add(articles[0]);
+            users[0].Articles.Add(articles[1]);
+            users[1].Articles.Add(articles[2]);
+            await userManager!.CreateAsync(users[0], "1234567890");
+            await userManager!.CreateAsync(users[1], "1234567890");
+            await userManager!.CreateAsync(users[2], "1234567890");
             DbContext.Articles.AddRange(articles);
             DbContext.Tags.AddRange(tags);
             DbContext.ArticleTags.AddRange(articleTags);
