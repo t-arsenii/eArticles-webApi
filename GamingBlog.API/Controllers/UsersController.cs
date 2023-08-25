@@ -1,4 +1,5 @@
 using GamingBlog.API.Data.Dtos;
+using GamingBlog.API.Models;
 using GamingBlog.API.Services;
 using GamingBlog.API.Services.Repositories;
 using Microsoft.AspNetCore.Components;
@@ -25,7 +26,7 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var result = await _repo.Create(createUserDto);
+        IdentityResult result = await _repo.Create(createUserDto);
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors);
@@ -33,10 +34,10 @@ public class UsersController : ControllerBase
         return Ok(createUserDto);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(string id)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
     {
-        IdentityUser? user = await _repo.GetUserById(id);
+        User? user = await _repo.GetUserById(id);
         if (user == null)
         {
             return NotFound();
@@ -47,7 +48,7 @@ public class UsersController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUserName(string username)
     {
-        IdentityUser? user = await _repo.GetUserByUserName(username);
+        User? user = await _repo.GetUserByUserName(username);
         if (user == null)
         {
             return NotFound();
@@ -56,20 +57,19 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("Login")]
-    public async Task<IActionResult> Login([FromBody]AuthenticationRequest userData)
+    public async Task<IActionResult> Login([FromBody] AuthenticationRequest userData)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
-
         }
-        IdentityUser? user = await _repo.GetUserByUserName(userData.UserName);
+        User? user = await _repo.GetUserByUserName(userData.UserName);
         if (user == null)
         {
             return NotFound("Bad credentials");
         }
         var isPasswordValid = await _repo.IsPasswordValid(user, userData.Password);
-        if(!isPasswordValid)
+        if (!isPasswordValid)
         {
             return NotFound("Bad credentials");
         }

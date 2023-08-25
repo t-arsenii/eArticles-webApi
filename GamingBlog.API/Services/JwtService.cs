@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using GamingBlog.API.Data.Dtos;
+using GamingBlog.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +21,7 @@ public class JwtService
         _configuration = configuration;
     }
 
-    public AuthenticationResponse CreateToken(IdentityUser user)
+    public AuthenticationResponse CreateToken(User user)
     {
         var expiration = DateTime.UtcNow.AddMinutes(EXPIRATION_MINUTES);
 
@@ -44,13 +45,13 @@ public class JwtService
             signingCredentials: credentials
         );
 
-    private Claim[] CreateClaims(IdentityUser user) =>
+    private Claim[] CreateClaims(User user) =>
         new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]!),
+            // new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName!),
             new Claim(ClaimTypes.Email, user.Email!)
         };
