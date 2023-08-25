@@ -7,25 +7,26 @@ using GamingBlog.API.Extensions;
 using GamingBlog.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace GamingBlog.API.Controllers;
 
 [Route("api/[controller]")]
 public class ArticlesController : ControllerBase
 {
-    IArticlesRepository _repo;
-    private UserManager<User> _userManager;
+    readonly IArticlesRepository _articleRepo;
+    readonly IUsersRepository _usersRepo;
 
-    public ArticlesController(IArticlesRepository repository, UserManager<User> userManager)
+    public ArticlesController(IArticlesRepository repository, IUsersRepository usersRepo)
     {
-        _repo = repository;
-        _userManager = userManager;
+        _articleRepo = repository;
+        _usersRepo = usersRepo;
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        Article? article = await _repo.Get(id);
+        Article? article = await _articleRepo.Get(id);
         if (article == null)
         {
             return NotFound();
@@ -43,7 +44,7 @@ public class ArticlesController : ControllerBase
         {
             return NotFound();
         }
-        IEnumerable<Article>? articles = await _repo.GetPage(pageNumber, pageSize);
+        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize);
         if (articles == null || !articles.Any())
         {
             return NotFound();
@@ -64,14 +65,15 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var user = await _userManager.GetUserAsync(User);
+        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!);
+        var user = await _usersRepo.GetUserById(userId);
         if (user == null)
         {
             return BadRequest();
         }
         Article artcile = articleDto.AsArticle();
         artcile.User = user;
-        var created_article = await _repo.Create(artcile, articleDto.ArticleTags);
+        var created_article = await _articleRepo.Create(artcile, articleDto.ArticleTags);
         if (created_article == null)
         {
             return BadRequest();
@@ -88,7 +90,7 @@ public class ArticlesController : ControllerBase
             return BadRequest(ModelState);
         }
         Article article = articleDto.AsArticle();
-        Article? updated_article = await _repo.Update(article);
+        Article? updated_article = await _articleRepo.Update(article);
         if (updated_article == null)
         {
             return NotFound();
@@ -100,7 +102,7 @@ public class ArticlesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        Article? article = await _repo.Delete(id);
+        Article? article = await _articleRepo.Delete(id);
         if (article == null)
         {
             return NotFound();

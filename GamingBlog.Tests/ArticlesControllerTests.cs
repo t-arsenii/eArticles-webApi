@@ -7,22 +7,29 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json;
 using GamingBlog.API.Extensions;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace GamingBlog.Tests;
 
 public class ArticlesControllerTests
 {
     [Fact]
-    public void GetArticleTest()
+    public async void GetArticleTest()
     {
         //Arrange
-        Mock<IArticlesRepository> mockRepository = new();
+        Mock<IArticlesRepository> mockArticleRepo = new();
+        Mock<IUsersRepository> mockUserRepo = new();
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
         Article expectedArticle = articles.First(ar => ar.Id == 1);
-        mockRepository.Setup(x => x.Get(1)).Returns(expectedArticle);
-        ArticlesController articlesController = new ArticlesController(mockRepository.Object);
+        mockArticleRepo.Setup(x => x.Get(1)).ReturnsAsync(expectedArticle);
+        ArticlesController articlesController = new ArticlesController(
+            mockArticleRepo.Object,
+            mockUserRepo.Object
+        );
         //Act
-        var result = articlesController.Get(1) as ObjectResult;
+        var result = await articlesController.Get(1) as ObjectResult;
         //Assert
         Assert.NotNull(result); // Ensure that the result is not null
         Assert.Equal(200, result.StatusCode); // Check for HTTP status code OK
@@ -38,10 +45,11 @@ public class ArticlesControllerTests
     }
 
     [Fact]
-    public void GetPageTest()
+    public async void GetPageTest()
     {
         //Arange
         Mock<IArticlesRepository> mockRepository = new();
+        Mock<IUsersRepository> mockUserManager = new();
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
         const int pageNumber = 2;
         const int pageSize = 3;
@@ -50,10 +58,13 @@ public class ArticlesControllerTests
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-        mockRepository.Setup(x => x.GetPage(pageNumber, pageSize)).Returns(expectedArticles);
+        mockRepository.Setup(x => x.GetPage(pageNumber, pageSize)).ReturnsAsync(expectedArticles);
         //Act
-        ArticlesController articlesController = new ArticlesController(mockRepository.Object);
-        var actionResult = articlesController.GetPage(pageNumber, pageSize);
+        ArticlesController articlesController = new ArticlesController(
+            mockRepository.Object,
+            mockUserManager.Object
+        );
+        var actionResult = await articlesController.GetPage(pageNumber, pageSize);
 
         //Assert
         var okObjectResult = actionResult as OkObjectResult;
@@ -69,10 +80,13 @@ public class ArticlesControllerTests
     }
 
     [Fact]
-    public void CreateArticleTest()
+    public async void CreateArticleTest()
     {
         Mock<IArticlesRepository> mockRepository = new();
-
+        Mock<IUsersRepository> mockUserManager = new();
+        mockUserManager
+            .Setup(x => x.GetUserById(It.IsAny<int>()))
+            .ReturnsAsync(new User() { UserName = "qwe", Email = "asd" });
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
 
         var expectedCreatedArticle = articles.First();
@@ -89,12 +103,21 @@ public class ArticlesControllerTests
 
         mockRepository
             .Setup(repo => repo.Create(It.IsAny<Article>(), It.IsAny<List<string>>()))
-            .Returns(expectedCreatedArticle);
+            .ReturnsAsync(expectedCreatedArticle);
 
-        var controller = new ArticlesController(mockRepository.Object);
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "123") };
+        var identity = new ClaimsIdentity(claims);
+        var principal = new ClaimsPrincipal(identity);
+
+        var controller = new ArticlesController(mockRepository.Object, mockUserManager.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
 
         //Act
-        var result = controller.Create(createArticleDto);
+        var result = await controller.Create(createArticleDto);
 
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -109,16 +132,17 @@ public class ArticlesControllerTests
     }
 
     [Fact]
-    public void Create_InvalidArticleDto_ReturnsBadRequest()
+    public async void Create_InvalidArticleDto_ReturnsBadRequest()
     {
         //Arrange
         Mock<IArticlesRepository> mockRepository = new();
-        ArticlesController controller = new(mockRepository.Object);
+        Mock<IUsersRepository> mockUserManager = new();
+        ArticlesController controller = new(mockRepository.Object, mockUserManager.Object);
         controller.ModelState.AddModelError("Title", "Title is required");
         var invalidArticleDto = new CreateArticleDto("", "", "", "");
 
         //Act
-        var result = controller.Create(invalidArticleDto);
+        var result = await controller.Create(invalidArticleDto);
 
         //Assert
 
@@ -131,10 +155,10 @@ public class ArticlesControllerTests
     }
 
     [Fact]
-    public void UpdateArticleTest()
+    public async void UpdateArticleTest()
     {
         Mock<IArticlesRepository> mockRepository = new();
-
+        Mock<IUsersRepository> mockUserManager = new();
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
 
         var expectedCreatedArticle = articles.First();
@@ -151,12 +175,12 @@ public class ArticlesControllerTests
 
         mockRepository
             .Setup(repo => repo.Update(It.IsAny<Article>(), It.IsAny<List<string>>()))
-            .Returns(expectedCreatedArticle);
+            .ReturnsAsync(expectedCreatedArticle);
 
-        var controller = new ArticlesController(mockRepository.Object);
+        var controller = new ArticlesController(mockRepository.Object, mockUserManager.Object);
 
         //Act
-        var result = controller.Update(updateArticleDto);
+        var result = await controller.Update(updateArticleDto);
 
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -171,16 +195,20 @@ public class ArticlesControllerTests
     }
 
     [Fact]
-    public void DeleteArticleTest()
+    public async void DeleteArticleTest()
     {
         //Arrange
         Mock<IArticlesRepository> mockRepository = new();
+        Mock<IUsersRepository> mockUserManager = new();
+
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
         var expectedDeletedArticle = articles.First();
-        mockRepository.Setup(repo => repo.Delete(It.IsAny<int>())).Returns(expectedDeletedArticle);
-        ArticlesController controller = new(mockRepository.Object);
+        mockRepository
+            .Setup(repo => repo.Delete(It.IsAny<int>()))
+            .ReturnsAsync(expectedDeletedArticle);
+        ArticlesController controller = new(mockRepository.Object, mockUserManager.Object);
         //Act
-        var result = controller.Delete(expectedDeletedArticle.Id);
+        var result = await controller.Delete(expectedDeletedArticle.Id);
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         int deletedArticleId = int.Parse(Assert.IsType<string>(okResult.Value).Split(' ').Last());
