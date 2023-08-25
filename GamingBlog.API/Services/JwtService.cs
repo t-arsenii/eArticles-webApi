@@ -48,7 +48,7 @@ public class JwtService
     private Claim[] CreateClaims(User user) =>
         new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]!),
+            // new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

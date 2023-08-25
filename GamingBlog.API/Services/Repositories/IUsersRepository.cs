@@ -7,7 +7,7 @@ namespace GamingBlog.API.Services.Repositories;
 public interface IUsersRepository
 {
     Task<IdentityResult> Create(CreateUserDto userDto);
-    Task<User?> GetUserById(string id);
+    Task<User?> GetUserById(int id);
     Task<User?> GetUserByUserName(string userName);
     AuthenticationResponse? AuthenticateUser(User user);
     Task<bool> IsPasswordValid(User user, string password);

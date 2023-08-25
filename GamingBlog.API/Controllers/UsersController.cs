@@ -34,8 +34,8 @@ public class UsersController : ControllerBase
         return Ok(createUserDto);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(string id)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
     {
         User? user = await _repo.GetUserById(id);
         if (user == null)
@@ -57,12 +57,11 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("Login")]
-    public async Task<IActionResult> Login([FromBody]AuthenticationRequest userData)
+    public async Task<IActionResult> Login([FromBody] AuthenticationRequest userData)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
-
         }
         User? user = await _repo.GetUserByUserName(userData.UserName);
         if (user == null)
@@ -70,7 +69,7 @@ public class UsersController : ControllerBase
             return NotFound("Bad credentials");
         }
         var isPasswordValid = await _repo.IsPasswordValid(user, userData.Password);
-        if(!isPasswordValid)
+        if (!isPasswordValid)
         {
             return NotFound("Bad credentials");
         }

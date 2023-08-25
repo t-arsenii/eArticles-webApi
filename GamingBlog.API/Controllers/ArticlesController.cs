@@ -6,6 +6,7 @@ using GamingBlog.API.Data.Enums;
 using GamingBlog.API.Extensions;
 using GamingBlog.API.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace GamingBlog.API.Controllers;
 
@@ -13,10 +14,12 @@ namespace GamingBlog.API.Controllers;
 public class ArticlesController : ControllerBase
 {
     IArticlesRepository _repo;
+    private UserManager<User> _userManager;
 
-    public ArticlesController(IArticlesRepository repository)
+    public ArticlesController(IArticlesRepository repository, UserManager<User> userManager)
     {
         _repo = repository;
+        _userManager = userManager;
     }
 
     [HttpGet("{id}")]
@@ -61,7 +64,13 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return BadRequest();
+        }
         Article artcile = articleDto.AsArticle();
+        artcile.User = user;
         var created_article = await _repo.Create(artcile, articleDto.ArticleTags);
         if (created_article == null)
         {

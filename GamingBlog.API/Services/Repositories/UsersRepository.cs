@@ -28,9 +28,9 @@ public class UsersRepository : IUsersRepository
         );
     }
 
-    public async Task<User?> GetUserById(string id)
+    public async Task<User?> GetUserById(int id)
     {
-        return await _userManager.FindByIdAsync(id);
+        return await _userManager.FindByIdAsync(id.ToString());
     }
 
     public async Task<User?> GetUserByUserName(string userName)
