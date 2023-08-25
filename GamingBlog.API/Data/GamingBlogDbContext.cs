@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace GamingBlog.API.Data;
 
-public class GamingBlogDbContext : IdentityUserContext<User>
+public class GamingBlogDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
@@ -26,11 +26,11 @@ public class GamingBlogDbContext : IdentityUserContext<User>
             .WithMany(e => e.Articles)
             .UsingEntity<ArticleTag>();
 
-        modelBuilder
-            .Entity<User>()
-            .HasMany(user => user.Articles)
-            .WithOne(article => article.User)
-            .HasForeignKey(article => article.UserId);
+        // modelBuilder
+        //     .Entity<User>()
+        //     .HasMany(user => user.Articles)
+        //     .WithOne(article => article.User)
+        //     .HasForeignKey(article => article.UserId);
 
         // modelBuilder.Entity<ArticleTag>()
         // .HasKey(at => new { at.ArticleId, at.TagId});

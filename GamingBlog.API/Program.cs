@@ -69,6 +69,6 @@ bool cmdLineInit = (app.Configuration["INITDB"] ?? "false") == "true";
 if (app.Environment.IsDevelopment() && cmdLineInit)
 {
     Console.WriteLine("Seeding DB");
-    app.SeedInitialData();
+    await app.SeedInitialData();
 }
 app.Run();

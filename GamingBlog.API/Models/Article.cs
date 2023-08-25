@@ -1,6 +1,7 @@
 namespace GamingBlog.API.Models;
 
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Data.Enums;
 
 public class Article
@@ -20,6 +21,6 @@ public class Article
     }
     public List<ArticleTag> ArticleTags { get; } = new();
     public List<Tag> Tags { get; } = new();
-    public Guid UserId { get; set; }
-    public User User { get; set; } = new();
+    public int? UserId { get; set; }
+    public User User { get; set; } = null!;
 }
