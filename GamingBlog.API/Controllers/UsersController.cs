@@ -42,7 +42,15 @@ public class UsersController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(new UserDto(user.UserName!, user.Email!));
+        return Ok(
+            new UserDto(
+                user.FirstName!,
+                user.LastName!,
+                user.UserName!,
+                user.Email!,
+                user.PhoneNumber!
+            )
+        );
     }
 
     [HttpGet("{username}")]
@@ -53,7 +61,15 @@ public class UsersController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(new UserDto(user.UserName!, user.Email!));
+        return Ok(
+            new UserDto(
+                user.FirstName!,
+                user.LastName!,
+                user.UserName!,
+                user.Email!,
+                user.PhoneNumber!
+            )
+        );
     }
 
     [HttpPost("Login")]

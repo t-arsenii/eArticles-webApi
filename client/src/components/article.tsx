@@ -3,10 +3,12 @@ import { IArticle } from "../models/articles"
 interface ArticleProps {
     article: IArticle
 }
-function article({article} : ArticleProps) {
+export function Article({ article }: ArticleProps) {
     return (
-        <div>article</div>
+        <div>
+            {article.id}
+            {article.title}
+            {article.content}
+        </div>
     )
 }
-
-export default article

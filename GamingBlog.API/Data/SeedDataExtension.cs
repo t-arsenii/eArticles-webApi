@@ -20,9 +20,9 @@ public static class SeedDataExtension
         {
             User[] users = new User[]
             {
-                new User() { UserName = "user1", Email = "newuser1@example.com" },
-                new User() { UserName = "user2", Email = "newuser2@example.com" },
-                new User() { UserName = "user3", Email = "newuser3@example.com" }
+                new User() { UserName = "user1", Email = "newuser1@example.com", FirstName = "Jan", LastName="Kowalski",PhoneNumber="48123123123" },
+                new User() { UserName = "user2", Email = "newuser2@example.com", FirstName = "Valerii", LastName="Havryliuk", PhoneNumber="48321321312" },
+                new User() { UserName = "user3", Email = "newuser3@example.com", FirstName = "Arkadiy", LastName="Perekrest", PhoneNumber="48999999999"  }
             };
             foreach (var user in users)
             {

@@ -17,7 +17,7 @@ public record ArticleDto(
     string Description,
     string Content,
     string ArticleType,
-    string Published_Date,
+    string PublishedDate,
     string ImgUrl,
     List<string>? ArticleTags
 ) : BaseArticleDto(Title, Description, Content, ArticleType, ImgUrl, ArticleTags);

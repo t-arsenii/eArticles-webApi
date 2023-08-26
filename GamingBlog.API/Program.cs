@@ -38,7 +38,17 @@ builder.Services
     .AddEntityFrameworkStores<GamingBlogDbContext>();
 
 builder.Services.AddScoped<JwtService>();
-
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
 var Configuration = builder.Configuration;
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -62,6 +72,7 @@ builder.Services
     );
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 var app = builder.Build();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

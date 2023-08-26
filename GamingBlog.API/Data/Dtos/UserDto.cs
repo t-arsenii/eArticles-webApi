@@ -2,9 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GamingBlog.API.Data.Dtos;
 
-public record UserDto(string UserName, string Email);
+public record UserDto(
+    string FirstName,
+    string LastName,
+    string UserName,
+    string Email,
+    string PhoneNumber
+);
 
 public record CreateUserDto(
+    [Required] string FristName,
+    [Required] string LastName,
+    [Required] [Phone] string PhoneNumber,
     [Required] string UserName,
     [Required] [EmailAddress(ErrorMessage = "Email not valid")] string Email,
     [Required]
