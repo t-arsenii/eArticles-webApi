@@ -40,8 +40,8 @@ public class ArticlesControllerTests
         Assert.Equal(expectedArticle.Title, resArticleDTO?.Title);
         Assert.Equal(expectedArticle.Description, resArticleDTO?.Description);
         Assert.Equal(expectedArticle.Content, resArticleDTO?.Content);
-        Assert.Equal(expectedArticle.Article_type.ToString(), resArticleDTO?.Article_Type);
-        Assert.Equal(expectedArticle.Published_Date.ToString(), resArticleDTO?.Published_Date);
+        Assert.Equal(expectedArticle.Article_type.ToString(), resArticleDTO?.ArticleType);
+        Assert.Equal(expectedArticle.Published_Date.ToString(), resArticleDTO?.PublishedDate);
     }
 
     [Fact]
