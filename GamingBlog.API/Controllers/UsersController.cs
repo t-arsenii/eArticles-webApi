@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using GamingBlog.API.Data.Dtos;
 using GamingBlog.API.Models;
 using GamingBlog.API.Services;
 using GamingBlog.API.Services.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,21 +14,21 @@ namespace GamingBlog.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    IUsersRepository _repo;
+    IUsersRepository _usersRepo;
 
     public UsersController(IUsersRepository usersRepository)
     {
-        _repo = usersRepository;
+        _usersRepo = usersRepository;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateUserDto createUserDto)
+    public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        IdentityResult result = await _repo.Create(createUserDto);
+        IdentityResult result = await _usersRepo.Create(createUserDto);
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors);
@@ -34,26 +36,65 @@ public class UsersController : ControllerBase
         return Ok(createUserDto);
     }
 
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetById()
+    {
+        var userId = int.Parse(
+            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
+        );
+        var user = await _usersRepo.GetUserById(userId);
+        if (user == null)
+        {
+            return BadRequest();
+        }
+        return Ok(
+            new UserDto(
+                user.FirstName!,
+                user.LastName!,
+                user.UserName!,
+                user.Email!,
+                user.PhoneNumber!
+            )
+        );
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        User? user = await _repo.GetUserById(id);
+        User? user = await _usersRepo.GetUserById(id);
         if (user == null)
         {
             return NotFound();
         }
-        return Ok(new UserDto(user.UserName!, user.Email!));
+        return Ok(
+            new UserDto(
+                user.FirstName!,
+                user.LastName!,
+                user.UserName!,
+                user.Email!,
+                user.PhoneNumber!
+            )
+        );
     }
 
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUserName(string username)
     {
-        User? user = await _repo.GetUserByUserName(username);
+        User? user = await _usersRepo.GetUserByUserName(username);
         if (user == null)
         {
             return NotFound();
         }
-        return Ok(new UserDto(user.UserName!, user.Email!));
+        return Ok(
+            new UserDto(
+                user.FirstName!,
+                user.LastName!,
+                user.UserName!,
+                user.Email!,
+                user.PhoneNumber!
+            )
+        );
     }
 
     [HttpPost("Login")]
@@ -63,17 +104,17 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        User? user = await _repo.GetUserByUserName(userData.UserName);
+        User? user = await _usersRepo.GetUserByUserName(userData.UserName);
         if (user == null)
         {
             return NotFound("Bad credentials");
         }
-        var isPasswordValid = await _repo.IsPasswordValid(user, userData.Password);
+        var isPasswordValid = await _usersRepo.IsPasswordValid(user, userData.Password);
         if (!isPasswordValid)
         {
             return NotFound("Bad credentials");
         }
-        var authenticationResponse = _repo.AuthenticateUser(user);
+        var authenticationResponse = _usersRepo.AuthenticateUser(user);
         return Ok(authenticationResponse);
     }
 }

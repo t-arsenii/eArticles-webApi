@@ -8,14 +8,14 @@ public static class ArticleDtoExtensions
 {
     public static Article AsArticle(this BaseArticleDto articleDTO)
     {
-        ArticleType a_type = (ArticleType)Enum.Parse(typeof(ArticleType), articleDTO.Article_Type);
+        ArticleType a_type = (ArticleType)Enum.Parse(typeof(ArticleType), articleDTO.ArticleType);
         return new Article()
         {
             Title = articleDTO.Title,
             Description = articleDTO.Description,
             Content = articleDTO.Content,
             Article_type = a_type,
-            Img_Url = articleDTO.Img_Url!
+            Img_Url = articleDTO.ImgUrl!
         };
     }
     

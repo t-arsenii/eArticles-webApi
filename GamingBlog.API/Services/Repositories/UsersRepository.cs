@@ -23,7 +23,14 @@ public class UsersRepository : IUsersRepository
     public async Task<IdentityResult> Create(CreateUserDto userData)
     {
         return await _userManager.CreateAsync(
-            new User() { UserName = userData.UserName, Email = userData.Email },
+            new User()
+            {
+                UserName = userData.UserName,
+                Email = userData.Email,
+                FirstName = userData.FirstName,
+                LastName = userData.LastName,
+                PhoneNumber = userData.PhoneNumber
+            },
             userData.Password
         );
     }

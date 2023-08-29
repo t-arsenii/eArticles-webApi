@@ -6,8 +6,8 @@ public abstract record BaseArticleDto(
     string Title,
     string Description,
     string Content,
-    string Article_Type,
-    string? Img_Url,
+    string ArticleType,
+    string? ImgUrl,
     List<string>? ArticleTags
 );
 
@@ -16,11 +16,11 @@ public record ArticleDto(
     string Title,
     string Description,
     string Content,
-    string Article_Type,
-    string Published_Date,
-    string Img_Url,
+    string ArticleType,
+    string PublishedDate,
+    string ImgUrl,
     List<string>? ArticleTags
-) : BaseArticleDto(Title, Description, Content, Article_Type, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ArticleType, ImgUrl, ArticleTags);
 
 public record CreateArticleDto(
     [Required]
