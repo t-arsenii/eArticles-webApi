@@ -8,6 +8,7 @@ import { Home } from './components/home'
 import { Navbar } from './components/navbar'
 import { RegForm } from './components/regForm'
 import { Container, CssBaseline } from '@mui/material';
+import { Login } from './components/login'
 function App() {
   const defaultTheme = createTheme();
   const [article, setArticle] = useState<IArticle>()
@@ -29,10 +30,11 @@ function App() {
         <CssBaseline />
         <Navbar />
         <Container component="main" maxWidth="xs">
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/signup' element={<RegForm />} />
-        </Routes>
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/signup' element={<RegForm />} />
+            <Route path='/login' element={<Login />} />
+          </Routes>
         </Container>
       </ThemeProvider>
     </>

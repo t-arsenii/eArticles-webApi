@@ -1,11 +1,19 @@
 import * as React from 'react';
-import { createTheme, ThemeProvider, Container, Typography, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link } from '@mui/material';
+import { createTheme, ThemeProvider, Container, Typography, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useState } from 'react';
-import { IUser } from "../models/user"
+import { IUserAuthReq, IUserAuthRes, IUserInfo, IUserRegReq, IUserRegRes } from "../models/user"
 import { useForm } from "react-hook-form"
+import PhoneInput from 'react-phone-number-input';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { updateToken, updateUser } from '../redux/userStore'
+import { Link, useNavigate } from 'react-router-dom'
+
 export function RegForm() {
-    const form = useForm<IUser>({
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const form = useForm<IUserInfo>({
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -17,14 +25,41 @@ export function RegForm() {
     })
     const { register, handleSubmit, formState } = form
     const { errors } = formState
-    const OnSubmit = (data: IUser) => {
-        console.log(data)
+    const OnSubmit = async (data: IUserRegReq) => {
+        try {
+            const resReg = await axios.post<IUserRegRes>("http://localhost:5000/api/users", data);
+            const resRegData = resReg.data
+            const userInfo: IUserInfo = { ...resRegData }
+            dispatch(updateUser(userInfo))
+
+            const authData: IUserAuthReq = {
+                userName: resRegData.userName,
+                password: resRegData.password
+            }
+
+            const resAuth = await axios.post<IUserAuthRes>("http://localhost:5000/api/users/login", authData);
+            const resAuthData = resAuth.data
+            localStorage.setItem('token', resAuthData.token);
+            dispatch(updateToken(resAuthData.token))
+            
+            return navigate('/')
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    console.error("Error status:", error.response.status);
+                    console.error("Error response data:", error.response.data);
+                } else {
+                    console.error("Error message:", error.message);
+                }
+            } else {
+                console.error("Error:", error);
+            }
+        }
     }
 
     return (
         <Box
             sx={{
-                marginTop: 8,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -76,8 +111,8 @@ export function RegForm() {
                             {...register("userName", {
                                 required: "user name is required"
                             })}
-                            error={!!errors.email}
-                            helperText={errors.email?.message}
+                            error={!!errors.userName}
+                            helperText={errors.userName?.message}
 
                         />
                     </Grid>
@@ -143,7 +178,7 @@ export function RegForm() {
                 </Button>
                 <Grid container justifyContent="flex-end">
                     <Grid item>
-                        <Link href="#" variant="body2">
+                        <Link to="/login" >
                             Already have an account? Sign in
                         </Link>
                     </Grid>

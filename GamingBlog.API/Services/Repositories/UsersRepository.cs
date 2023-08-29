@@ -27,7 +27,7 @@ public class UsersRepository : IUsersRepository
             {
                 UserName = userData.UserName,
                 Email = userData.Email,
-                FirstName = userData.FristName,
+                FirstName = userData.FirstName,
                 LastName = userData.LastName,
                 PhoneNumber = userData.PhoneNumber
             },

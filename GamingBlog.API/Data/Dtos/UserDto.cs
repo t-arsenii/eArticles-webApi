@@ -11,7 +11,7 @@ public record UserDto(
 );
 
 public record CreateUserDto(
-    [Required] string FristName,
+    [Required] string FirstName,
     [Required] string LastName,
     [Required] [Phone] string PhoneNumber,
     [Required] string UserName,
