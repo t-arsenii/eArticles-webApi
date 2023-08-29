@@ -9,19 +9,30 @@ import { Navbar } from './components/navbar'
 import { RegForm } from './components/regForm'
 import { Container, CssBaseline } from '@mui/material';
 import { Login } from './components/login'
+import { useDispatch } from 'react-redux';
+import { updateToken, updateUser } from './redux/userStore';
+import { IUserInfo } from './models/user';
 function App() {
-  const defaultTheme = createTheme();
+  const defaultTheme = createTheme()
+  const dispatch = useDispatch()
   const [article, setArticle] = useState<IArticle>()
   useEffect(() => {
-    const fetchArticle = async () => {
-      try {
-        const response = await axios.get<IArticle>('http://localhost:5000/api/Articles/1')
-        setArticle(response.data)
-      } catch (error) {
-        console.error("Error fetching article:", error);
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        dispatch(updateToken(token))
+        const userInfoRes = await axios.get<IUserInfo>("http://localhost:5000/api/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        dispatch(updateUser(userInfoRes.data))
       }
+
     }
-    fetchArticle()
+    fetchUserInfo()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -29,7 +40,7 @@ function App() {
       <ThemeProvider theme={defaultTheme}>
         <CssBaseline />
         <Navbar />
-        <Container component="main" maxWidth="xs">
+        <Container component="main">
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/signup' element={<RegForm />} />

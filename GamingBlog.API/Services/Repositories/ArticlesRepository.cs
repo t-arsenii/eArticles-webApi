@@ -88,6 +88,12 @@ public class ArticlesRepository : IArticlesRepository
             .ToListAsync();
     }
 
+    public async Task<int> GetTotalItems()
+    {
+        return await _dbContext.Articles.CountAsync();
+
+    }
+
     public async Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null)
     {
         Article? article = await Get(updateArticle.Id);

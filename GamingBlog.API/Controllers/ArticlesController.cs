@@ -45,6 +45,7 @@ public class ArticlesController : ControllerBase
             return NotFound();
         }
         IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize);
+        int totalArticles = await _articleRepo.GetTotalItems();
         if (articles == null || !articles.Any())
         {
             return NotFound();
@@ -54,7 +55,7 @@ public class ArticlesController : ControllerBase
         {
             articleDTOs.Add(article.AsDto());
         }
-        return Ok(articleDTOs);
+        return Ok(new {items = articleDTOs, totalCount = totalArticles});
     }
 
     [Authorize]

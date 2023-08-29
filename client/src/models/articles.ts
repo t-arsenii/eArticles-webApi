@@ -6,5 +6,5 @@ export interface IArticle {
     content: string
     articleType: string
     imgUrl: string
-    articleTags: [string]
+    articleTags: string[] | null
 }
