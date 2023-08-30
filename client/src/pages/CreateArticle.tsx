@@ -18,7 +18,7 @@ export default function CreateArticle() {
             >
                 <Box component="form" noValidate sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
                             <TextField
                                 autoComplete="given-title"
                                 required
@@ -33,14 +33,26 @@ export default function CreateArticle() {
                             // helperText={errors.firstName?.message}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <InputLabel id="demo-simple-select-standard-label">Article type</InputLabel>
+                        <Grid item xs={4}>
+                            <TextField
+                                required
+                                fullWidth
+                                id="ImgUrl"
+                                label="Img Url"
+                                autoComplete="ImgUrl"
+                            // {...register("email", {
+                            //     required: "Email Address is required"
+                            // })}
+                            // error={!!errors.email}
+                            // helperText={errors.email?.message}
+
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={2}>
                             <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                label="Age"
+                                id="ArticlType"
                                 value={articleType}
-                                onChange={(event: SelectChangeEvent)=>setArticleType(event.target.value)}
+                                onChange={(event: SelectChangeEvent) => setArticleType(event.target.value)}
                             >
                                 <MenuItem value="Review">Review</MenuItem>
                                 <MenuItem value="Guide">Guide</MenuItem>
@@ -50,6 +62,7 @@ export default function CreateArticle() {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
+                                multiline
                                 required
                                 fullWidth
                                 id="Description"
@@ -66,53 +79,19 @@ export default function CreateArticle() {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
+                                multiline
                                 required
                                 fullWidth
-                                id="email"
-                                label="Email Address"
-                                autoComplete="email"
+                                id="Content"
+                                label="Content"
+                                autoComplete="content"
+                                rows={20}
                             // {...register("email", {
                             //     required: "Email Address is required"
                             // })}
                             // error={!!errors.email}
                             // helperText={errors.email?.message}
 
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                label="Phone number"
-                                type="text"
-                                id="phoneNumber"
-                                autoComplete="phone-number"
-                            // {...register("phoneNumber", {
-                            //     required: "phone number is required"
-                            // })}
-                            // error={!!errors.phoneNumber}
-                            // helperText={errors.phoneNumber?.message}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="new-password"
-                            // {...register("password", {
-                            //     required: "password is required"
-                            // })}
-                            // error={!!errors.password}
-                            // helperText={errors.password?.message}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormControlLabel
-                                control={<Checkbox value="allowExtraEmails" color="primary" />}
-                                label="I want to receive inspiration, marketing promotions and updates via email."
                             />
                         </Grid>
                     </Grid>
@@ -122,15 +101,8 @@ export default function CreateArticle() {
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
                     >
-                        Sign Up
+                        Publish
                     </Button>
-                    <Grid container justifyContent="flex-end">
-                        <Grid item>
-                            <Link to="/login" >
-                                Already have an account? Sign in
-                            </Link>
-                        </Grid>
-                    </Grid>
                 </Box>
             </Box>
         </>
