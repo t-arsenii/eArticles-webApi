@@ -11,8 +11,7 @@ export function Article({ article }: ArticleProps) {
             <CardMedia
                 component="img"
                 alt={title}
-                height="100px"
-                width="100px"
+                height="200px"
                 image={imgUrl}
             />
             <CardContent>

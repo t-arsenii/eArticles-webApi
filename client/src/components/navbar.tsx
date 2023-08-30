@@ -5,7 +5,7 @@ import { styled } from '@mui/system'; // Import styled from @mui/system
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-
+import ArticleIcon from '@mui/icons-material/Article';
 export function Navbar() {
     const token = useSelector((state: RootState) => state.user.token);
     const userInfo = useSelector((state: RootState) => state.user.userInfo)
@@ -27,8 +27,9 @@ export function Navbar() {
                 </Typography>
                 <Stack direction='row' spacing={2} marginRight={5}>
                     <StyledLink to='/'><Typography>Home</Typography></StyledLink>
-                    <StyledLink to='/about'><Typography>About</Typography></StyledLink>
-                    <StyledLink to='/faq'><Typography>FAQ</Typography></StyledLink>
+                    {token &&
+                        <StyledLink to='/article/create'><Typography>Make article</Typography></StyledLink>
+                    }
                 </Stack>
                 {token ?
                     <Link to={`/profile/${userInfo.userName}`} style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>
