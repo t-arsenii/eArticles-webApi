@@ -67,19 +67,26 @@ public class ArticlesRepository : IArticlesRepository
             return null;
         }
         return tags;
-
-        // if (article != null && article.Tags != null && article.Tags.Count() != 0)
-        // {
-        //     foreach (var tag in article.Tags)
-        //     {
-        //         yield return tag.Title;
-        //     }
-        // }
     }
 
-    public async Task<IEnumerable<Article>?> GetPage(int currentPage = 1, int pageSize = 10)
+    public async Task<IEnumerable<Article>?> GetPage(
+        int currentPage = 1,
+        int pageSize = 10,
+        int? userId = null
+    )
     {
+        if (userId == null)
+        {
+            return await _dbContext.Articles
+                .Include(ar => ar.ArticleTags)
+                .ThenInclude(ar_tag => ar_tag.Tag)
+                .OrderBy(ar => ar.Id)
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
         return await _dbContext.Articles
+            .Where(ar => ar.UserId == userId)
             .Include(ar => ar.ArticleTags)
             .ThenInclude(ar_tag => ar_tag.Tag)
             .OrderBy(ar => ar.Id)
@@ -88,10 +95,13 @@ public class ArticlesRepository : IArticlesRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetTotalItems()
+    public async Task<int> GetTotalItems(int? userId = null)
     {
-        return await _dbContext.Articles.CountAsync();
-
+        if (userId == null)
+        {
+            return await _dbContext.Articles.CountAsync();
+        }
+        return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
     public async Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null)

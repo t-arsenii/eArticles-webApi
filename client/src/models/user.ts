@@ -3,8 +3,7 @@ export interface IUserInfo {
     lastName: string
     userName: string
     email: string
-    phoneNumber: string,
-    password: string
+    phoneNumber: string
 }
 export interface IUserRegReq {
     firstName: string

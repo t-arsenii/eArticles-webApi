@@ -31,13 +31,11 @@ export function Navbar() {
                     <StyledLink to='/faq'><Typography>FAQ</Typography></StyledLink>
                 </Stack>
                 {token ?
-                    <Link to='/'>
-                        <IconButton size='large' edge='end' color='inherit' aria-label='logo'>
-                            {userInfo.userName}
-                        </IconButton>
+                    <Link to={`/profile/${userInfo.userName}`} style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>
+                        {userInfo.userName}
                     </Link>
                     :
-                    <Link to='/signup'>
+                    <Link to='/login'>
                         <IconButton size='large' edge='end' color='inherit' aria-label='logo'>
                             <AccountCircleIcon />
                         </IconButton>
