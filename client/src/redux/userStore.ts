@@ -8,8 +8,7 @@ const initialState: IUserState = {
         lastName: '',
         userName: '',
         email: '',
-        phoneNumber: '',
-        password: ''
+        phoneNumber: ''
     },
     token: localStorage.getItem('token') || null,
 }

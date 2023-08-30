@@ -1,5 +1,5 @@
 import { IArticle } from "../models/articles"
-import { Card, CardContent, CardMedia, Typography, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Chip, Box } from '@mui/material';
 
 interface ArticleProps {
     article: IArticle
@@ -11,7 +11,7 @@ export function Article({ article }: ArticleProps) {
             <CardMedia
                 component="img"
                 alt={title}
-                height="140"
+                height="200px"
                 image={imgUrl}
             />
             <CardContent>
@@ -21,9 +21,9 @@ export function Article({ article }: ArticleProps) {
                 <Typography variant="body2" color="text.secondary">
                     {description}
                 </Typography>
-                <Typography variant="body1" color="text.primary">
+                {/* <Typography variant="body1" color="text.primary">
                     {content}
-                </Typography>
+                </Typography> */}
                 <Typography variant="caption" color="text.secondary">
                     Published on: {publishedDate}
                 </Typography>

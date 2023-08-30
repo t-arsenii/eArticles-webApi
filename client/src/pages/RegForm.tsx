@@ -13,7 +13,7 @@ import { Link, useNavigate } from 'react-router-dom'
 export function RegForm() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const form = useForm<IUserInfo>({
+    const form = useForm<IUserRegReq>({
         defaultValues: {
             firstName: '',
             lastName: '',
