@@ -15,6 +15,7 @@ import { IUserInfo } from './models/user';
 import { UserProfile } from './pages/UserProfile';
 import { RootState } from './redux/store';
 import CreateArticle from './pages/CreateArticle';
+import FullArticle from './pages/FullArticle';
 function App() {
   const defaultTheme = createTheme()
   const dispatch = useDispatch()
@@ -65,6 +66,7 @@ function App() {
             <Route path='/signup' element={<RegForm />} />
             <Route path='/login' element={<Login />} />
             <Route path='/article/create' element={<CreateArticle />} />
+            <Route path='/article/:id' element={<FullArticle />} />
             {token && <Route path={`/profile/${userInfo.userName}`} element={<UserProfile />} />}
           </Routes>
         </Container>

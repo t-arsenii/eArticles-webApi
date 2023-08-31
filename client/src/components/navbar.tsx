@@ -41,7 +41,6 @@ export function Navbar() {
                             <AccountCircleIcon />
                         </IconButton>
                     </Link>
-
                 }
             </Toolbar>
         </AppBar>
