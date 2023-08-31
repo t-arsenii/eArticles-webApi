@@ -16,7 +16,7 @@ public static class ArticleExtensions
             tagNames = null;
         }
         return new ArticleDto(
-            article.Id,
+            article.Id.ToString(),
             article.Title,
             article.Description,
             article.Content,
