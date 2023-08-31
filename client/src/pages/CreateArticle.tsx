@@ -1,9 +1,53 @@
 import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { useState } from "react";
-import { Link } from "react-router-dom"
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom"
+import { IArticleReq, IArticleRes } from "../models/articles";
+import { useSelector } from "react-redux";
+import { RootState } from '../redux/store';
+import axios from "axios";
 
 export default function CreateArticle() {
-    const [articleType, setArticleType] = useState("News")
+    const [articleType, setArticleType] = useState("Review")
+    const token = useSelector((state: RootState) => state.user.token)
+    const userInfo = useSelector((state: RootState) => state.user.userInfo)
+    const navigate = useNavigate()
+    const form = useForm<IArticleReq>({
+        defaultValues: {
+            title: '',
+            description: '',
+            content: '',
+            articleType: '',
+            imgUrl: '',
+            articleTags: null
+        }
+    })
+    const { register, handleSubmit, formState, getValues } = form
+    const { errors } = formState
+    const OnSubmit = async (data: IArticleReq) => {
+        try {
+            data.articleType = articleType
+            console.log(data)
+            const resArticle = await axios.post<IArticleRes>("http://localhost:5000/api/articles", data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return navigate(`/profile/${userInfo.userName}`)
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    console.error("Error status:", error.response.status);
+                    console.error("Error response data:", error.response.data);
+                } else {
+                    console.error("Error message:", error.message);
+                }
+            } else {
+                console.error("Error:", error);
+            }
+        }
+    }
     return (
         <>
             <Typography component="h1" variant="h5">
@@ -16,19 +60,19 @@ export default function CreateArticle() {
                     alignItems: 'center',
                 }}
             >
-                <Box component="form" noValidate sx={{ mt: 3 }}>
+                <Box component="form" noValidate onSubmit={handleSubmit(OnSubmit)} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={4}>
                             <TextField
                                 autoComplete="given-title"
                                 required
                                 fullWidth
-                                id="Title"
+                                id="title"
                                 label="Title"
                                 autoFocus
-                            // {...register("firstName", {
-                            //     required: "first name is required"
-                            // })}
+                                {...register("title", {
+                                    required: "first name is required"
+                                })}
                             // error={!!errors.firstName}
                             // helperText={errors.firstName?.message}
                             />
@@ -37,12 +81,12 @@ export default function CreateArticle() {
                             <TextField
                                 required
                                 fullWidth
-                                id="ImgUrl"
+                                id="imgUrl"
                                 label="Img Url"
                                 autoComplete="ImgUrl"
-                            // {...register("email", {
-                            //     required: "Email Address is required"
-                            // })}
+                                {...register("imgUrl", {
+                                    required: "Email Address is required"
+                                })}
                             // error={!!errors.email}
                             // helperText={errors.email?.message}
 
@@ -69,9 +113,9 @@ export default function CreateArticle() {
                                 label="Description"
                                 autoComplete="Description"
                                 autoFocus
-                            // {...register("userName", {
-                            //     required: "user name is required"
-                            // })}
+                                {...register("description", {
+                                    required: "user name is required"
+                                })}
                             // error={!!errors.userName}
                             // helperText={errors.userName?.message}
 
@@ -86,9 +130,9 @@ export default function CreateArticle() {
                                 label="Content"
                                 autoComplete="content"
                                 rows={20}
-                            // {...register("email", {
-                            //     required: "Email Address is required"
-                            // })}
+                                {...register("content", {
+                                    required: "Email Address is required"
+                                })}
                             // error={!!errors.email}
                             // helperText={errors.email?.message}
 
@@ -108,3 +152,4 @@ export default function CreateArticle() {
         </>
     )
 }
+

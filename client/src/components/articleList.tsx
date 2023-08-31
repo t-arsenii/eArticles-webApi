@@ -11,7 +11,7 @@ interface ArticleProps {
 export function ArticleList({articles, totalPages, handlePageChange}: ArticleProps) {
     return (
         <Container>
-            <Grid my={"5px"} container>
+            <Grid my={"5px"} container spacing={2}>
                 {articles.map(article => (
                     <Grid key={article.id} item xs={4}>
                         <Article article={article} />

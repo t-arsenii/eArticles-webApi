@@ -12,7 +12,7 @@ public abstract record BaseArticleDto(
 );
 
 public record ArticleDto(
-    int Id,
+    string Id,
     string Title,
     string Description,
     string Content,
@@ -43,10 +43,10 @@ public record CreateArticleDto(
         ErrorMessage = "The Content must be between 10 and 3000 characters."
     )]
         string Content,
-    [Required] string Article_Type,
+    [Required] string ArticleType,
     List<string>? ArticleTags = null,
     [Url] string? Img_Url = null
-) : BaseArticleDto(Title, Description, Content, Article_Type, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ArticleType, Img_Url, ArticleTags);
 
 public record UpdateArticleDto(
     [Required]
@@ -70,7 +70,7 @@ public record UpdateArticleDto(
         ErrorMessage = "The Content must be between 5 and 100 characters."
     )]
         string Content,
-    [Required] string Article_Type,
+    [Required] string ArticleType,
     List<string>? ArticleTags = null,
     [Url] string? Img_Url = null
-) : BaseArticleDto(Title, Description, Content, Article_Type, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ArticleType, Img_Url, ArticleTags);
