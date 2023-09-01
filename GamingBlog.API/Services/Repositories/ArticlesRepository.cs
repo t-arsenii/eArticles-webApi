@@ -104,13 +104,13 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
-    public async Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null)
+    public async Task Update(Article updateArticle, IEnumerable<string>? tagNames = null)
     {
-        Article? article = await Get(updateArticle.Id);
-        if (article == null)
-        {
-            return null;
-        }
+        // Article? article = await Get(updateArticle.Id);
+        // if (article == null)
+        // {
+        //     await Task.CompletedTask;
+        // }
         if (tagNames != null && tagNames.Any())
         {
             foreach (var tagName in tagNames)
@@ -124,6 +124,6 @@ public class ArticlesRepository : IArticlesRepository
         }
         _dbContext.Articles.Update(updateArticle);
         await _dbContext.SaveChangesAsync();
-        return updateArticle;
+        await Task.CompletedTask;
     }
 }

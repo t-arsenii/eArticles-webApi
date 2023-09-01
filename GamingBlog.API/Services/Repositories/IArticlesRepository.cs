@@ -13,6 +13,6 @@ public interface IArticlesRepository
         int? userId = null
     );
     public Task<int> GetTotalItems(int? userId = null);
-    public Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null);
+    public Task Update(Article updateArticle, IEnumerable<string>? tagNames = null);
     public Task<Article?> Delete(int id);
 }

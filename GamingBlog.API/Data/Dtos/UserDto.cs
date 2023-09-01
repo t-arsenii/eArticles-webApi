@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace GamingBlog.API.Data.Dtos;
 
 public record UserDto(
+    string Id,
     string FirstName,
     string LastName,
     string UserName,

@@ -144,13 +144,10 @@ public class ArticlesController : ControllerBase
             return Forbid();
         }
         var articleToUpdate = articleDto.AsArticle();
-        articleToUpdate.Id = articleToUpdate.Id;
-        Article? updatedArticle = await _articleRepo.Update(articleToUpdate);
-        if (updatedArticle == null)
-        {
-            return NotFound();
-        }
-        return Ok(updatedArticle.AsDto());
+        articleToUpdate.Id = id;
+        await _articleRepo.Update(articleToUpdate);
+
+        return Ok(articleToUpdate.AsDto());
     }
 
     [Authorize]

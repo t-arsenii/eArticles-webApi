@@ -19,7 +19,8 @@ public record ArticleDto(
     string ArticleType,
     string PublishedDate,
     string ImgUrl,
-    List<string>? ArticleTags
+    List<string>? ArticleTags,
+    string UserId
 ) : BaseArticleDto(Title, Description, Content, ArticleType, ImgUrl, ArticleTags);
 
 public record CreateArticleDto(
@@ -65,8 +66,8 @@ public record UpdateArticleDto(
         string Description,
     [Required]
     [StringLength(
-        100,
-        MinimumLength = 3000,
+        3000,
+        MinimumLength = 100,
         ErrorMessage = "The Content must be between 5 and 100 characters."
     )]
         string Content,

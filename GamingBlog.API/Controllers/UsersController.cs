@@ -50,6 +50,7 @@ public class UsersController : ControllerBase
         }
         return Ok(
             new UserDto(
+                user.Id.ToString(),
                 user.FirstName!,
                 user.LastName!,
                 user.UserName!,
@@ -69,6 +70,7 @@ public class UsersController : ControllerBase
         }
         return Ok(
             new UserDto(
+                user.Id.ToString(),
                 user.FirstName!,
                 user.LastName!,
                 user.UserName!,
@@ -88,6 +90,7 @@ public class UsersController : ControllerBase
         }
         return Ok(
             new UserDto(
+                user.Id.ToString(),
                 user.FirstName!,
                 user.LastName!,
                 user.UserName!,
