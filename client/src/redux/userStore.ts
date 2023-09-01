@@ -4,6 +4,7 @@ import { IUserInfo, IUserState } from '../models/user'
 
 const initialState: IUserState = {
     userInfo: {
+        id: '',
         firstName: '',
         lastName: '',
         userName: '',

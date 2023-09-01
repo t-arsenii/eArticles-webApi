@@ -4,6 +4,7 @@ import { ArticleList } from "./ArticleList";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { Pagination, Box } from "@mui/material";
 interface IArticleProps {
     url: string,
     isToken?: boolean
@@ -38,7 +39,12 @@ export default function ArticlePage({ url, isToken = false }: IArticleProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage])
     return (
-        <ArticleList articles={articles} totalPages={totalPages} handlePageChange={handlePageChange} />
+        <>
+            <ArticleList articles={articles} />
+            <Box>
+                <Pagination sx={{display:"flex", justifyContent:"center"}} count={totalPages} color="primary" onChange={handlePageChange} />
+            </Box>
+        </>
     )
 }
 
