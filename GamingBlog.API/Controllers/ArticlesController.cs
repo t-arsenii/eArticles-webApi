@@ -14,6 +14,7 @@ namespace GamingBlog.API.Controllers;
 [Route("api/[controller]")]
 public class ArticlesController : ControllerBase
 {
+    //my controller
     readonly IArticlesRepository _articleRepo;
     readonly IUsersRepository _usersRepo;
 
