@@ -1,7 +1,5 @@
-using eArticles.API.Data;
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Extensions;
 

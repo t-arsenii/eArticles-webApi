@@ -1,12 +1,10 @@
-using System.Security.Claims;
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using eArticles.API.Services;
 using eArticles.API.Services.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace eArticles.API.Controllers;

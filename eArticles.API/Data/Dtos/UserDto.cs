@@ -13,9 +13,9 @@ public record UserDto(
 public record CreateUserDto(
     [Required] string FirstName,
     [Required] string LastName,
-    [Required] [Phone] string PhoneNumber,
+    [Required][Phone] string PhoneNumber,
     [Required] string UserName,
-    [Required] [EmailAddress(ErrorMessage = "Email not valid")] string Email,
+    [Required][EmailAddress(ErrorMessage = "Email not valid")] string Email,
     [Required]
     [StringLength(
         30,

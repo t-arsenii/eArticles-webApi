@@ -78,8 +78,7 @@ public class ArticlesRepository : IArticlesRepository
         if (userId == null)
         {
             return await _dbContext.Articles
-                .Include(ar => ar.ArticleTags)
-                .ThenInclude(ar_tag => ar_tag.Tag)
+                .Include(ar => ar.Tags)
                 .OrderBy(ar => ar.Id)
                 .Skip((currentPage - 1) * pageSize)
                 .Take(pageSize)
@@ -87,8 +86,7 @@ public class ArticlesRepository : IArticlesRepository
         }
         return await _dbContext.Articles
             .Where(ar => ar.UserId == userId)
-            .Include(ar => ar.ArticleTags)
-            .ThenInclude(ar_tag => ar_tag.Tag)
+            .Include(ar => ar.Tags)
             .OrderBy(ar => ar.Id)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)

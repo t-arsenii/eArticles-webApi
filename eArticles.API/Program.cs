@@ -1,14 +1,13 @@
 using eArticles.API.Data;
-using Microsoft.EntityFrameworkCore;
-using eArticles.API.Services.Repositories;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.Identity;
-using eArticles.API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using eArticles.API.Models;
+using eArticles.API.Services;
+using eArticles.API.Services.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
@@ -18,10 +17,36 @@ builder.Services
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
-
 builder.Services.AddDbContext<eArticlesDbContext>(opts =>
 {
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+    });
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+ {
+     {
+           new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference
+                 {
+                     Type = ReferenceType.SecurityScheme,
+                     Id = "Bearer"
+                 }
+             },
+             new string[] {}
+     }
+ });
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services
@@ -77,9 +102,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 bool cmdLineInit = (app.Configuration["INITDB"] ?? "false") == "true";
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 if (app.Environment.IsDevelopment() && cmdLineInit)
 {
     Console.WriteLine("Seeding DB");
     await app.SeedInitialData();
 }
+app.Logger.LogInformation("The app started");
 app.Run();

@@ -3,13 +3,10 @@ using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using eArticles.API.Services.Repositories;
 using eArticles.Tests.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Newtonsoft.Json;
-using eArticles.API.Extensions;
-using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace eArticles.Tests;
 
@@ -31,12 +28,12 @@ public class ArticlesControllerTests
         //Act
         var result = await articlesController.Get(1) as ObjectResult;
         //Assert
-        Assert.NotNull(result); // Ensure that the result is not null
-        Assert.Equal(200, result.StatusCode); // Check for HTTP status code OK
+        Assert.NotNull(result);
+        Assert.Equal(200, result.StatusCode);
 
         var resArticleDTO = result.Value as ArticleDto;
 
-        Assert.Equal(expectedArticle.Id, resArticleDTO?.Id);
+        Assert.Equal(expectedArticle.Id.ToString(), resArticleDTO?.Id);
         Assert.Equal(expectedArticle.Title, resArticleDTO?.Title);
         Assert.Equal(expectedArticle.Description, resArticleDTO?.Description);
         Assert.Equal(expectedArticle.Content, resArticleDTO?.Content);
@@ -58,7 +55,8 @@ public class ArticlesControllerTests
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-        mockRepository.Setup(x => x.GetPage(pageNumber, pageSize)).ReturnsAsync(expectedArticles);
+        mockRepository.Setup(x => x.GetPage(pageNumber, pageSize, null)).ReturnsAsync(expectedArticles);
+        mockRepository.Setup(x => x.GetTotalItems(null)).ReturnsAsync(articles.Length);
         //Act
         ArticlesController articlesController = new ArticlesController(
             mockRepository.Object,
@@ -70,13 +68,14 @@ public class ArticlesControllerTests
         var okObjectResult = actionResult as OkObjectResult;
         Assert.NotNull(okObjectResult);
 
-        var articleDtoList = okObjectResult.Value as List<ArticleDto>;
+        var articleDtoList = okObjectResult.Value as PageArticleDto;
         Assert.NotNull(articleDtoList);
 
-        Assert.NotEmpty(articleDtoList);
-        Assert.Equal(pageSize, articleDtoList.Count);
-        Assert.Equal(expectedArticles.First().Id, articleDtoList.First().Id);
-        Assert.Equal(expectedArticles.Last().Id, articleDtoList.Last().Id);
+        Assert.NotEmpty(articleDtoList.items);
+        Assert.Equal(pageSize, articleDtoList.items.Count());
+        Assert.Equal(articles.Length, articleDtoList.totalCount);
+        Assert.Equal(expectedArticles.First().Id.ToString(), articleDtoList.items.First().Id);
+        Assert.Equal(expectedArticles.Last().Id.ToString(), articleDtoList.items.Last().Id);
     }
 
     [Fact]
@@ -123,7 +122,7 @@ public class ArticlesControllerTests
         var okResult = Assert.IsType<OkObjectResult>(result);
         var createdArticleDto = Assert.IsType<ArticleDto>(okResult.Value);
 
-        Assert.Equal(expectedCreatedArticle.Id, createdArticleDto.Id);
+        Assert.Equal(expectedCreatedArticle.Id.ToString(), createdArticleDto.Id);
 
         mockRepository.Verify(
             repo => repo.Create(It.IsAny<Article>(), It.IsAny<IEnumerable<string>>()),
@@ -159,10 +158,12 @@ public class ArticlesControllerTests
     {
         Mock<IArticlesRepository> mockRepository = new();
         Mock<IUsersRepository> mockUserManager = new();
-        Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
-
+        Article[] articles = ArticlesProvider.GetArticles().ToArray();
+        User[] users = ArticlesProvider.GetUsers().ToArray();
         var expectedCreatedArticle = articles.First();
-
+        mockUserManager
+            .Setup(x => x.GetUserById(It.IsAny<int>()))
+            .ReturnsAsync(expectedCreatedArticle.User);
         UpdateArticleDto updateArticleDto =
             new(
                 expectedCreatedArticle.Title,
@@ -176,17 +177,26 @@ public class ArticlesControllerTests
         mockRepository
             .Setup(repo => repo.Update(It.IsAny<Article>(), It.IsAny<List<string>>()))
             .ReturnsAsync(expectedCreatedArticle);
+        mockRepository
+            .Setup(repo => repo.Get(expectedCreatedArticle.Id))
+            .ReturnsAsync(expectedCreatedArticle);
 
         var controller = new ArticlesController(mockRepository.Object, mockUserManager.Object);
-
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "123") };
+        var identity = new ClaimsIdentity(claims);
+        var principal = new ClaimsPrincipal(identity);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
         //Act
-        var result = await controller.Update(updateArticleDto);
+        var result = await controller.Update(expectedCreatedArticle.Id, updateArticleDto);
 
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var updatedArticleDto = Assert.IsType<ArticleDto>(okResult.Value);
 
-        Assert.Equal(expectedCreatedArticle.Id, updatedArticleDto.Id);
+        Assert.Equal(expectedCreatedArticle.Id.ToString(), updatedArticleDto.Id);
 
         mockRepository.Verify(
             repo => repo.Update(It.IsAny<Article>(), It.IsAny<IEnumerable<string>>()),
@@ -198,15 +208,30 @@ public class ArticlesControllerTests
     public async void DeleteArticleTest()
     {
         //Arrange
+        User[] users = ArticlesProvider.GetUsers().ToArray();
         Mock<IArticlesRepository> mockRepository = new();
         Mock<IUsersRepository> mockUserManager = new();
-
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
         var expectedDeletedArticle = articles.First();
+        mockUserManager
+            .Setup(x => x.GetUserById(It.IsAny<int>()))
+            .ReturnsAsync(expectedDeletedArticle.User);
+
         mockRepository
             .Setup(repo => repo.Delete(It.IsAny<int>()))
             .ReturnsAsync(expectedDeletedArticle);
+        mockRepository
+            .Setup(repo => repo.Get(expectedDeletedArticle.Id))
+            .ReturnsAsync(expectedDeletedArticle);
         ArticlesController controller = new(mockRepository.Object, mockUserManager.Object);
+
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "123") };
+        var identity = new ClaimsIdentity(claims);
+        var principal = new ClaimsPrincipal(identity);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
         //Act
         var result = await controller.Delete(expectedDeletedArticle.Id);
         //Assert

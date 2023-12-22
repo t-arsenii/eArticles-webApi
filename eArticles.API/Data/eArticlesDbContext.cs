@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using eArticles.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Data;
 

@@ -18,5 +18,5 @@ public static class ArticleDtoExtensions
             Img_Url = articleDTO.ImgUrl!
         };
     }
-    
+
 }

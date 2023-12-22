@@ -1,8 +1,7 @@
 namespace eArticles.API.Models;
 
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Data.Enums;
+using System.ComponentModel.DataAnnotations;
 
 public class Article
 {

@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
-using eArticles.API.Services.Repositories;
-using eArticles.API.Models;
 using eArticles.API.Data.Dtos;
-using eArticles.API.Data.Enums;
 using eArticles.API.Extensions;
-using eArticles.API.Data;
+using eArticles.API.Models;
+using eArticles.API.Services.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace eArticles.API.Controllers;
@@ -89,7 +86,7 @@ public class ArticlesController : ControllerBase
         {
             articleDTOs.Add(article.AsDto());
         }
-        return Ok(new { items = articleDTOs, totalCount = totalArticles });
+        return Ok(new PageArticleDto(articleDTOs, totalArticles));
     }
 
     [Authorize]
@@ -144,7 +141,7 @@ public class ArticlesController : ControllerBase
             return Forbid();
         }
         var articleToUpdate = articleDto.AsArticle();
-        articleToUpdate.Id = articleToUpdate.Id;
+        articleToUpdate.Id = article.Id;
         Article? updatedArticle = await _articleRepo.Update(articleToUpdate);
         if (updatedArticle == null)
         {

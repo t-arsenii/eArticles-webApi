@@ -22,6 +22,10 @@ public record ArticleDto(
     List<string>? ArticleTags
 ) : BaseArticleDto(Title, Description, Content, ArticleType, ImgUrl, ArticleTags);
 
+public record PageArticleDto(
+    IEnumerable<ArticleDto> items,
+    int totalCount
+);
 public record CreateArticleDto(
     [Required]
     [StringLength(
