@@ -4,11 +4,9 @@ import { Article } from "./Article";
 import { Container } from '@mui/material';
 import { ChangeEvent } from "react";
 interface ArticleProps {
-    articles: IArticle[],
-    totalPages: number,
-    handlePageChange: (event: ChangeEvent<unknown>, page: number) => void
+    articles: IArticle[]
 }
-export function ArticleList({articles, totalPages, handlePageChange}: ArticleProps) {
+export function ArticleList({ articles }: ArticleProps) {
     return (
         <Container>
             <Grid my={"5px"} container spacing={2}>
@@ -18,7 +16,6 @@ export function ArticleList({articles, totalPages, handlePageChange}: ArticlePro
                     </Grid>
                 ))}
             </Grid>
-            <Pagination count={totalPages} color="primary" onChange={handlePageChange} />
         </Container>
     )
 }

@@ -62,7 +62,7 @@ public class ArticlesController : ControllerBase
         {
             articleDTOs.Add(article.AsDto());
         }
-        return Ok(new { items = articleDTOs, totalCount = totalArticles });
+        return Ok(new PageArticleDto(articleDTOs, totalArticles));
     }
 
     [HttpGet]

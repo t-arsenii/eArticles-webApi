@@ -1,5 +1,6 @@
 export interface IArticle {
     id: string
+    userId: string
     publishedDate: string
     title: string
     description: string
@@ -19,6 +20,7 @@ export interface IArticleReq {
 export interface IArticleRes {
     id: string
     publishedDate: string
+    userId: string
     title: string
     description: string
     content: string

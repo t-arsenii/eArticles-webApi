@@ -1,4 +1,5 @@
 export interface IUserInfo {
+    id: string,
     firstName: string
     lastName: string
     userName: string
@@ -14,6 +15,7 @@ export interface IUserRegReq {
     password: string
 }
 export interface IUserRegRes {
+    id:string,
     firstName: string
     lastName: string
     userName: string
