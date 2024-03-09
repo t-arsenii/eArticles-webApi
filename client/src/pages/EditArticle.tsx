@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { IArticle, IArticleReq, IArticleRes } from "../models/articles";
 import { useSelector } from "react-redux";
-import { RootState } from '../redux/store';
+import { RootState } from '../store/store';
 import axios from "axios";
 
 export default function EditArticle() {

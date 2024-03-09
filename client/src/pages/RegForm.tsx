@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import PhoneInput from 'react-phone-number-input';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { updateToken, updateUser } from '../redux/userStore'
+import { updateToken, updateUser } from '../store/userStore'
 import { Link, useNavigate } from 'react-router-dom'
 
 export function RegForm() {
@@ -23,8 +23,8 @@ export function RegForm() {
             password: ''
         }
     })
-    const { register, handleSubmit, formState } = form
-    const { errors } = formState
+    const { register, handleSubmit, formState } = form;
+    const { errors } = formState;
     const OnSubmit = async (data: IUserRegReq) => {
         try {
             const resReg = await axios.post<IUserRegRes>("http://localhost:5000/api/users", data);

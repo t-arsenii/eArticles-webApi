@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material'
 import { useSelector } from 'react-redux'
-import { RootState } from '../redux/store'
+import { RootState } from '../store/store'
 import { useEffect } from 'react'
 import axios from 'axios'
 import { IArticle } from '../models/articles'

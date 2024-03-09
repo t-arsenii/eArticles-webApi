@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom"
 import { IArticleReq, IArticleRes } from "../models/articles";
 import { useSelector } from "react-redux";
-import { RootState } from '../redux/store';
+import { RootState } from '../store/store';
 import SendIcon from '@mui/icons-material/Send';
 import axios from "axios";
 interface ChipData {

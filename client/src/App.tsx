@@ -4,22 +4,22 @@ import axios from 'axios';
 import { IArticle } from './models/articles';
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Home } from './views/Home'
+import { Home } from './pages/Home'
 import { Navbar } from './components/Navbar'
-import { RegForm } from './views/RegForm'
+import { RegForm } from './pages/RegForm'
 import { Container, CssBaseline } from '@mui/material';
-import { Login } from './views/Login'
+import { Login } from './pages/Login'
 import { useDispatch, useSelector } from 'react-redux';
-import { updateToken, updateUser } from './redux/userStore';
+import { updateToken, updateUser } from './store/userStore';
 import { IUserInfo } from './models/user';
-import { UserProfile } from './views/UserProfile';
-import { RootState } from './redux/store';
-import CreateArticle from './views/CreateArticle';
-import FullArticle from './views/FullArticle';
-import EditArticle from './views/EditArticle';
+import { UserProfile } from './pages/UserProfile';
+import { RootState } from './store/store';
+import CreateArticle from './pages/CreateArticle';
+import FullArticle from './pages/FullArticle';
+import EditArticle from './pages/EditArticle';
 import AppRouter from './routes/AppRouter';
+import Footer from './components/Footer';
 function App() {
-  const defaultTheme = createTheme()
   const dispatch = useDispatch()
   const [isDarkTheme, setIsDarkTheme] = useState(false)
   useEffect(() => {
@@ -29,13 +29,17 @@ function App() {
         return
       }
       dispatch(updateToken(token))
-      const userInfoRes = await axios.get<IUserInfo>("http://localhost:5000/api/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      dispatch(updateUser(userInfoRes.data))
+      try {
+        const userInfoRes = await axios.get<IUserInfo>("http://localhost:5000/api/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        dispatch(updateUser(userInfoRes.data))
+      } catch (err: any) {
+        console.log(err.message);
+      }
     }
     const checkTokenExpiration = () => {
       const token = localStorage.getItem("token");
@@ -62,6 +66,7 @@ function App() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  const defaultTheme = createTheme()
   const darkTheme = createTheme({
     palette: {
       mode: 'dark',
@@ -76,6 +81,7 @@ function App() {
         <Container component="main">
           <AppRouter />
         </Container>
+        <Footer/>
       </ThemeProvider>
     </>
   )

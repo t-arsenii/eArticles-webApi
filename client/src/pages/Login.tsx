@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import PhoneInput from 'react-phone-number-input';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { updateToken, updateUser } from '../redux/userStore'
+import { updateToken, updateUser } from '../store/userStore'
 import { Link, useNavigate } from 'react-router-dom'
 
 export function Login() {

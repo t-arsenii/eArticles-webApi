@@ -1,3 +1,5 @@
+import { IUserInfo } from "./user"
+
 export interface IArticle {
     id: string
     userId: string
@@ -7,7 +9,8 @@ export interface IArticle {
     content: string
     articleType: string
     imgUrl: string
-    articleTags: string[] | null
+    articleTags: string[] | null,
+    user: IUserInfo
 }
 export interface IArticleReq {
     title: string
@@ -26,5 +29,6 @@ export interface IArticleRes {
     content: string
     articleType: string
     imgUrl: string
-    articleTags: string[] | null
+    articleTags: string[] | null,
+    user: IUserInfo
 }

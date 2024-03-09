@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { IArticle } from "../models/articles"
 import { Card, CardContent, CardMedia, Typography, Chip, Box, Theme, styled, useTheme } from '@mui/material';
-import { RootState } from "../redux/store";
+import { RootState } from "../store/store";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 const StyledCard = styled(Card)(({ theme }: { theme: Theme}) => ({

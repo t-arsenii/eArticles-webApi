@@ -3,18 +3,18 @@ import { IArticle } from "../models/articles";
 import { ArticleList } from "./ArticleList";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "../store/store";
 import { Pagination, Box } from "@mui/material";
 interface IArticleProps {
     url: string,
     isToken?: boolean
 }
 export default function ArticlePage({ url, isToken = false }: IArticleProps) {
-    const [articles, setArticles] = useState<IArticle[]>([])
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(0)
-    const token = useSelector((state: RootState) => state.user.token)
-    const ItemsPerPage = 6
+    const [articles, setArticles] = useState<IArticle[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const token = useSelector((state: RootState) => state.user.token);
+    const ItemsPerPage = 6;
     const handlePageChange = (event: unknown, page: number) => {
         setCurrentPage(page)
     };
