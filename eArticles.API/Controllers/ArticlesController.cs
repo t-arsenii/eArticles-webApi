@@ -68,7 +68,10 @@ public class ArticlesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetPage(
         [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 5
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string articleType = "",
+        [FromQuery] string order = "",
+        [FromQuery] string[]? tags = null
     )
     {
         if (pageNumber <= 0)
@@ -80,6 +83,22 @@ public class ArticlesController : ControllerBase
         if (articles == null || !articles.Any())
         {
             return NotFound();
+        }
+        if (!string.IsNullOrEmpty(articleType))
+        {
+            articles = articles.Where(a => a.Article_type.ToString() == articleType);
+        }
+        if (tags != null && tags.Any())
+        {
+            articles = articles.Where(a => tags.All(t => a.Tags.Select(t => t.Title).Contains(t)));
+        }
+        if(!string.IsNullOrEmpty(order))
+        {
+            if(order == "date")
+            {
+                articles = articles.OrderBy(a => a.Published_Date).ToList();
+            }
+
         }
         List<ArticleDto> articleDTOs = new List<ArticleDto>();
         foreach (var article in articles)

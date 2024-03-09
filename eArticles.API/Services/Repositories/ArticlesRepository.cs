@@ -50,6 +50,7 @@ public class ArticlesRepository : IArticlesRepository
     {
         return await _dbContext.Articles
             .Include(ar => ar.Tags)
+            .Include(ar => ar.User)
             .FirstOrDefaultAsync(ar => ar.Id == id);
     }
 
@@ -79,6 +80,7 @@ public class ArticlesRepository : IArticlesRepository
         {
             return await _dbContext.Articles
                 .Include(ar => ar.Tags)
+                .Include(ar => ar.User)
                 .OrderBy(ar => ar.Id)
                 .Skip((currentPage - 1) * pageSize)
                 .Take(pageSize)

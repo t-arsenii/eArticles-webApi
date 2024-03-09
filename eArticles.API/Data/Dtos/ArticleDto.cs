@@ -8,7 +8,7 @@ public abstract record BaseArticleDto(
     string Content,
     string ArticleType,
     string? ImgUrl,
-    List<string>? ArticleTags
+    IEnumerable<string>? ArticleTags
 );
 
 public record ArticleDto(
@@ -19,7 +19,8 @@ public record ArticleDto(
     string ArticleType,
     string PublishedDate,
     string ImgUrl,
-    List<string>? ArticleTags
+    IEnumerable<string>? ArticleTags,
+    UserDto User
 ) : BaseArticleDto(Title, Description, Content, ArticleType, ImgUrl, ArticleTags);
 
 public record PageArticleDto(
@@ -48,23 +49,23 @@ public record CreateArticleDto(
     )]
         string Content,
     [Required] string ArticleType,
-    List<string>? ArticleTags = null,
+    IEnumerable<string>? ArticleTags = null,
     [Url] string? Img_Url = null
 ) : BaseArticleDto(Title, Description, Content, ArticleType, Img_Url, ArticleTags);
 
 public record UpdateArticleDto(
     [Required]
     [StringLength(
-        50,
+        100,
         MinimumLength = 5,
-        ErrorMessage = "The Title must be between 5 and 50 characters."
+        ErrorMessage = "The Title must be between 5 and 100 characters."
     )]
         string Title,
     [Required]
     [StringLength(
-        100,
+        200,
         MinimumLength = 5,
-        ErrorMessage = "The Description must be between 5 and 100 characters."
+        ErrorMessage = "The Description must be between 5 and 200 characters."
     )]
         string Description,
     [Required]
@@ -75,6 +76,6 @@ public record UpdateArticleDto(
     )]
         string Content,
     [Required] string ArticleType,
-    List<string>? ArticleTags = null,
+    IEnumerable<string>? ArticleTags = null,
     [Url] string? Img_Url = null
 ) : BaseArticleDto(Title, Description, Content, ArticleType, Img_Url, ArticleTags);

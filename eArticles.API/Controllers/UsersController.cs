@@ -36,7 +36,7 @@ public class UsersController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetById()
+    public async Task<IActionResult> GetByToken()
     {
         var userId = int.Parse(
             User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
@@ -48,11 +48,12 @@ public class UsersController : ControllerBase
         }
         return Ok(
             new UserDto(
-                user.FirstName!,
-                user.LastName!,
-                user.UserName!,
-                user.Email!,
-                user.PhoneNumber!
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
             )
         );
     }
@@ -67,11 +68,12 @@ public class UsersController : ControllerBase
         }
         return Ok(
             new UserDto(
-                user.FirstName!,
-                user.LastName!,
-                user.UserName!,
-                user.Email!,
-                user.PhoneNumber!
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
             )
         );
     }
@@ -86,11 +88,12 @@ public class UsersController : ControllerBase
         }
         return Ok(
             new UserDto(
-                user.FirstName!,
-                user.LastName!,
-                user.UserName!,
-                user.Email!,
-                user.PhoneNumber!
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
             )
         );
     }

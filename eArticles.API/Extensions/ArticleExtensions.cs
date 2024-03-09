@@ -21,7 +21,15 @@ public static class ArticleExtensions
             article.Article_type.ToString(),
             article.Published_Date.ToString(),
             article.Img_Url,
-            tagNames
+            tagNames,
+            User: new UserDto(
+                article.User.Id.ToString(),
+                article.User.FirstName,
+                article.User.LastName,
+                article.User.UserName,
+                article.User.Email,
+                article.User.PhoneNumber
+            )
         );
     }
 }
