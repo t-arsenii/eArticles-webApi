@@ -10,6 +10,7 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
     public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<ArticleType> ArticleTypes => Set<ArticleType>();
 
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
         : base(options) { }
@@ -17,8 +18,6 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<Article>().Property(a => a.Article_type).HasConversion<string>();
 
         modelBuilder
             .Entity<Article>()

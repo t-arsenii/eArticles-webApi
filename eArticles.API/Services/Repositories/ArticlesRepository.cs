@@ -46,7 +46,7 @@ public class ArticlesRepository : IArticlesRepository
         return articleToDelete;
     }
 
-    public async Task<Article?> Get(int id)
+    public async Task<Article?> GetById(int id)
     {
         return await _dbContext.Articles
             .Include(ar => ar.Tags)
@@ -56,7 +56,7 @@ public class ArticlesRepository : IArticlesRepository
 
     public async Task<IEnumerable<string>?> GetArticleTags(int id)
     {
-        var article = await Get(id);
+        var article = await GetById(id);
 
         if (article == null)
         {
@@ -73,22 +73,38 @@ public class ArticlesRepository : IArticlesRepository
     public async Task<IEnumerable<Article>?> GetPage(
         int currentPage = 1,
         int pageSize = 10,
-        int? userId = null
+        int? userId = null,
+        string articleType = "",
+        string order = "",
+        string[]? tags = null
     )
     {
-        if (userId == null)
+        IQueryable<Article> query = _dbContext.Articles;
+
+        if(userId is not null)
         {
-            return await _dbContext.Articles
-                .Include(ar => ar.Tags)
-                .Include(ar => ar.User)
-                .OrderBy(ar => ar.Id)
-                .Skip((currentPage - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            query = query.Where(a => a.UserId == userId);
         }
-        return await _dbContext.Articles
-            .Where(ar => ar.UserId == userId)
-            .Include(ar => ar.Tags)
+        if(!string.IsNullOrEmpty(articleType))
+        {
+            query = query.Where(a => a.ArticleType.Title.ToLower() == articleType.ToLower());
+        }
+        if(!string.IsNullOrEmpty(order))
+        {
+            if(order.ToLower() == "date")
+            {
+                query = query.OrderBy(a => a.Published_Date);
+
+            }
+        }
+        if(tags != null && tags.Any())
+        {
+            query = query.Where(a => a.Tags.Select(t => t.Title).SequenceEqual(tags));
+        }
+        return await query
+            .Include(a => a.Tags)
+            .Include(a => a.User)
+            .Include(a => a.ArticleType)
             .OrderBy(ar => ar.Id)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
@@ -106,7 +122,7 @@ public class ArticlesRepository : IArticlesRepository
 
     public async Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null)
     {
-        Article? article = await Get(updateArticle.Id);
+        Article? article = await GetById(updateArticle.Id);
         if (article == null)
         {
             return null;

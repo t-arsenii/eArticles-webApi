@@ -18,7 +18,7 @@ public static class ArticleExtensions
             article.Title,
             article.Description,
             article.Content,
-            article.Article_type.ToString(),
+            article.ArticleType.Title,
             article.Published_Date.ToString(),
             article.Img_Url,
             tagNames,

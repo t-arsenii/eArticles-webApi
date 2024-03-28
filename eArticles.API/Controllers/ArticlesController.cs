@@ -1,4 +1,5 @@
 using eArticles.API.Data.Dtos;
+using eArticles.API.Data.Enums;
 using eArticles.API.Extensions;
 using eArticles.API.Models;
 using eArticles.API.Services.Repositories;
@@ -23,7 +24,7 @@ public class ArticlesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        Article? article = await _articleRepo.Get(id);
+        Article? article = await _articleRepo.GetById(id);
         if (article == null)
         {
             return NotFound();
@@ -35,7 +36,10 @@ public class ArticlesController : ControllerBase
     [HttpGet("my")]
     public async Task<IActionResult> GetUserPage(
         [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 5
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string articleType = "",
+        [FromQuery] string order = "",
+        [FromQuery] string[]? tags = null
     )
     {
         if (pageNumber <= 0)
@@ -51,7 +55,7 @@ public class ArticlesController : ControllerBase
             return BadRequest();
         }
 
-        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, user.Id);
+        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, userId: user.Id, articleType: articleType, order: order, tags: tags);
         int totalArticles = await _articleRepo.GetTotalItems(user.Id);
         if (articles == null || !articles.Any())
         {
@@ -78,28 +82,12 @@ public class ArticlesController : ControllerBase
         {
             return NotFound();
         }
-        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize);
-        int totalArticles = await _articleRepo.GetTotalItems();
+        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, articleType: articleType, order: order, tags: tags);
         if (articles == null || !articles.Any())
         {
             return NotFound();
         }
-        if (!string.IsNullOrEmpty(articleType))
-        {
-            articles = articles.Where(a => a.Article_type.ToString() == articleType);
-        }
-        if (tags != null && tags.Any())
-        {
-            articles = articles.Where(a => tags.All(t => a.Tags.Select(t => t.Title).Contains(t)));
-        }
-        if(!string.IsNullOrEmpty(order))
-        {
-            if(order == "date")
-            {
-                articles = articles.OrderBy(a => a.Published_Date).ToList();
-            }
-
-        }
+        int totalArticles = articles.Count();
         List<ArticleDto> articleDTOs = new List<ArticleDto>();
         foreach (var article in articles)
         {
@@ -150,7 +138,7 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest();
         }
-        var article = await _articleRepo.Get(id);
+        var article = await _articleRepo.GetById(id);
         if (article == null)
         {
             return NotFound();
@@ -181,7 +169,7 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest();
         }
-        var article = await _articleRepo.Get(id);
+        var article = await _articleRepo.GetById(id);
         if (article == null)
         {
             return NotFound();

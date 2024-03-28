@@ -20,7 +20,7 @@ public class ArticlesControllerTests
         Mock<IUsersRepository> mockUserRepo = new();
         Article[] articles = ArticlesProvider.GetArticles().ToArray<Article>();
         Article expectedArticle = articles.First(ar => ar.Id == 1);
-        mockArticleRepo.Setup(x => x.Get(1)).ReturnsAsync(expectedArticle);
+        mockArticleRepo.Setup(x => x.GetById(1)).ReturnsAsync(expectedArticle);
         ArticlesController articlesController = new ArticlesController(
             mockArticleRepo.Object,
             mockUserRepo.Object
@@ -37,7 +37,7 @@ public class ArticlesControllerTests
         Assert.Equal(expectedArticle.Title, resArticleDTO?.Title);
         Assert.Equal(expectedArticle.Description, resArticleDTO?.Description);
         Assert.Equal(expectedArticle.Content, resArticleDTO?.Content);
-        Assert.Equal(expectedArticle.Article_type.ToString(), resArticleDTO?.ArticleType);
+        Assert.Equal(expectedArticle.ArticleType.ToString(), resArticleDTO?.ArticleType);
         Assert.Equal(expectedArticle.Published_Date.ToString(), resArticleDTO?.PublishedDate);
     }
 
@@ -55,7 +55,7 @@ public class ArticlesControllerTests
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-        mockRepository.Setup(x => x.GetPage(pageNumber, pageSize, null)).ReturnsAsync(expectedArticles);
+        mockRepository.Setup(x => x.GetPage(pageNumber, pageSize, null, "", "", null)).ReturnsAsync(expectedArticles);
         mockRepository.Setup(x => x.GetTotalItems(null)).ReturnsAsync(articles.Length);
         //Act
         ArticlesController articlesController = new ArticlesController(
@@ -95,7 +95,7 @@ public class ArticlesControllerTests
                 expectedCreatedArticle.Title,
                 expectedCreatedArticle.Description,
                 expectedCreatedArticle.Content,
-                expectedCreatedArticle.Article_type.ToString(),
+                expectedCreatedArticle.ArticleType.ToString(),
                 expectedCreatedArticle.Tags.Select(t => t.Title).ToList(),
                 expectedCreatedArticle.Img_Url
             );
@@ -169,7 +169,7 @@ public class ArticlesControllerTests
                 expectedCreatedArticle.Title,
                 expectedCreatedArticle.Description,
                 expectedCreatedArticle.Content,
-                expectedCreatedArticle.Article_type.ToString(),
+                expectedCreatedArticle.ArticleType.ToString(),
                 expectedCreatedArticle.Tags.Select(t => t.Title).ToList(),
                 expectedCreatedArticle.Img_Url
             );
@@ -178,7 +178,7 @@ public class ArticlesControllerTests
             .Setup(repo => repo.Update(It.IsAny<Article>(), It.IsAny<List<string>>()))
             .ReturnsAsync(expectedCreatedArticle);
         mockRepository
-            .Setup(repo => repo.Get(expectedCreatedArticle.Id))
+            .Setup(repo => repo.GetById(expectedCreatedArticle.Id))
             .ReturnsAsync(expectedCreatedArticle);
 
         var controller = new ArticlesController(mockRepository.Object, mockUserManager.Object);
@@ -221,7 +221,7 @@ public class ArticlesControllerTests
             .Setup(repo => repo.Delete(It.IsAny<int>()))
             .ReturnsAsync(expectedDeletedArticle);
         mockRepository
-            .Setup(repo => repo.Get(expectedDeletedArticle.Id))
+            .Setup(repo => repo.GetById(expectedDeletedArticle.Id))
             .ReturnsAsync(expectedDeletedArticle);
         ArticlesController controller = new(mockRepository.Object, mockUserManager.Object);
 

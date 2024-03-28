@@ -14,7 +14,7 @@ public static class ArticleDtoExtensions
             Title = articleDTO.Title,
             Description = articleDTO.Description,
             Content = articleDTO.Content,
-            Article_type = a_type,
+            ArticleType = a_type,
             Img_Url = articleDTO.ImgUrl!
         };
     }
