@@ -1,6 +1,7 @@
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using eArticles.API.Services.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,16 @@ using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 namespace eArticles.API.Controllers;
 
 [Route("api/[controller]")]
+[ApiController]
 public class UsersController : ControllerBase
 {
     IUsersRepository _usersRepo;
+    RoleManager<IdentityRole<int>> _roleManager;
 
-    public UsersController(IUsersRepository usersRepository)
+    public UsersController(IUsersRepository usersRepository, RoleManager<IdentityRole<int>> roleManager)
     {
         _usersRepo = usersRepository;
+        _roleManager = roleManager;
     }
 
     [HttpPost]
@@ -31,10 +35,14 @@ public class UsersController : ControllerBase
         {
             return BadRequest(result.Errors);
         }
+        if (!await _roleManager.RoleExistsAsync("Admin"))
+            await _roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+        if (!await _roleManager.RoleExistsAsync("User"))
+            await _roleManager.CreateAsync(new IdentityRole<int>("User"));
         return Ok(createUserDto);
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet]
     public async Task<IActionResult> GetByToken()
     {
@@ -117,5 +125,21 @@ public class UsersController : ControllerBase
         }
         var authenticationResponse = _usersRepo.AuthenticateUser(user);
         return Ok(authenticationResponse);
+    }
+
+    [HttpPost("admin/{id}")]
+    public async Task<IActionResult> GiveAdminRole(int id)
+    {
+        User? user = await _usersRepo.GetUserById(id);
+        if (user == null)
+        {
+            return NotFound("Bad credentials");
+        }
+        IdentityResult result = await _usersRepo.AddUserRole(user, "Admin");
+        if (!result.Succeeded)
+        {
+            return BadRequest();
+        }
+        return Ok(new { message = $"{user.UserName} is now an Admin" });
     }
 }

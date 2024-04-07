@@ -3,6 +3,7 @@ using eArticles.API.Models;
 using eArticles.API.Services;
 using eArticles.API.Services.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -51,7 +52,7 @@ builder.Services.AddSwaggerGen(opt =>
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services
-    .AddIdentityCore<User>(options =>
+    .AddIdentity<User, IdentityRole<int>>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.User.RequireUniqueEmail = true;
@@ -107,6 +108,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 if (app.Environment.IsDevelopment() && cmdLineInit)
 {

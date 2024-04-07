@@ -11,4 +11,5 @@ public interface IUsersRepository
     Task<User?> GetUserByUserName(string userName);
     AuthenticationResponse? AuthenticateUser(User user);
     Task<bool> IsPasswordValid(User user, string password);
+    Task<IdentityResult> AddUserRole(User user, string role);
 }

@@ -50,7 +50,9 @@ public class JwtService
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName!),
-            new Claim(ClaimTypes.Email, user.Email!)
+            new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(ClaimTypes.Role, "Admin")
         };
 
     private SigningCredentials CreateSigningCredentials() =>
