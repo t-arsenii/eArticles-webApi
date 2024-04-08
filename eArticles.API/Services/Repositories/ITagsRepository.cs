@@ -8,4 +8,5 @@ public interface ITagsRepository
     Task<Tag?> Update(Tag tag);
     Task<Tag?> Delete(int id);
     Task<Tag?> GetById(int id);
+    Task<IEnumerable<Tag>?> GetAll();
 }

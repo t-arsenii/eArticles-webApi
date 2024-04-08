@@ -20,6 +20,10 @@ export interface IArticleReq {
     imgUrl: string
     articleTags: string[] | null
 }
+export interface IArticleResPage {
+    items: IArticle[],
+    totalCount: number
+}
 export interface IArticleRes {
     id: string
     publishedDate: string

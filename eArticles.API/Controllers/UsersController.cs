@@ -35,10 +35,20 @@ public class UsersController : ControllerBase
         {
             return BadRequest(result.Errors);
         }
-        if (!await _roleManager.RoleExistsAsync("Admin"))
-            await _roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+        var user = await _usersRepo.GetUserByUserName(createUserDto.UserName);
+        if (user == null)
+        {
+            return BadRequest("User not found after creation.");
+        }
         if (!await _roleManager.RoleExistsAsync("User"))
             await _roleManager.CreateAsync(new IdentityRole<int>("User"));
+        if (!await _roleManager.RoleExistsAsync("Admin"))
+            await _roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+        IdentityResult roleResult = await _usersRepo.AddUserRole(user, "User");
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
         return Ok(createUserDto);
     }
 
@@ -123,7 +133,7 @@ public class UsersController : ControllerBase
         {
             return NotFound("Bad credentials");
         }
-        var authenticationResponse = _usersRepo.AuthenticateUser(user);
+        var authenticationResponse = await _usersRepo.AuthenticateUser(user);
         return Ok(authenticationResponse);
     }
 

@@ -9,7 +9,7 @@ public interface IUsersRepository
     Task<IdentityResult> Create(CreateUserDto userDto);
     Task<User?> GetUserById(int id);
     Task<User?> GetUserByUserName(string userName);
-    AuthenticationResponse? AuthenticateUser(User user);
+    Task<AuthenticationResponse?> AuthenticateUser(User userData);
     Task<bool> IsPasswordValid(User user, string password);
     Task<IdentityResult> AddUserRole(User user, string role);
 }

@@ -25,6 +25,10 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
             .WithMany(e => e.Articles)
             .UsingEntity<ArticleTag>();
 
+        modelBuilder
+            .Entity<Tag>()
+            .HasIndex(t => t.Title).IsUnique();
+
         // modelBuilder
         //     .Entity<User>()
         //     .HasMany(user => user.Articles)

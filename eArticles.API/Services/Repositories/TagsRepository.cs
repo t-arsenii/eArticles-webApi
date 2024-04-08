@@ -2,6 +2,7 @@
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Services.Repositories;
 
@@ -31,6 +32,11 @@ public class TagsRepository : ITagsRepository
         _dbContext.Tags.Remove(tag);
         await _dbContext.AddRangeAsync();
         return tag;
+    }
+
+    public async Task<IEnumerable<Tag>?> GetAll()
+    {
+        return await _dbContext.Tags.ToListAsync();
     }
 
     public async Task<Tag?> GetById(int id)

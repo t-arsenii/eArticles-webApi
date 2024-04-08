@@ -1,5 +1,5 @@
-import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography, InputLabel, Select, MenuItem, SelectChangeEvent, Paper, Chip, styled, Stack } from "@mui/material";
-import { useState } from "react";
+import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography, InputLabel, Select, MenuItem, SelectChangeEvent, Paper, Chip, styled, Stack, FormControl } from "@mui/material";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom"
 import { IArticleReq, IArticleRes } from "../models/articles";
@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import SendIcon from '@mui/icons-material/Send';
 import axios from "axios";
+import { ITag } from "../models/tag";
 interface ChipData {
     key: number;
     label: string;
@@ -14,19 +15,31 @@ interface ChipData {
 const ListItem = styled('li')(({ theme }) => ({
     margin: theme.spacing(0.5),
 }));
+
 export default function CreateArticle() {
+    const fetchTags = async () => {
+        const res = await axios.get<ITag[]>("http://localhost:5000/api/tags");
+        setAllTags(res.data);
+    }
+    useEffect(() => {
+        try {
+            fetchTags();
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
+    const [selectedTag, setSelectedTag] = useState<string>('');
+    const [tagsData, setTagsData] = useState<string[]>([]);
+    const [allTags, setAllTags] = useState<ITag[]>();
     const [articleType, setArticleType] = useState("Review")
     const token = useSelector((state: RootState) => state.user.token)
     const userInfo = useSelector((state: RootState) => state.user.userInfo)
-    const navigate = useNavigate()
-    const [tagValue, setTagValue] = useState('');
-    const [tagsData, setTagsData] = useState<string[]>([]);
+    const navigate = useNavigate();
     const handleAddTag = () => {
-        const trimTagValue = tagValue.trim()
-        if (trimTagValue !== '' && !tagsData.includes(trimTagValue)) {
-            setTagsData([...tagsData, tagValue]);
+        if (selectedTag !== '' && !tagsData.includes(selectedTag)) {
+            setTagsData([...tagsData, selectedTag]);
         }
-        setTagValue('');
+        setSelectedTag('');
     }
     const form = useForm<IArticleReq>({
         defaultValues: {
@@ -38,13 +51,13 @@ export default function CreateArticle() {
             articleTags: null
         }
     })
-    const { register, handleSubmit, formState, getValues } = form
-    const { errors } = formState
+    const { register, handleSubmit, formState, getValues } = form;
+    const { errors } = formState;
     const OnSubmit = async (data: IArticleReq) => {
         try {
-            data.articleType = articleType
-            data.articleTags = tagsData
-            console.log(data)
+            data.articleType = articleType;
+            data.articleTags = tagsData;
+            console.log(data);
             const resArticle = await axios.post<IArticleRes>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -160,14 +173,26 @@ export default function CreateArticle() {
                         </Grid>
                         <Grid item xs={4}>
                             <Stack direction={"row"}>
-                                <TextField
-                                    fullWidth
-                                    id="tag"
-                                    label="Tag"
-                                    autoComplete="content"
-                                    value={tagValue}
-                                    onChange={(e) => setTagValue(e.target.value)}
-                                />
+                                <FormControl sx={{ m: 1, minWidth: 80 }}>
+                                    <InputLabel id="demo-simple-select-autowidth-label">Tag</InputLabel>
+                                    <Select
+                                        labelId="demo-simple-select-autowidth-label"
+                                        id="demo-simple-select-autowidth"
+                                        value={selectedTag}
+                                        onChange={(event) => {
+                                            setSelectedTag(event.target.value);
+                                        }}
+                                        autoWidth
+                                        label="Age"
+                                    >
+                                        {allTags && allTags.map(tag => (
+                                            <MenuItem key={tag.id} value={tag.title}>
+                                                {tag.title}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+
                                 <Button onClick={handleAddTag} variant="contained" endIcon={<SendIcon />} />
                             </Stack>
                         </Grid>

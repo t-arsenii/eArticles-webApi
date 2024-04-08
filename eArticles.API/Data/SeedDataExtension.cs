@@ -9,21 +9,31 @@ public static class SeedDataExtension
 {
     public static async Task SeedInitialData(this WebApplication app)
     {
-        eArticlesDbContext? DbContext = app.Services
+        eArticlesDbContext? dbContext = app.Services
             .CreateScope()
             .ServiceProvider.GetService<eArticlesDbContext>();
         UserManager<User>? userManager = app.Services
             .CreateScope()
             .ServiceProvider.GetService<UserManager<User>>();
-        DbContext!.Database.Migrate();
-        if (!DbContext.Articles.Any() && !DbContext.ArticleTags.Any() && !DbContext.Tags.Any() && !DbContext.ArticleTypes.Any())
+        RoleManager<IdentityRole<int>>? roleManager = app.Services
+            .CreateScope()
+            .ServiceProvider.GetService<RoleManager<IdentityRole<int>>>();
+
+        dbContext!.Database.Migrate();
+
+        if (!await roleManager.RoleExistsAsync("User"))
+            await roleManager.CreateAsync(new IdentityRole<int>("User"));
+        if (!await roleManager.RoleExistsAsync("Admin"))
+            await roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+
+        if (!dbContext.Articles.Any() && !dbContext.ArticleTags.Any() && !dbContext.Tags.Any() && !dbContext.ArticleTypes.Any() && !userManager.Users.Any())
         {
             ArticleType[] articleTypes = new ArticleType[]
             {
                 new ArticleType() {Title = "News"},
                 new ArticleType() {Title = "Guide"},
                 new ArticleType() {Title = "Opinion"},
-            }; 
+            };
             User[] users = new User[]
             {
                 new User() { UserName = "Primegen", Email = "newuser1@example.com", FirstName = "Jan", LastName="Kowalski",PhoneNumber="48123123123" },
@@ -33,6 +43,7 @@ public static class SeedDataExtension
             foreach (var user in users)
             {
                 await userManager!.CreateAsync(user, "1234567890");
+                await userManager!.AddToRoleAsync(user, "User");
             }
 
             User? user1 = await userManager!.FindByNameAsync("Primegen");
@@ -87,11 +98,11 @@ public static class SeedDataExtension
                 new ArticleTag() { Article = articles[0], Tag = tags[1], },
                 new ArticleTag() { Article = articles[0], Tag = tags[2], }
             };
-            DbContext.Articles.AddRange(articles);
-            DbContext.Tags.AddRange(tags);
-            DbContext.ArticleTags.AddRange(articleTags);
+            dbContext.Articles.AddRange(articles);
+            dbContext.Tags.AddRange(tags);
+            dbContext.ArticleTags.AddRange(articleTags);
 
-            DbContext.SaveChanges();
+            dbContext.SaveChanges();
         }
     }
 }

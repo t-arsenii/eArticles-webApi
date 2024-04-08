@@ -15,9 +15,9 @@ public class UsersRepository : IUsersRepository
         _jwtService = jwtService;
     }
 
-    public AuthenticationResponse? AuthenticateUser(User userData)
+    public async Task<AuthenticationResponse?> AuthenticateUser(User userData)
     {
-        return _jwtService.CreateToken(userData);
+        return await _jwtService.CreateTokenAsync(userData);
     }
 
     public async Task<IdentityResult> Create(CreateUserDto userData)

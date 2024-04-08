@@ -3,6 +3,7 @@ using eArticles.API.Data.Enums;
 using eArticles.API.Extensions;
 using eArticles.API.Models;
 using eArticles.API.Services.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -10,6 +11,7 @@ using System.Security.Claims;
 namespace eArticles.API.Controllers;
 
 [Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ArticlesController : ControllerBase
 {
     readonly IArticlesRepository _articleRepo;
@@ -22,6 +24,7 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> Get(int id)
     {
         Article? article = await _articleRepo.GetById(id);
@@ -32,7 +35,6 @@ public class ArticlesController : ControllerBase
         return Ok(article.AsDto());
     }
 
-    [Authorize]
     [HttpGet("my")]
     public async Task<IActionResult> GetUserPage(
         [FromQuery] int pageNumber = 1,
@@ -70,6 +72,7 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPage(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
@@ -96,7 +99,6 @@ public class ArticlesController : ControllerBase
         return Ok(new PageArticleDto(articleDTOs, totalArticles));
     }
 
-    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateArticleDto articleDto)
     {
@@ -114,7 +116,7 @@ public class ArticlesController : ControllerBase
         }
         Article artcile = articleDto.AsArticle();
         artcile.User = user;
-        var created_article = await _articleRepo.Create(artcile, articleDto.ArticleTags);
+        var created_article = await _articleRepo.Create(artcile, articleDto.ArticleType, articleDto.ArticleTags);
         if (created_article == null)
         {
             return BadRequest();

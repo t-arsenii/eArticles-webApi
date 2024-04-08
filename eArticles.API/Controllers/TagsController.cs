@@ -29,5 +29,22 @@ namespace eArticles.API.Controllers
             var createdTag = await _tagsRepo.Create(tag);
             return Ok(createdTag);
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll()
+        {
+            var tags = await _tagsRepo.GetAll();
+            if (tags == null)
+            {
+                return BadRequest();
+            }
+            var tagDtos = new List<TagDto>();
+            foreach (var tag in tags)
+            {
+                tagDtos.Add(new TagDto(id: tag.Id, title: tag.Title));
+            }
+            return Ok(tagDtos);
+        }
     }
 }

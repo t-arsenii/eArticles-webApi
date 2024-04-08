@@ -13,21 +13,26 @@ public class ArticlesRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Article?> Create(Article newArticle, IEnumerable<string>? tagNames = null)
+    public async Task<Article?> Create(Article newArticle, string articleType, IEnumerable<string>? tagNames = null)
     {
         if (tagNames != null && tagNames.Any())
         {
             foreach (var tagName in tagNames)
             {
-                var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
+                var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == tagName);
                 if (tag == null)
                 {
-                    tag = new Tag { Title = tagName };
-                    _dbContext.Tags.Add(tag);
+                    return null;
                 }
                 newArticle.Tags.Add(tag);
             }
         }
+        var articleTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
+        if (articleTypeEntity == null)
+        {
+            return null;
+        }
+        newArticle.ArticleType = articleTypeEntity;
         newArticle.Published_Date = DateTime.Now;
         await _dbContext.Articles.AddAsync(newArticle);
         await _dbContext.SaveChangesAsync();
@@ -51,6 +56,7 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles
             .Include(ar => ar.Tags)
             .Include(ar => ar.User)
+            .Include(ar => ar.ArticleType)
             .FirstOrDefaultAsync(ar => ar.Id == id);
     }
 
@@ -74,38 +80,44 @@ public class ArticlesRepository : IArticlesRepository
         int currentPage = 1,
         int pageSize = 10,
         int? userId = null,
-        string articleType = "",
-        string order = "",
+        string? articleType = null,
+        string? order = null,
         string[]? tags = null
     )
     {
         IQueryable<Article> query = _dbContext.Articles;
 
-        if(userId is not null)
+        if (userId is not null)
         {
             query = query.Where(a => a.UserId == userId);
         }
-        if(!string.IsNullOrEmpty(articleType))
+        if (!string.IsNullOrEmpty(articleType))
         {
             query = query.Where(a => a.ArticleType.Title.ToLower() == articleType.ToLower());
         }
-        if(!string.IsNullOrEmpty(order))
+        if (tags != null && tags.Any())
         {
-            if(order.ToLower() == "date")
+            foreach (var tag in tags)
+            {
+                query = query.Where(a => a.Tags.Select(t => t.Title.ToLower()).Contains(tag.ToLower()));
+            }
+        }
+        if (string.IsNullOrEmpty(order))
+        {
+            query = query.OrderBy(a => a.Id);
+        }
+        else
+        {
+            if (order.ToLower() == "date")
             {
                 query = query.OrderBy(a => a.Published_Date);
 
             }
         }
-        if(tags != null && tags.Any())
-        {
-            query = query.Where(a => a.Tags.Select(t => t.Title).SequenceEqual(tags));
-        }
         return await query
             .Include(a => a.Tags)
             .Include(a => a.User)
             .Include(a => a.ArticleType)
-            .OrderBy(ar => ar.Id)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

@@ -21,7 +21,11 @@ export default function FullArticle() {
             const resArticleData: IArticle = { ...resArticle.data }
             setArticle(resArticleData)
         }
-        fetchArticle()
+        try {
+            fetchArticle()
+        } catch (e) {
+            console.error(e);
+        }
     }, [])
     const handleDeleteButton = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         setOpen(true)
@@ -67,12 +71,12 @@ export default function FullArticle() {
                         }
                         <Box><Typography sx={{ fontWeight: "bold" }} variant="h2">{article.title}</Typography></Box>
                         <Box><Typography variant="h5">{article.description}</Typography></Box>
-                        <Box sx={{marginTop:"10px"}}>
+                        <Box sx={{ marginTop: "10px" }}>
                             {article.articleTags && article.articleTags.map((tag, key) => (
-                                    <Chip
-                                        label={tag}
-                                        sx={{marginRight:"5px"}}
-                                    />
+                                <Chip
+                                    label={tag}
+                                    sx={{ marginRight: "5px" }}
+                                />
                             ))}
                         </Box>
                         <Box sx={{
