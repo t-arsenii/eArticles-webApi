@@ -8,7 +8,8 @@ import { UserProfile } from "../pages/UserProfile";
 import { Login } from "../pages/Login";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import Latest from "../pages/Latest";
+import LatestPage from "../pages/LatestPage";
+import NewsPage from "../pages/NewsPage";
 
 export default function AppRouter() {
     const token = useSelector((state: RootState) => state.user.token)
@@ -21,7 +22,8 @@ export default function AppRouter() {
             <Route path='/article/create' element={<CreateArticle />} />
             <Route path='/article/:id' element={<FullArticle />} />
             <Route path='/article/edit/:id' element={<EditArticle />} />
-            <Route path='/latest' element={<Latest/>}/>
+            <Route path='/latest' element={<LatestPage/>}/>
+            <Route path='/news' element={<NewsPage/>}/>
             {token && <Route path={`/profile/${userInfo.userName}`} element={<UserProfile />} />}
         </Routes>
     )

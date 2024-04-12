@@ -11,37 +11,38 @@ export function Home() {
     const [guideArticles, setGuideArticles] = useState<IArticle[]>([]);
     const [newsArticles, setNewsArticles] = useState<IArticle[]>([]);
     useEffect(() => {
-        try {
-            fetchLatestArticles();
-        } catch (error: any) {
-            console.log(error);
-        }
-        try {
-            fetchGuideArticles();
-        } catch (error: any) {
-            console.log(error);
-        }
-        try {
-            fetchNewsArticles();
-        } catch (error: any) {
-            console.log(error);
-        }
+        fetchLatestArticles();
+        fetchGuideArticles();
+        fetchNewsArticles();
     }, []);
     useEffect(() => {
         console.log(latestArticles);
     }, [latestArticles]);
 
     const fetchLatestArticles = async () => {
-        const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date`);
-        setLatestArticles(res.data.items);
+        try {
+            const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date`);
+            setLatestArticles(res.data.items);
+
+        } catch (error) {
+            console.log(error);
+        }
     }
     const fetchGuideArticles = async () => {
-        const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=guide`);
-        setGuideArticles(res.data.items);
+        try {
+            const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=guide`);
+            setGuideArticles(res.data.items);
+        } catch (error) {
+            console.log(error);
+        }
     }
     const fetchNewsArticles = async () => {
-        const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=news`);
-        setNewsArticles(res.data.items);
+        try {
+            const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=news`);
+            setNewsArticles(res.data.items);
+        } catch (error) {
+            console.log(error);
+        }
     }
     return (
         <>

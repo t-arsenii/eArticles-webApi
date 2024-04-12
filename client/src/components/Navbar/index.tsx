@@ -16,7 +16,6 @@ export function Navbar() {
         { name: "HOME", link: "/" },
         { name: "LATEST", link: "/latest" },
         { name: "NEWS", link: "/news" },
-        { name: "SCIENCE", link: "/science" },
         { name: "GAMES", link: "/games" },
         { name: "ANIME", link: "/anime" },
         { name: "OTHER", link: "/other" }

@@ -7,9 +7,12 @@ import { RootState } from "../store/store";
 import { Pagination, Box } from "@mui/material";
 interface IArticleProps {
     url: string,
-    isToken?: boolean
+    isToken?: boolean,
+    order?: string,
+    articleType?: string,
+    tags?: string[]
 }
-export default function ArticlePage({ url, isToken = false }: IArticleProps) {
+export default function ArticlePage({ url, isToken = false, order, articleType, tags }: IArticleProps) {
     const [articles, setArticles] = useState<IArticle[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -25,7 +28,20 @@ export default function ArticlePage({ url, isToken = false }: IArticleProps) {
                     Authorization: isToken ? `Bearer ${token}` : undefined
                 }
             };
-            const res = await axios.get<{ items: IArticle[], totalCount: number }>(`${url}?pageNumber=${currentPage}&pageSize=${ItemsPerPage}`, config)
+            let finalUrl = `${url}?pageNumber=${currentPage}&pageSize=${ItemsPerPage}`;
+            if (order) {
+                finalUrl += `&order=${order}`;
+            }
+            if (articleType) {
+                finalUrl += `&articleType=${articleType}`;
+            }
+            if (tags) {
+                tags.forEach(tag => {
+                    finalUrl += `&tags=${tag}`;
+                })
+            }
+
+            const res = await axios.get<{ items: IArticle[], totalCount: number }>(finalUrl, config)
             const { items, totalCount } = res.data;
             setArticles(items)
             setTotalPages(Math.ceil(totalCount / ItemsPerPage));
@@ -42,7 +58,7 @@ export default function ArticlePage({ url, isToken = false }: IArticleProps) {
         <>
             <ArticleList articles={articles} />
             <Box>
-                <Pagination sx={{display:"flex", justifyContent:"center"}} count={totalPages} color="primary" onChange={handlePageChange} />
+                <Pagination sx={{ display: "flex", justifyContent: "center" }} count={totalPages} color="primary" onChange={handlePageChange} />
             </Box>
         </>
     )

@@ -13,15 +13,19 @@ export default function EditArticle() {
     const token = useSelector((state: RootState) => state.user.token)
     const userInfo = useSelector((state: RootState) => state.user.userInfo)
     const navigate = useNavigate()
-    const {id} = useParams()
+    const { id } = useParams()
+    const fetchArticle = async () => {
+        const resArticle = await axios.get<IArticleRes>(`http://localhost:5000/api/Articles/${id}`)
+        const resArticleData: IArticle = { ...resArticle.data }
+        reset(resArticleData)
+        setArticleType(resArticleData.articleType)
+    }
     useEffect(() => {
-        const fetchArticle = async () => {
-            const resArticle = await axios.get<IArticleRes>(`http://localhost:5000/api/Articles/${id}`)
-            const resArticleData: IArticle = { ...resArticle.data }
-            reset(resArticleData)
-            setArticleType(resArticleData.articleType)
+        try {
+            fetchArticle()
+        } catch (err) {
+            console.log(err);
         }
-        fetchArticle()
     }, [])
     const form = useForm<IArticleReq>({
         defaultValues: {
@@ -33,7 +37,7 @@ export default function EditArticle() {
             articleTags: null
         }
     })
-    const {reset, register, handleSubmit, formState, getValues } = form
+    const { reset, register, handleSubmit, formState, getValues } = form
     const { errors } = formState
     const OnSubmit = async (data: IArticleReq) => {
         try {
