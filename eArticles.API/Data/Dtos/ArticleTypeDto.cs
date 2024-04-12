@@ -11,6 +11,5 @@ public record CreateArticleTypeDto
 );
 public record UpdateArticleTypeDto
 (
-    int Id,
     string Title
 );

@@ -44,8 +44,8 @@ public record CreateArticleDto(
     [Required]
     [StringLength(
         3000,
-        MinimumLength = 10,
-        ErrorMessage = "The Content must be between 10 and 3000 characters."
+        MinimumLength = 100,
+        ErrorMessage = "The Content must be between 100 and 3000 characters."
     )]
         string Content,
     [Required] string ArticleType,
@@ -56,23 +56,23 @@ public record CreateArticleDto(
 public record UpdateArticleDto(
     [Required]
     [StringLength(
-        100,
+        50,
         MinimumLength = 5,
-        ErrorMessage = "The Title must be between 5 and 100 characters."
+        ErrorMessage = "The Title must be between 5 and 50 characters."
     )]
         string Title,
     [Required]
     [StringLength(
-        200,
+        100,
         MinimumLength = 5,
-        ErrorMessage = "The Description must be between 5 and 200 characters."
+        ErrorMessage = "The Description must be between 5 and 100 characters."
     )]
         string Description,
     [Required]
     [StringLength(
-        100,
-        MinimumLength = 3000,
-        ErrorMessage = "The Content must be between 5 and 100 characters."
+        3000,
+        MinimumLength = 100,
+        ErrorMessage = "The Content must be between 100 and 3000 characters."
     )]
         string Content,
     [Required] string ArticleType,

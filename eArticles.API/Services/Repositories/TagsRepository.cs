@@ -30,7 +30,7 @@ public class TagsRepository : ITagsRepository
             return null;
         }
         _dbContext.Tags.Remove(tag);
-        await _dbContext.AddRangeAsync();
+        await _dbContext.SaveChangesAsync();
         return tag;
     }
 
@@ -51,12 +51,12 @@ public class TagsRepository : ITagsRepository
 
     public async Task<Tag?> Update(Tag updateTag)
     {
-        var tag = await _dbContext.Tags.FindAsync(updateTag.Id);
+        var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Id == updateTag.Id);
         if (tag == null)
         {
             return null;
         }
-        _dbContext.Tags.Update(tag);
+        _dbContext.Tags.Update(updateTag);
         await _dbContext.SaveChangesAsync();
         return updateTag;
     }

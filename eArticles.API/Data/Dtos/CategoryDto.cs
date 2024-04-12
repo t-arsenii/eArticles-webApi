@@ -13,6 +13,5 @@ public record CreateCategoryDto
 
 public record UpdateCategoryDto
 (
-    int Id,
     string Title
 );

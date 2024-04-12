@@ -58,11 +58,11 @@ public class CategoryController : ControllerBase
         return Ok(new CategoryDto(createdCategory.Id, createdCategory.Title));
     }
 
-    [HttpPut]
+    [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(UpdateCategoryDto updateCategoryDto)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCategoryDto updateCategoryDto)
     {
-        Category category = new Category() { Id = updateCategoryDto.Id, Title = updateCategoryDto.Title };
+        Category category = new Category() { Id = id, Title = updateCategoryDto.Title };
         var updateCategory = await _categoryRepo.Update(category);
         if (updateCategory == null)
         {

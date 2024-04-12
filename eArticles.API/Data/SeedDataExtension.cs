@@ -52,7 +52,7 @@ public static class SeedDataExtension
                 await userManager!.AddToRoleAsync(user, "User");
             }
 
-            User? user1 = await userManager!.FindByNameAsync("Primegen");
+            User? user1 = await userManager!.FindByNameAsync("Primeagen");
             User? user2 = await userManager!.FindByNameAsync("Godot");
             User? user3 = await userManager!.FindByNameAsync("Spike");
 

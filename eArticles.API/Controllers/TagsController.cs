@@ -11,6 +11,7 @@ namespace eArticles.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "Admin")]
     public class TagsController : ControllerBase
     {
         ITagsRepository _tagsRepo { get; set; }
@@ -19,13 +20,16 @@ namespace eArticles.API.Controllers
             _tagsRepo = tagsRepo;
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(CreateTagDto tagDto)
         {
             Tag tag = new Tag();
             tag.Title = tagDto.Title;
             var createdTag = await _tagsRepo.Create(tag);
-            return Ok(createdTag);
+            if (createdTag == null)
+            {
+                return BadRequest();
+            }
+            return Ok(new TagDto(id: createdTag.Id, title: createdTag.Title));
         }
 
         [HttpGet]
@@ -44,5 +48,28 @@ namespace eArticles.API.Controllers
             }
             return Ok(tagDtos);
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            var tagDeleted = await _tagsRepo.Delete(id);
+            if (tagDeleted == null)
+            {
+                return NotFound();
+            }
+            return Ok(new TagDto(id: tagDeleted.Id, title: tagDeleted.Title));
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, UpdateTagDto updateTagDto)
+        {
+            var tag = new Tag() { Id = id, Title = updateTagDto.Title };
+            var updatedTag = await _tagsRepo.Update(tag);
+            if (updatedTag == null)
+            {
+                return NotFound();
+            }
+            return Ok(new TagDto(id: updatedTag.Id, title: updatedTag.Title));
+        }
+
     }
 }
