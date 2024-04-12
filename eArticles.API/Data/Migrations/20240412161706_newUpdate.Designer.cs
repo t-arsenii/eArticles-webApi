@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eArticles.API.Data;
 
@@ -11,9 +12,11 @@ using eArticles.API.Data;
 namespace eArticles.API.Data.Migrations
 {
     [DbContext(typeof(eArticlesDbContext))]
-    partial class eArticlesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240412161706_newUpdate")]
+    partial class newUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

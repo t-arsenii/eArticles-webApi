@@ -14,11 +14,9 @@ namespace eArticles.API.Controllers
     public class TagsController : ControllerBase
     {
         ITagsRepository _tagsRepo { get; set; }
-        IUsersRepository _usersRepo { get; set; }
-        public TagsController(ITagsRepository tagsRepo, IUsersRepository urersRepo)
+        public TagsController(ITagsRepository tagsRepo)
         {
             _tagsRepo = tagsRepo;
-            _usersRepo = urersRepo;
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]

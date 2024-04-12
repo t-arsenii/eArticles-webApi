@@ -101,7 +101,7 @@ public class ArticlesControllerTests
             );
 
         mockRepository
-            .Setup(repo => repo.Create(It.IsAny<Article>(), It.IsAny<List<string>>()))
+            .Setup(repo => repo.Create(It.IsAny<Article>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()))
             .ReturnsAsync(expectedCreatedArticle);
 
         var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, "123") };
@@ -125,7 +125,7 @@ public class ArticlesControllerTests
         Assert.Equal(expectedCreatedArticle.Id.ToString(), createdArticleDto.Id);
 
         mockRepository.Verify(
-            repo => repo.Create(It.IsAny<Article>(), It.IsAny<IEnumerable<string>>()),
+            repo => repo.Create(It.IsAny<Article>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()),
             Times.Once
         );
     }
@@ -148,7 +148,7 @@ public class ArticlesControllerTests
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.IsType<SerializableError>(badRequestResult.Value);
         mockRepository.Verify(
-            repo => repo.Create(It.IsAny<Article>(), It.IsAny<IEnumerable<string>>()),
+            repo => repo.Create(It.IsAny<Article>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()),
             Times.Never
         );
     }

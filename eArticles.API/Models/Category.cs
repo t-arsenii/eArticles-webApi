@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace eArticles.API.Models;
 
-namespace eArticles.API.Models;
-
-public class ArticleType
+public class Category
 {
-    [Key]
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
+
     public Article? Article { get; set; }
 }

@@ -51,6 +51,10 @@ builder.Services.AddSwaggerGen(opt =>
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IArticleTypeRepository, ArticleTypeRepository>();
+
+
 builder.Services
     .AddIdentity<User, IdentityRole<int>>(options =>
     {
