@@ -13,7 +13,7 @@ public class ArticleTypeRepository : IArticleTypeRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ArticleType> Create(ArticleType articleType)
+    public async Task<ContentType> Create(ContentType articleType)
     {
         await _dbContext.ArticleTypes.AddAsync(articleType);
         await _dbContext.SaveChangesAsync();
@@ -21,7 +21,7 @@ public class ArticleTypeRepository : IArticleTypeRepository
         return articleType;
     }
 
-    public async Task<ArticleType?> Delete(int id)
+    public async Task<ContentType?> Delete(int id)
     {
         var articleType = await _dbContext.ArticleTypes.FindAsync(id);
         if (articleType == null)
@@ -33,18 +33,18 @@ public class ArticleTypeRepository : IArticleTypeRepository
         return articleType;
     }
 
-    public async Task<IEnumerable<ArticleType>> GetAll()
+    public async Task<IEnumerable<ContentType>> GetAll()
     {
         return await _dbContext.ArticleTypes.ToListAsync();
 
     }
 
-    public async Task<ArticleType?> GetById(int id)
+    public async Task<ContentType?> GetById(int id)
     {
         return await _dbContext.ArticleTypes.FindAsync(id);
     }
 
-    public async Task<ArticleType?> Update(ArticleType articleTypeUpdate)
+    public async Task<ContentType?> Update(ContentType articleTypeUpdate)
     {
         var articleType = await _dbContext.ArticleTypes.FindAsync(articleTypeUpdate.Id);
         if (articleType == null)

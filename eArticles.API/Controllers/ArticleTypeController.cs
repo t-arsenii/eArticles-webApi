@@ -47,7 +47,7 @@ public class ArticleTypeController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateArticleTypeDto createArticleTypeDto)
     {
-        ArticleType articleType = new() { Title = createArticleTypeDto.Title };
+        ContentType articleType = new() { Title = createArticleTypeDto.Title };
         var createdArticle = await _articleTypeRepo.Create(articleType);
         if (createdArticle == null)
         {
@@ -58,7 +58,7 @@ public class ArticleTypeController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArticleTypeDto updateArticleTypeDto)
     {
-        ArticleType articleType = new() { Id = id, Title = updateArticleTypeDto.Title };
+        ContentType articleType = new() { Id = id, Title = updateArticleTypeDto.Title };
         var updatedArticle = await _articleTypeRepo.Update(articleType);
         if (updatedArticle == null)
         {

@@ -10,7 +10,7 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<ArticleType> ArticleTypes => Set<ArticleType>();
+    public DbSet<ContentType> ArticleTypes => Set<ContentType>();
     public DbSet<Category> Categories => Set<Category>();
 
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
@@ -26,19 +26,29 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
             .WithMany(e => e.Articles)
             .UsingEntity<ArticleTag>();
 
-        modelBuilder.Entity<Article>()
-            .HasOne(e => e.ArticleType)
-            .WithOne(e => e.Article)
-            .HasForeignKey<Article>(e => e.ArticleTypeId);
+        modelBuilder
+            .Entity<Article>()
+            .HasOne(e => e.ContentType)
+            .WithMany(e => e.Articles);
 
-        modelBuilder.Entity<Article>()
+        modelBuilder
+            .Entity<Article>()
             .HasOne(e => e.Category)
-            .WithOne(e => e.Article)
-            .HasForeignKey<Article>(e => e.CategoryId);
+            .WithMany(e => e.Articles);
 
         modelBuilder
             .Entity<Tag>()
             .HasIndex(t => t.Title).IsUnique();
+
+        modelBuilder
+            .Entity<ContentType>()
+            .HasIndex(e => e.Title)
+            .IsUnique();
+
+        modelBuilder
+            .Entity<Category>()
+            .HasIndex(e => e.Title)
+            .IsUnique();
 
         modelBuilder
             .Entity<User>()

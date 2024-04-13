@@ -81,7 +81,6 @@ public class CategoryController : ControllerBase
             return NotFound();
         }
         return Ok(new CategoryDto(deletedCategory.Id, deletedCategory.Title));
-
     }
 }
 

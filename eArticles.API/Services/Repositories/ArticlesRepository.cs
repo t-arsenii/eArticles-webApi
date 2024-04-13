@@ -13,7 +13,7 @@ public class ArticlesRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Article?> Create(Article newArticle, string articleType, IEnumerable<string>? tagNames = null)
+    public async Task<Article?> Create(Article newArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
     {
         if (tagNames != null && tagNames.Any())
         {
@@ -27,12 +27,14 @@ public class ArticlesRepository : IArticlesRepository
                 newArticle.Tags.Add(tag);
             }
         }
-        var articleTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
-        if (articleTypeEntity == null)
+        var contentTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == contentType);
+        var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
+        if (contentTypeEntity == null || articleCategory == null)
         {
             return null;
         }
-        newArticle.ArticleType = articleTypeEntity;
+        newArticle.ContentType = contentTypeEntity;
+        newArticle.Category = articleCategory;
         newArticle.Published_Date = DateTime.Now;
         await _dbContext.Articles.AddAsync(newArticle);
         await _dbContext.SaveChangesAsync();
@@ -56,7 +58,8 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles
             .Include(ar => ar.Tags)
             .Include(ar => ar.User)
-            .Include(ar => ar.ArticleType)
+            .Include(ar => ar.ContentType)
+            .Include (ar => ar.Category)
             .FirstOrDefaultAsync(ar => ar.Id == id);
     }
 
@@ -93,7 +96,7 @@ public class ArticlesRepository : IArticlesRepository
         }
         if (!string.IsNullOrEmpty(articleType))
         {
-            query = query.Where(a => a.ArticleType.Title.ToLower() == articleType.ToLower());
+            query = query.Where(a => a.ContentType.Title.ToLower() == articleType.ToLower());
         }
         if (tags != null && tags.Any())
         {
@@ -117,7 +120,8 @@ public class ArticlesRepository : IArticlesRepository
         return await query
             .Include(a => a.Tags)
             .Include(a => a.User)
-            .Include(a => a.ArticleType)
+            .Include(a => a.ContentType)
+            .Include(ar => ar.Category)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -132,24 +136,33 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
-    public async Task<Article?> Update(Article updateArticle, IEnumerable<string>? tagNames = null)
+    public async Task<Article?> Update(Article updateArticle, string articleType, string category, IEnumerable<string>? tagNames = null)
     {
         Article? article = await GetById(updateArticle.Id);
         if (article == null)
         {
             return null;
         }
+        _dbContext.Entry(article).State = EntityState.Detached;
         if (tagNames != null && tagNames.Any())
         {
             foreach (var tagName in tagNames)
             {
                 var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
-                if (tag != null)
+                if (tag == null)
                 {
-                    updateArticle.Tags.Add(tag);
+                    return null;
                 }
             }
         }
+        var articleTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
+        var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
+        if (articleTypeEntity == null || articleCategory == null)
+        {
+            return null;
+        }
+        updateArticle.ContentType = articleTypeEntity;
+        updateArticle.Category = articleCategory;
         _dbContext.Articles.Update(updateArticle);
         await _dbContext.SaveChangesAsync();
         return updateArticle;

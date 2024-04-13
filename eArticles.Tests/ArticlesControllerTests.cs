@@ -37,7 +37,7 @@ public class ArticlesControllerTests
         Assert.Equal(expectedArticle.Title, resArticleDTO?.Title);
         Assert.Equal(expectedArticle.Description, resArticleDTO?.Description);
         Assert.Equal(expectedArticle.Content, resArticleDTO?.Content);
-        Assert.Equal(expectedArticle.ArticleType.ToString(), resArticleDTO?.ArticleType);
+        Assert.Equal(expectedArticle.ContentType.ToString(), resArticleDTO?.ArticleType);
         Assert.Equal(expectedArticle.Published_Date.ToString(), resArticleDTO?.PublishedDate);
     }
 
@@ -95,7 +95,7 @@ public class ArticlesControllerTests
                 expectedCreatedArticle.Title,
                 expectedCreatedArticle.Description,
                 expectedCreatedArticle.Content,
-                expectedCreatedArticle.ArticleType.ToString(),
+                expectedCreatedArticle.ContentType.ToString(),
                 expectedCreatedArticle.Tags.Select(t => t.Title).ToList(),
                 expectedCreatedArticle.Img_Url
             );
@@ -169,7 +169,7 @@ public class ArticlesControllerTests
                 expectedCreatedArticle.Title,
                 expectedCreatedArticle.Description,
                 expectedCreatedArticle.Content,
-                expectedCreatedArticle.ArticleType.ToString(),
+                expectedCreatedArticle.ContentType.ToString(),
                 expectedCreatedArticle.Tags.Select(t => t.Title).ToList(),
                 expectedCreatedArticle.Img_Url
             );

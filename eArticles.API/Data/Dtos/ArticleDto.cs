@@ -6,7 +6,8 @@ public abstract record BaseArticleDto(
     string Title,
     string Description,
     string Content,
-    string ArticleType,
+    string ContentType,
+    string Category,
     string? ImgUrl,
     IEnumerable<string>? ArticleTags
 );
@@ -16,12 +17,13 @@ public record ArticleDto(
     string Title,
     string Description,
     string Content,
-    string ArticleType,
+    string ContentType,
+    string Category,
     string PublishedDate,
     string ImgUrl,
     IEnumerable<string>? ArticleTags,
     UserDto User
-) : BaseArticleDto(Title, Description, Content, ArticleType, ImgUrl, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ContentType, Category, ImgUrl, ArticleTags);
 
 public record PageArticleDto(
     IEnumerable<ArticleDto> items,
@@ -48,10 +50,11 @@ public record CreateArticleDto(
         ErrorMessage = "The Content must be between 100 and 3000 characters."
     )]
         string Content,
-    [Required] string ArticleType,
+    [Required] string ContentType,
+    [Required] string Category,
     IEnumerable<string>? ArticleTags = null,
     [Url] string? Img_Url = null
-) : BaseArticleDto(Title, Description, Content, ArticleType, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ContentType, Category, Img_Url, ArticleTags);
 
 public record UpdateArticleDto(
     [Required]
@@ -75,7 +78,8 @@ public record UpdateArticleDto(
         ErrorMessage = "The Content must be between 100 and 3000 characters."
     )]
         string Content,
-    [Required] string ArticleType,
+    [Required] string ContentType,
+    [Required] string Category,
     IEnumerable<string>? ArticleTags = null,
     [Url] string? Img_Url = null
-) : BaseArticleDto(Title, Description, Content, ArticleType, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ContentType, Category, Img_Url, ArticleTags);

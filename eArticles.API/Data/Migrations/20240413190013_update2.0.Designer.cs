@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eArticles.API.Data;
 
@@ -11,9 +12,11 @@ using eArticles.API.Data;
 namespace eArticles.API.Data.Migrations
 {
     [DbContext(typeof(eArticlesDbContext))]
-    partial class eArticlesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240413190013_update2.0")]
+    partial class update20
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,6 +166,9 @@ namespace eArticles.API.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ArticleTypeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -170,7 +176,7 @@ namespace eArticles.API.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ContentTypeId")
+                    b.Property<int?>("ContentTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -414,9 +420,7 @@ namespace eArticles.API.Data.Migrations
 
                     b.HasOne("eArticles.API.Models.ContentType", "ContentType")
                         .WithMany("Articles")
-                        .HasForeignKey("ContentTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ContentTypeId");
 
                     b.HasOne("eArticles.API.Models.User", "User")
                         .WithMany("Articles")

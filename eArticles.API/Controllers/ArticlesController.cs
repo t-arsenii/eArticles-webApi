@@ -13,7 +13,7 @@ namespace eArticles.API.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ArticlesController : ControllerBase
-{
+{ 
     readonly IArticlesRepository _articleRepo;
     readonly IUsersRepository _usersRepo;
 
@@ -116,7 +116,7 @@ public class ArticlesController : ControllerBase
         }
         Article artcile = articleDto.AsArticle();
         artcile.User = user;
-        var created_article = await _articleRepo.Create(artcile, articleDto.ArticleType, articleDto.ArticleTags);
+        var created_article = await _articleRepo.Create(artcile, articleDto.ContentType, articleDto.Category, articleDto.ArticleTags);
         if (created_article == null)
         {
             return BadRequest();
@@ -126,7 +126,7 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateArticleDto articleDto)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArticleDto updateArticleDto)
     {
         if (!ModelState.IsValid)
         {
@@ -149,9 +149,10 @@ public class ArticlesController : ControllerBase
         {
             return Forbid();
         }
-        var articleToUpdate = articleDto.AsArticle();
+        var articleToUpdate = updateArticleDto.AsArticle();
         articleToUpdate.Id = article.Id;
-        Article? updatedArticle = await _articleRepo.Update(articleToUpdate);
+        articleToUpdate.User = article.User;
+        Article? updatedArticle = await _articleRepo.Update(articleToUpdate, updateArticleDto.ContentType, updateArticleDto.Category);
         if (updatedArticle == null)
         {
             return NotFound();

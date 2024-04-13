@@ -10,8 +10,8 @@ public class Article
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
-    public int ArticleTypeId { get; set; }
-    public ArticleType? ArticleType { get; set; }
+    public int ContentTypeId { get; set; }
+    public ContentType? ContentType { get; set; }
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
     public DateTime Published_Date { get; set; }
@@ -21,7 +21,6 @@ public class Article
         set { _imgUrl = value ?? _imgUrl; }
         get { return _imgUrl; }
     }
-    public List<ArticleTag> ArticleTags { get; } = new();
     public List<Tag> Tags { get; } = new();
     public int? UserId { get; set; }
     public User? User { get; set; }
