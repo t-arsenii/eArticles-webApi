@@ -1,4 +1,4 @@
-import { AppBar, IconButton, Toolbar, Typography, Stack, Button, Switch, Box } from '@mui/material'
+import { AppBar, IconButton, Toolbar, Typography, Stack, Button, Switch, Box, Menu, MenuItem } from '@mui/material'
 import { Link } from 'react-router-dom'
 import AbcIcon from '@mui/icons-material/Abc';
 import { styled } from '@mui/system';
@@ -12,6 +12,7 @@ export function Navbar() {
     const token = useSelector((state: RootState) => state.user.token);
     const userInfo = useSelector((state: RootState) => state.user.userInfo)
     const [isDarkTheme, setIsDarkTheme] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const pages = [
         { name: "HOME", link: "/" },
         { name: "LATEST", link: "/latest" },
@@ -34,6 +35,13 @@ export function Navbar() {
         setIsDarkTheme((prev) => !prev);
         localStorage.setItem('preferredTheme', newTheme ? 'dark' : 'light');
     }
+    const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     const StyledLink = styled(Link)({
         textDecoration: 'none',
         color: 'inherit',
@@ -68,11 +76,32 @@ export function Navbar() {
                         />
                     </Stack>
                     {token ?
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <Link to={`/profile/${userInfo.userName}`} className='username'>
-                                {userInfo.userName}
-                            </Link>
-                        </Box>
+                        <>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <Box sx={{ userSelect: "none", cursor:"pointer" }} onClick={handleMenu}><span>{userInfo.userName}</span></Box>
+                                {/* <Link to={`/profile/${userInfo.userName}`} className='username'>
+                                    {userInfo.userName}
+                                </Link> */}
+                            </Box>
+                            <Menu
+                                id="menu-appbar"
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                keepMounted
+                                // transformOrigin={{
+                                //     vertical: 'top',
+                                //     horizontal: 'right',
+                                // }}
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                                <MenuItem onClick={handleClose}>My account</MenuItem>
+                            </Menu>
+                        </>
                         :
                         <Box>
                             <Link to='/login' className='loginIcon'>

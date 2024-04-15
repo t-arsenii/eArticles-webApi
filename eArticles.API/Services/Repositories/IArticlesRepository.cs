@@ -12,8 +12,9 @@ public interface IArticlesRepository
         int currentPage = 1,
         int pageSize = 10,
         int? userId = null,
-        string articleType = "",
-        string order = "",
+        string? contentType = null,
+        string? category = null,
+        string? order = null,
         string[]? tags = null
     );
     public Task<int> GetTotalItems(int? userId = null);

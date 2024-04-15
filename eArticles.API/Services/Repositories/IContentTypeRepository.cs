@@ -2,7 +2,7 @@
 
 namespace eArticles.API.Services.Repositories;
 
-public interface IArticleTypeRepository
+public interface IContentTypeRepository
 {
     public Task<ContentType?> GetById(int id);
     public Task<IEnumerable<ContentType>> GetAll();

@@ -61,8 +61,15 @@ export default function FullArticle() {
                 <>loading...</>
                 :
                 <>
-                    < Stack >
-                        <Box sx={{ display: "flex", marginY: "20px" }}><Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}><Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.articleType}</Typography></Box></Box>
+                    <Stack>
+                        <Box sx={{ display: "flex", justifyContent: "center", marginY: "20px" }}>
+                            <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
+                            <Box sx={{ color: "black", padding: "5px", width: "100px", textAlign: "center" }}>
+                                <Typography sx={{ fontSize: "30px", fontStyle: "italic", lineHeight: "5px", verticalAlign: "middle" }}>{article.category}</Typography>
+                            </Box>
+                            <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
+                        </Box>
+                        <Box sx={{ display: "flex", marginY: "20px" }}><Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}><Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.contentType}</Typography></Box></Box>
                         {article.userId === userInfo.id &&
                             <Stack direction="row">
                                 <Box onClick={handleDeleteButton}><DeleteIcon /></Box>

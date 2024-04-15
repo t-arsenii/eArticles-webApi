@@ -46,7 +46,7 @@ export default function CreateArticle() {
             title: '',
             description: '',
             content: '',
-            articleType: '',
+            contentType: '',
             imgUrl: '',
             articleTags: null
         }
@@ -55,7 +55,7 @@ export default function CreateArticle() {
     const { errors } = formState;
     const OnSubmit = async (data: IArticleReq) => {
         try {
-            data.articleType = articleType;
+            data.contentType = articleType;
             data.articleTags = tagsData;
             console.log(data);
             const resArticle = await axios.post<IArticleRes>("http://localhost:5000/api/articles", data, {

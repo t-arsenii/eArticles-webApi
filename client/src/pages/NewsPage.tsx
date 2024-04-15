@@ -8,7 +8,7 @@ export default function NewsPage() {
             <Box display={"flex"} justifyContent={"center"} marginTop={"20px"}>
                 <Typography variant="h2" component={"h1"}>NEWS</Typography>
             </Box>
-            <ArticlePage url={"http://localhost:5000/api/Articles"} articleType="news"/>
+            <ArticlePage url={"http://localhost:5000/api/Articles"} contentType="news"/>
         </>
     )
 }

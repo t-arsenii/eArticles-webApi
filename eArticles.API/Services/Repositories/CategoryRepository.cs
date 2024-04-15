@@ -44,11 +44,12 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category?> Update(Category updateCategory)
     {
-        var category = GetById(updateCategory.Id);
+        var category = await GetById(updateCategory.Id);
         if (category == null)
         {
             return null;
         }
+        _dbContext.Entry(category).State = EntityState.Detached;
         _dbContext.Categories.Update(updateCategory);
         await _dbContext.SaveChangesAsync();
         return updateCategory;

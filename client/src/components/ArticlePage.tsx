@@ -9,10 +9,11 @@ interface IArticleProps {
     url: string,
     isToken?: boolean,
     order?: string,
-    articleType?: string,
+    contentType?: string,
+    category?: string,
     tags?: string[]
 }
-export default function ArticlePage({ url, isToken = false, order, articleType, tags }: IArticleProps) {
+export default function ArticlePage({ url, isToken = false, order, contentType, tags, category }: IArticleProps) {
     const [articles, setArticles] = useState<IArticle[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -32,13 +33,16 @@ export default function ArticlePage({ url, isToken = false, order, articleType, 
             if (order) {
                 finalUrl += `&order=${order}`;
             }
-            if (articleType) {
-                finalUrl += `&articleType=${articleType}`;
+            if (contentType) {
+                finalUrl += `&articleType=${contentType}`;
             }
             if (tags) {
                 tags.forEach(tag => {
                     finalUrl += `&tags=${tag}`;
                 })
+            }
+            if (category) {
+                finalUrl += `&category=${category}`;
             }
 
             const res = await axios.get<{ items: IArticle[], totalCount: number }>(finalUrl, config)

@@ -18,7 +18,7 @@ export default function EditArticle() {
         const resArticle = await axios.get<IArticleRes>(`http://localhost:5000/api/Articles/${id}`)
         const resArticleData: IArticle = { ...resArticle.data }
         reset(resArticleData)
-        setArticleType(resArticleData.articleType)
+        setArticleType(resArticleData.contentType)
     }
     useEffect(() => {
         try {
@@ -32,7 +32,7 @@ export default function EditArticle() {
             title: '',
             description: '',
             content: '',
-            articleType: '',
+            contentType: '',
             imgUrl: '',
             articleTags: null
         }
@@ -41,7 +41,7 @@ export default function EditArticle() {
     const { errors } = formState
     const OnSubmit = async (data: IArticleReq) => {
         try {
-            data.articleType = articleType
+            data.contentType = articleType
             console.log(data)
             const resArticle = await axios.put<IArticleRes>("http://localhost:5000/api/articles", data, {
                 headers: {

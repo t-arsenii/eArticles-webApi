@@ -10,6 +10,7 @@ namespace eArticles.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(Roles = "Admin")]
 public class CategoryController : ControllerBase
 {
     ICategoryRepository _categoryRepo;
@@ -26,7 +27,7 @@ public class CategoryController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(category);
+        return Ok(new CategoryDto(Id: category.Id, Title: category.Title));
     }
     [HttpGet]
     [AllowAnonymous]
@@ -59,7 +60,6 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCategoryDto updateCategoryDto)
     {
         Category category = new Category() { Id = id, Title = updateCategoryDto.Title };
@@ -72,7 +72,6 @@ public class CategoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var deletedCategory = await _categoryRepo.Delete(id);

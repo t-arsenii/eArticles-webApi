@@ -31,6 +31,17 @@ namespace eArticles.API.Controllers
             }
             return Ok(new TagDto(id: createdTag.Id, title: createdTag.Title));
         }
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetById([FromRoute] int id)
+        {
+            var tag = await _tagsRepo.GetById(id);
+            if (tag == null)
+            {
+                return NotFound();
+            }
+            return Ok(new TagDto(id: tag.Id, title: tag.Title));
+        }
 
         [HttpGet]
         [AllowAnonymous]

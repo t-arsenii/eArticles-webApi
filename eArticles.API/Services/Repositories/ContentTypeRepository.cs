@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Services.Repositories;
 
-public class ArticleTypeRepository : IArticleTypeRepository
+public class ContentTypeRepository : IContentTypeRepository
 {
     eArticlesDbContext _dbContext;
 
-    public ArticleTypeRepository(eArticlesDbContext dbContext)
+    public ContentTypeRepository(eArticlesDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -44,15 +44,16 @@ public class ArticleTypeRepository : IArticleTypeRepository
         return await _dbContext.ArticleTypes.FindAsync(id);
     }
 
-    public async Task<ContentType?> Update(ContentType articleTypeUpdate)
+    public async Task<ContentType?> Update(ContentType contentTypeUpdate)
     {
-        var articleType = await _dbContext.ArticleTypes.FindAsync(articleTypeUpdate.Id);
-        if (articleType == null)
+        var contentType = await _dbContext.ArticleTypes.FindAsync(contentTypeUpdate.Id);
+        if (contentType == null)
         {
             return null;
         }
-        _dbContext.ArticleTypes.Update(articleTypeUpdate);
+        _dbContext.Entry(contentType).State = EntityState.Detached;
+        _dbContext.ArticleTypes.Update(contentTypeUpdate);
         await _dbContext.SaveChangesAsync();
-        return articleType;
+        return contentTypeUpdate;
     }
 }

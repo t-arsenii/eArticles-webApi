@@ -10,6 +10,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import LatestPage from "../pages/LatestPage";
 import NewsPage from "../pages/NewsPage";
+import GamesPage from "../pages/GamesPage";
+import AnimePage from "../pages/AnimePage";
 
 export default function AppRouter() {
     const token = useSelector((state: RootState) => state.user.token)
@@ -24,6 +26,8 @@ export default function AppRouter() {
             <Route path='/article/edit/:id' element={<EditArticle />} />
             <Route path='/latest' element={<LatestPage/>}/>
             <Route path='/news' element={<NewsPage/>}/>
+            <Route path='/games' element={<GamesPage/>}/>
+            <Route path='/anime' element={<AnimePage/>}/>
             {token && <Route path={`/profile/${userInfo.userName}`} element={<UserProfile />} />}
         </Routes>
     )

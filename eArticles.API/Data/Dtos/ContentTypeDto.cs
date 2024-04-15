@@ -1,6 +1,6 @@
 ﻿namespace eArticles.API.Data.Dtos;
 
-public record ArticleTypeDto
+public record ContentTypeDto
 (
     int Id,
     string Title

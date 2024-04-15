@@ -13,7 +13,7 @@ namespace eArticles.API.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ArticlesController : ControllerBase
-{ 
+{
     readonly IArticlesRepository _articleRepo;
     readonly IUsersRepository _usersRepo;
 
@@ -39,8 +39,9 @@ public class ArticlesController : ControllerBase
     public async Task<IActionResult> GetUserPage(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
-        [FromQuery] string articleType = "",
-        [FromQuery] string order = "",
+        [FromQuery] string? contentType = null,
+        [FromQuery] string? category = null,
+        [FromQuery] string? order = null,
         [FromQuery] string[]? tags = null
     )
     {
@@ -57,7 +58,7 @@ public class ArticlesController : ControllerBase
             return BadRequest();
         }
 
-        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, userId: user.Id, articleType: articleType, order: order, tags: tags);
+        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, userId: user.Id, contentType: contentType, category: category, order: order, tags: tags);
         int totalArticles = await _articleRepo.GetTotalItems(user.Id);
         if (articles == null || !articles.Any())
         {
@@ -76,8 +77,9 @@ public class ArticlesController : ControllerBase
     public async Task<IActionResult> GetPage(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
-        [FromQuery] string articleType = "",
-        [FromQuery] string order = "",
+        [FromQuery] string? contentType = null,
+        [FromQuery] string? category = null,
+        [FromQuery] string? order = null,
         [FromQuery] string[]? tags = null
     )
     {
@@ -85,7 +87,7 @@ public class ArticlesController : ControllerBase
         {
             return NotFound();
         }
-        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, articleType: articleType, order: order, tags: tags);
+        IEnumerable<Article>? articles = await _articleRepo.GetPage(currentPage: pageNumber, pageSize: pageSize, contentType: contentType, category: category, order: order, tags: tags);
         if (articles == null || !articles.Any())
         {
             return NotFound();

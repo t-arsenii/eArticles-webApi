@@ -83,7 +83,8 @@ public class ArticlesRepository : IArticlesRepository
         int currentPage = 1,
         int pageSize = 10,
         int? userId = null,
-        string? articleType = null,
+        string? contentType = null,
+        string? category = null,
         string? order = null,
         string[]? tags = null
     )
@@ -94,9 +95,13 @@ public class ArticlesRepository : IArticlesRepository
         {
             query = query.Where(a => a.UserId == userId);
         }
-        if (!string.IsNullOrEmpty(articleType))
+        if (!string.IsNullOrEmpty(contentType))
         {
-            query = query.Where(a => a.ContentType.Title.ToLower() == articleType.ToLower());
+            query = query.Where(a => a.ContentType.Title.ToLower() == contentType.ToLower());
+        }
+        if (!string.IsNullOrEmpty(category))
+        {
+            query = query.Where(a => a.Category.Title.ToLower() == category.ToLower());
         }
         if (tags != null && tags.Any())
         {
