@@ -2,7 +2,7 @@ using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public interface IUsersRepository
 {

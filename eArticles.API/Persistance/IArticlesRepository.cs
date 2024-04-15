@@ -1,7 +1,7 @@
 using eArticles.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public interface IArticlesRepository
 {

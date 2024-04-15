@@ -1,7 +1,7 @@
 using eArticles.API.Controllers;
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using eArticles.API.Services.Repositories;
+using eArticles.API.Persistance;
 using eArticles.Tests.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

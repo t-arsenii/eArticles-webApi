@@ -1,6 +1,6 @@
 ﻿using eArticles.API.Models;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public interface ICategoryRepository
 {

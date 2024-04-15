@@ -4,7 +4,7 @@ using eArticles.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public class TagsRepository : ITagsRepository
 {
@@ -42,7 +42,7 @@ public class TagsRepository : ITagsRepository
     public async Task<Tag?> GetById(int id)
     {
         var tag = await _dbContext.Tags.FindAsync(id);
-        if(tag == null)
+        if (tag == null)
         {
             return null;
         }

@@ -2,7 +2,7 @@
 using eArticles.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public class ContentTypeRepository : IContentTypeRepository
 {

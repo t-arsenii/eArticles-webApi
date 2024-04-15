@@ -1,7 +1,7 @@
 ﻿using eArticles.API.Data;
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using eArticles.API.Services.Repositories;
+using eArticles.API.Persistance;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

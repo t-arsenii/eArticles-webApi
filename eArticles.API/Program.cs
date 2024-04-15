@@ -1,7 +1,7 @@
 using eArticles.API.Data;
 using eArticles.API.Models;
+using eArticles.API.Persistance;
 using eArticles.API.Services;
-using eArticles.API.Services.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;

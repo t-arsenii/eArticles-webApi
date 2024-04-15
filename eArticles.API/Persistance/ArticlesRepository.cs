@@ -1,8 +1,9 @@
 using eArticles.API.Data;
 using eArticles.API.Models;
+using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public class ArticlesRepository : IArticlesRepository
 {
@@ -13,25 +14,29 @@ public class ArticlesRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Article?> Create(Article newArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Create(Article newArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
     {
         if (tagNames != null && tagNames.Any())
         {
             foreach (var tagName in tagNames)
             {
-                var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == tagName);
+                Tag? tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == tagName);
                 if (tag == null)
                 {
-                    return null;
+                    return Error.NotFound(description: $"Tag is not found (tag title: {tagName})");
                 }
                 newArticle.Tags.Add(tag);
             }
         }
         var contentTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == contentType);
         var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
-        if (contentTypeEntity == null || articleCategory == null)
+        if (contentTypeEntity == null )
         {
-            return null;
+            return Error.NotFound(description: $"ContentType is not found: (contentType title: {contentType})");
+        }
+        if (articleCategory == null)
+        {
+
         }
         newArticle.ContentType = contentTypeEntity;
         newArticle.Category = articleCategory;
@@ -59,7 +64,7 @@ public class ArticlesRepository : IArticlesRepository
             .Include(ar => ar.Tags)
             .Include(ar => ar.User)
             .Include(ar => ar.ContentType)
-            .Include (ar => ar.Category)
+            .Include(ar => ar.Category)
             .FirstOrDefaultAsync(ar => ar.Id == id);
     }
 

@@ -1,8 +1,9 @@
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
+using eArticles.API.Services;
 using Microsoft.AspNetCore.Identity;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public class UsersRepository : IUsersRepository
 {
