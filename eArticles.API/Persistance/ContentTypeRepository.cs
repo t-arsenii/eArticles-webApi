@@ -1,5 +1,6 @@
 ﻿using eArticles.API.Data;
 using eArticles.API.Models;
+using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Persistance;
@@ -13,46 +14,67 @@ public class ContentTypeRepository : IContentTypeRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ContentType> Create(ContentType articleType)
+    public async Task<ErrorOr<ContentType>> Create(ContentType articleType)
     {
-        await _dbContext.ArticleTypes.AddAsync(articleType);
+        await _dbContext.ContentTypes.AddAsync(articleType);
         await _dbContext.SaveChangesAsync();
 
         return articleType;
     }
 
-    public async Task<ContentType?> Delete(int id)
+    public async Task<ErrorOr<ContentType>> Delete(int id)
     {
-        var articleType = await _dbContext.ArticleTypes.FindAsync(id);
+        var articleType = await _dbContext.ContentTypes.FindAsync(id);
         if (articleType == null)
         {
-            return null;
+            return Error.NotFound(description: $"ContentType is not found (contentType id: {id})");
         }
-        _dbContext.ArticleTypes.Remove(articleType);
+        _dbContext.ContentTypes.Remove(articleType);
         await _dbContext.SaveChangesAsync();
         return articleType;
     }
 
-    public async Task<IEnumerable<ContentType>> GetAll()
+    public async Task<ErrorOr<IEnumerable<ContentType>>> GetAll()
     {
-        return await _dbContext.ArticleTypes.ToListAsync();
+        var contentTypes = await _dbContext.ContentTypes.ToListAsync();
+        if (!contentTypes.Any())
+        {
+            return Error.NotFound(description: $"ContentTypes are not found");
+        }
+        return contentTypes;
 
     }
 
-    public async Task<ContentType?> GetById(int id)
+    public async Task<ErrorOr<ContentType>> GetById(int id)
     {
-        return await _dbContext.ArticleTypes.FindAsync(id);
-    }
-
-    public async Task<ContentType?> Update(ContentType contentTypeUpdate)
-    {
-        var contentType = await _dbContext.ArticleTypes.FindAsync(contentTypeUpdate.Id);
+        var contentType = await _dbContext.ContentTypes.FindAsync(id);
         if (contentType == null)
         {
-            return null;
+            return Error.NotFound(description: $"ContentType is not found (contentType id: {id})");
+        }
+        return contentType;
+    }
+
+    public async Task<ErrorOr<ContentType>> GetByTitle(string title)
+    {
+        var contentType = await _dbContext.ContentTypes.FirstOrDefaultAsync(c => c.Title == title);
+        if(contentType == null)
+        {
+            return Error.NotFound(description: $"ContentType is not ContentType (ContentType title: {title})");
+        }
+        return contentType;
+    }
+
+    public async Task<ErrorOr<ContentType>> Update(ContentType contentTypeUpdate)
+    {
+        var contentType = await _dbContext.ContentTypes.FindAsync(contentTypeUpdate.Id);
+        if (contentType == null)
+        {
+            return Error.NotFound(description: $"ContentType is not found (contentType id: {contentTypeUpdate.Id})");
+
         }
         _dbContext.Entry(contentType).State = EntityState.Detached;
-        _dbContext.ArticleTypes.Update(contentTypeUpdate);
+        _dbContext.ContentTypes.Update(contentTypeUpdate);
         await _dbContext.SaveChangesAsync();
         return contentTypeUpdate;
     }

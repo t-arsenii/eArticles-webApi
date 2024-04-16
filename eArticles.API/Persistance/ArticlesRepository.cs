@@ -14,39 +14,14 @@ public class ArticlesRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ErrorOr<Article>> Create(Article newArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Create(Article newArticle)
     {
-        if (tagNames != null && tagNames.Any())
-        {
-            foreach (var tagName in tagNames)
-            {
-                Tag? tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == tagName);
-                if (tag == null)
-                {
-                    return Error.NotFound(description: $"Tag is not found (tag title: {tagName})");
-                }
-                newArticle.Tags.Add(tag);
-            }
-        }
-        var contentTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == contentType);
-        var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
-        if (contentTypeEntity == null )
-        {
-            return Error.NotFound(description: $"ContentType is not found: (contentType title: {contentType})");
-        }
-        if (articleCategory == null)
-        {
-
-        }
-        newArticle.ContentType = contentTypeEntity;
-        newArticle.Category = articleCategory;
-        newArticle.Published_Date = DateTime.Now;
         await _dbContext.Articles.AddAsync(newArticle);
         await _dbContext.SaveChangesAsync();
         return newArticle;
     }
 
-    public async Task<Article?> Delete(int id)
+    public async Task<ErrorOr<Article>> Delete(int id)
     {
         Article? articleToDelete = await _dbContext.Articles.FindAsync(id);
         if (articleToDelete == null)
@@ -58,7 +33,7 @@ public class ArticlesRepository : IArticlesRepository
         return articleToDelete;
     }
 
-    public async Task<Article?> GetById(int id)
+    public async Task<ErrorOr<Article>> GetById(int id)
     {
         return await _dbContext.Articles
             .Include(ar => ar.Tags)
@@ -68,7 +43,7 @@ public class ArticlesRepository : IArticlesRepository
             .FirstOrDefaultAsync(ar => ar.Id == id);
     }
 
-    public async Task<IEnumerable<string>?> GetArticleTags(int id)
+    public async Task<ErrorOr<IEnumerable<string>>> GetArticleTags(int id)
     {
         var article = await GetById(id);
 
@@ -84,7 +59,7 @@ public class ArticlesRepository : IArticlesRepository
         return tags;
     }
 
-    public async Task<IEnumerable<Article>?> GetPage(
+    public async Task<ErrorOr<IEnumerable<Article>>> GetPage(
         int currentPage = 1,
         int pageSize = 10,
         int? userId = null,
@@ -137,7 +112,7 @@ public class ArticlesRepository : IArticlesRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetTotalItems(int? userId = null)
+    public async Task<ErrorOr<int>> GetTotalItems(int? userId = null)
     {
         if (userId == null)
         {
@@ -146,7 +121,7 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
-    public async Task<Article?> Update(Article updateArticle, string articleType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Update(Article updateArticle, string articleType, string category, IEnumerable<string>? tagNames = null)
     {
         Article? article = await GetById(updateArticle.Id);
         if (article == null)
@@ -165,7 +140,7 @@ public class ArticlesRepository : IArticlesRepository
                 }
             }
         }
-        var articleTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
+        var articleTypeEntity = await _dbContext.ContentTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
         var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
         if (articleTypeEntity == null || articleCategory == null)
         {

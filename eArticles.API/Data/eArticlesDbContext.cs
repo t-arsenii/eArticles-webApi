@@ -10,7 +10,7 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<ContentType> ArticleTypes => Set<ContentType>();
+    public DbSet<ContentType> ContentTypes => Set<ContentType>();
     public DbSet<Category> Categories => Set<Category>();
 
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
