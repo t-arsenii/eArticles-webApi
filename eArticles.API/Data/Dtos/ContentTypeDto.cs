@@ -5,11 +5,11 @@ public record ContentTypeDto
     int Id,
     string Title
 );
-public record CreateArticleTypeDto
+public record CreateContentTypeDto
 (
     string Title
 );
-public record UpdateArticleTypeDto
+public record UpdateContentTypeDto
 (
     string Title
 );

@@ -1,8 +1,8 @@
 using eArticles.API.Data.Dtos;
-using eArticles.API.Data.Enums;
 using eArticles.API.Extensions;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
+using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +14,12 @@ namespace eArticles.API.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ArticlesController : ControllerBase
 {
-    readonly IArticlesRepository _articleRepo;
+    readonly IArticleService _articlesService;
     readonly IUsersRepository _usersRepo;
 
-    public ArticlesController(IArticlesRepository repository, IUsersRepository usersRepo)
+    public ArticlesController(IArticleService articlesService, IUsersRepository usersRepo)
     {
-        _articleRepo = repository;
+        _articlesService = articlesService;
         _usersRepo = usersRepo;
     }
 
@@ -27,12 +27,12 @@ public class ArticlesController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Get(int id)
     {
-        Article? article = await _articleRepo.GetById(id);
-        if (article == null)
+        var getArticleResult = await _articlesService.GetById(id);
+        if (getArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(getArticleResult.FirstError.Description);
         }
-        return Ok(article.AsDto());
+        return Ok(getArticleResult.Value.AsDto());
     }
 
     [HttpGet("my")]
@@ -47,29 +47,35 @@ public class ArticlesController : ControllerBase
     {
         if (pageNumber <= 0)
         {
-            return NotFound();
+            return NotFound("PageNumber can't be less or equal to 0");
         }
         var userId = int.Parse(
             User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
         );
-        var user = await _usersRepo.GetUserById(userId);
-        if (user == null)
+        var getUserResult = await _usersRepo.GetUserById(userId);
+        if (getUserResult.IsError)
         {
-            return BadRequest();
+            return BadRequest(getUserResult.FirstError.Description);
         }
-
-        IEnumerable<Article>? articles = await _articleRepo.GetPage(pageNumber, pageSize, userId: user.Id, contentType: contentType, category: category, order: order, tags: tags);
-        int totalArticles = await _articleRepo.GetTotalItems(user.Id);
-        if (articles == null || !articles.Any())
+        var user = getUserResult.Value;
+        var getArticlesPageResult = await _articlesService.GetPage(pageNumber,
+                                                                   pageSize,
+                                                                   userId: user.Id,
+                                                                   contentType: contentType,
+                                                                   category: category,
+                                                                   order: order,
+                                                                   tags: tags);
+        var getTotalItemsResult = await _articlesService.GetTotalItems(user.Id);
+        if (getArticlesPageResult.IsError)
         {
-            return NotFound();
+            return NotFound(getArticlesPageResult.FirstError);
         }
         List<ArticleDto> articleDTOs = new List<ArticleDto>();
-        foreach (var article in articles)
+        foreach (var article in getArticlesPageResult.Value)
         {
             articleDTOs.Add(article.AsDto());
         }
-        return Ok(new PageArticleDto(articleDTOs, totalArticles));
+        return Ok(new PageArticleDto(articleDTOs, getTotalItemsResult.Value));
     }
 
     [HttpGet]
@@ -85,13 +91,21 @@ public class ArticlesController : ControllerBase
     {
         if (pageNumber <= 0)
         {
-            return NotFound();
+            return NotFound("PageNumber can't be less or equal to 0");
         }
-        IEnumerable<Article>? articles = await _articleRepo.GetPage(currentPage: pageNumber, pageSize: pageSize, contentType: contentType, category: category, order: order, tags: tags);
-        if (articles == null || !articles.Any())
+        var getArticlesPageResult = await _articlesService.GetPage(
+            currentPage: pageNumber,
+            pageSize: pageSize,
+            contentType: contentType,
+            category: category,
+            order: order,
+            tags: tags);
+
+        if (getArticlesPageResult.IsError)
         {
-            return NotFound();
+            return NotFound(getArticlesPageResult.FirstError.Description);
         }
+        var articles = getArticlesPageResult.Value;
         int totalArticles = articles.Count();
         List<ArticleDto> articleDTOs = new List<ArticleDto>();
         foreach (var article in articles)
@@ -111,19 +125,22 @@ public class ArticlesController : ControllerBase
         var userId = int.Parse(
             User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
         );
-        var user = await _usersRepo.GetUserById(userId);
-        if (user == null)
+        var getUserResult = await _usersRepo.GetUserById(userId);
+        if (getUserResult.IsError)
         {
-            return BadRequest();
+            return NotFound(getUserResult.FirstError.Description);
         }
         Article artcile = articleDto.AsArticle();
-        artcile.User = user;
-        var created_article = await _articleRepo.Create(artcile, articleDto.ContentType, articleDto.Category, articleDto.ArticleTags);
-        if (created_article == null)
+        artcile.User = getUserResult.Value;
+        var createArticleResult = await _articlesService.Create(artcile,
+                                                            articleDto.ContentType,
+                                                            articleDto.Category,
+                                                            articleDto.ArticleTags);
+        if (createArticleResult.IsError)
         {
-            return BadRequest();
+            return BadRequest(createArticleResult.FirstError.Description);
         }
-        return Ok(created_article.AsDto());
+        return Ok(createArticleResult.Value.AsDto());
     }
 
     [Authorize]
@@ -137,16 +154,18 @@ public class ArticlesController : ControllerBase
         var userId = int.Parse(
             User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
         );
-        var user = await _usersRepo.GetUserById(userId);
-        if (user == null)
+        var getUserResult = await _usersRepo.GetUserById(userId);
+        if (getUserResult.IsError)
         {
-            return BadRequest();
+            return BadRequest(getUserResult.FirstError.Description);
         }
-        var article = await _articleRepo.GetById(id);
-        if (article == null)
+        var getArticleResult = await _articlesService.GetById(id);
+        if (getArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(getArticleResult.FirstError.Description);
         }
+        var article = getArticleResult.Value;
+        var user = getUserResult.Value;
         if (article.UserId != user.Id)
         {
             return Forbid();
@@ -154,12 +173,12 @@ public class ArticlesController : ControllerBase
         var articleToUpdate = updateArticleDto.AsArticle();
         articleToUpdate.Id = article.Id;
         articleToUpdate.User = article.User;
-        Article? updatedArticle = await _articleRepo.Update(articleToUpdate, updateArticleDto.ContentType, updateArticleDto.Category);
-        if (updatedArticle == null)
+        var updatedArticleResult = await _articlesService.Update(articleToUpdate, updateArticleDto.ContentType, updateArticleDto.Category);
+        if (updatedArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(updatedArticleResult.FirstError.Description);
         }
-        return Ok(updatedArticle.AsDto());
+        return Ok(updatedArticleResult.Value.AsDto());
     }
 
     [Authorize]
@@ -169,24 +188,26 @@ public class ArticlesController : ControllerBase
         var userId = int.Parse(
             User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
         );
-        var user = await _usersRepo.GetUserById(userId);
-        if (user == null)
+        var getUserResult = await _usersRepo.GetUserById(userId);
+        if (getUserResult.IsError)
         {
-            return BadRequest();
+            return NotFound(getUserResult.FirstError.Description);
         }
-        var article = await _articleRepo.GetById(id);
-        if (article == null)
+        var getArticleResult = await _articlesService.GetById(id);
+        if (getArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(getUserResult.FirstError.Description);
         }
+        var article = getArticleResult.Value;
+        var user = getUserResult.Value;
         if (article.UserId != user.Id)
         {
             return Forbid();
         }
-        Article? DeletedArticle = await _articleRepo.Delete(id);
-        if (article == null)
+        var deleteArticleResult = await _articlesService.Delete(id);
+        if (getArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(getArticleResult.FirstError.Description);
         }
         return Ok($"Deleted article with id {id}");
     }

@@ -1,6 +1,7 @@
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
+using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,13 +15,12 @@ namespace eArticles.API.Controllers;
 [ApiController]
 public class UsersController : ControllerBase
 {
-    IUsersRepository _usersRepo;
-    RoleManager<IdentityRole<int>> _roleManager;
+    IUserService _userService;
+    //RoleManager<IdentityRole<int>> _roleManager;
 
-    public UsersController(IUsersRepository usersRepository, RoleManager<IdentityRole<int>> roleManager)
+    public UsersController(IUserService userService)
     {
-        _usersRepo = usersRepository;
-        _roleManager = roleManager;
+        _userService = userService;
     }
 
     [HttpPost]
@@ -30,26 +30,41 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        IdentityResult result = await _usersRepo.Create(createUserDto);
-        if (!result.Succeeded)
+        var user = new User()
         {
-            return BadRequest(result.Errors);
+            FirstName = createUserDto.FirstName,
+            LastName = createUserDto.LastName,
+            UserName = createUserDto.UserName,
+            Email = createUserDto.Email,
+            PhoneNumber = createUserDto.PhoneNumber,
+        };
+        var createUserResult = await _userService.Create(user, createUserDto.Password);
+        if (createUserResult.IsError)
+        {
+            return BadRequest(createUserResult.FirstError.Description);
         }
-        var user = await _usersRepo.GetUserByUserName(createUserDto.UserName);
-        if (user == null)
+        var getUserResult = await _userService.GetUserByUserName(createUserDto.UserName);
+        if (getUserResult.IsError)
         {
             return BadRequest("User not found after creation.");
         }
-        if (!await _roleManager.RoleExistsAsync("User"))
-            await _roleManager.CreateAsync(new IdentityRole<int>("User"));
-        if (!await _roleManager.RoleExistsAsync("Admin"))
-            await _roleManager.CreateAsync(new IdentityRole<int>("Admin"));
-        IdentityResult roleResult = await _usersRepo.AddUserRole(user, "User");
-        if (!result.Succeeded)
+        //if (!await _roleManager.RoleExistsAsync("User"))
+        //    await _roleManager.CreateAsync(new IdentityRole<int>("User"));
+        //if (!await _roleManager.RoleExistsAsync("Admin"))
+        //    await _roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+
+        var addRoleResult = await _userService.AddUserRole(user, "User");
+        if (addRoleResult.IsError)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(addRoleResult.FirstError.Description);
         }
-        return Ok(createUserDto);
+        var createdUser = getUserResult.Value;
+        return Ok(new UserDto(Id: createdUser.Id.ToString(),
+                              FirstName: createdUser.FirstName,
+                              LastName: createdUser.LastName,
+                              UserName: createdUser.LastName,
+                              Email: createdUser.Email,
+                              PhoneNumber: createdUser.PhoneNumber));
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -59,11 +74,12 @@ public class UsersController : ControllerBase
         var userId = int.Parse(
             User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
         );
-        var user = await _usersRepo.GetUserById(userId);
-        if (user == null)
+        var getUserResult = await _userService.GetUserById(userId);
+        if (getUserResult.IsError)
         {
-            return BadRequest();
+            return NotFound(getUserResult.FirstError.Description);
         }
+        var user = getUserResult.Value;
         return Ok(
             new UserDto(
                 user.Id.ToString(),
@@ -79,11 +95,12 @@ public class UsersController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        User? user = await _usersRepo.GetUserById(id);
-        if (user == null)
+        var getUserResult = await _userService.GetUserById(id);
+        if (getUserResult.IsError)
         {
-            return NotFound();
+            return NotFound(getUserResult.FirstError.Description);
         }
+        var user = getUserResult.Value;
         return Ok(
             new UserDto(
                 user.Id.ToString(),
@@ -99,11 +116,12 @@ public class UsersController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUserName(string username)
     {
-        User? user = await _usersRepo.GetUserByUserName(username);
-        if (user == null)
+        var getUserResult = await _userService.GetUserByUserName(username);
+        if (getUserResult.IsError)
         {
-            return NotFound();
+            return NotFound(getUserResult.FirstError.Description);
         }
+        var user = getUserResult.Value;
         return Ok(
             new UserDto(
                 user.Id.ToString(),
@@ -123,32 +141,42 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        User? user = await _usersRepo.GetUserByUserName(userData.UserName);
-        if (user == null)
+        var getUserResult = await _userService.GetUserByUserName(userData.UserName);
+        if (getUserResult.IsError)
         {
             return NotFound("Bad credentials");
         }
-        var isPasswordValid = await _usersRepo.IsPasswordValid(user, userData.Password);
-        if (!isPasswordValid)
+        var user = getUserResult.Value;
+        var isPasswordValidResult = await _userService.IsPasswordValid(user, userData.Password);
+        if (!isPasswordValidResult.IsError)
+        {
+            return Problem();
+        }
+        if (!isPasswordValidResult.Value)
         {
             return NotFound("Bad credentials");
         }
-        var authenticationResponse = await _usersRepo.AuthenticateUser(user);
-        return Ok(authenticationResponse);
+        var authenticationResponseResult = await _userService.AuthenticateUser(user);
+        if (authenticationResponseResult.IsError)
+        {
+            return Problem();
+        }
+        return Ok(authenticationResponseResult.Value);
     }
 
     [HttpPost("admin/{id}")]
     public async Task<IActionResult> GiveAdminRole(int id)
     {
-        User? user = await _usersRepo.GetUserById(id);
-        if (user == null)
+        var getUserResult = await _userService.GetUserById(id);
+        if (getUserResult.IsError)
         {
-            return NotFound("Bad credentials");
+            return NotFound(getUserResult.FirstError.Description);
         }
-        IdentityResult result = await _usersRepo.AddUserRole(user, "Admin");
-        if (!result.Succeeded)
+        var user = getUserResult.Value;
+        var addUserRoleResult = await _userService.AddUserRole(user, "Admin");
+        if (addUserRoleResult.IsError)
         {
-            return BadRequest();
+            return Problem();
         }
         return Ok(new { message = $"{user.UserName} is now an Admin" });
     }

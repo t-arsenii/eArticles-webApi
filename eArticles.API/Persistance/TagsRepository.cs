@@ -68,11 +68,6 @@ public class TagsRepository : ITagsRepository
 
     public async Task<ErrorOr<Tag>> Update(Tag updateTag)
     {
-        var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Id == updateTag.Id);
-        if (tag == null)
-        {
-            return Error.NotFound(description: $"Tag is not found (tag id: {updateTag.Id})");
-        }
         _dbContext.Tags.Update(updateTag);
         await _dbContext.SaveChangesAsync();
         return updateTag;

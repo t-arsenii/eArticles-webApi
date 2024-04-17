@@ -3,7 +3,7 @@ using ErrorOr;
 
 namespace eArticles.API.Persistance;
 
-public interface ICategoryRepository
+public interface ICategoriesRepository
 {
     public Task<ErrorOr<Category>> GetById(int id);
     public Task<ErrorOr<Category>> GetByTitle(string title);

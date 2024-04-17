@@ -1,6 +1,7 @@
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using eArticles.API.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 
 namespace eArticles.API.Persistance;
@@ -16,43 +17,63 @@ public class UsersRepository : IUsersRepository
         _jwtService = jwtService;
     }
 
-    public async Task<AuthenticationResponse?> AuthenticateUser(User userData)
+    public async Task<ErrorOr<AuthenticationResponse>> AuthenticateUser(User userData)
     {
         return await _jwtService.CreateTokenAsync(userData);
     }
 
-    public async Task<IdentityResult> Create(CreateUserDto userData)
+    public async Task<ErrorOr<User>> Create(User user, string password)
     {
-        return await _userManager.CreateAsync(
-            new User()
-            {
-                UserName = userData.UserName,
-                Email = userData.Email,
-                FirstName = userData.FirstName,
-                LastName = userData.LastName,
-                PhoneNumber = userData.PhoneNumber
-            },
-            userData.Password
-        );
+        var createUserResult = (await _userManager.CreateAsync(user, password)).ToErrorOr();
+        if (createUserResult.IsError)
+        {
+            return createUserResult.Errors;
+        }
+        return user;
     }
 
-    public async Task<User?> GetUserById(int id)
+    public async Task<ErrorOr<User>> GetUserById(int id)
     {
-        return await _userManager.FindByIdAsync(id.ToString());
+        var user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null)
+        {
+            return Error.NotFound($"User is not found (user id: {id})");
+        }
+        return user;
     }
 
-    public async Task<User?> GetUserByUserName(string userName)
+    public async Task<ErrorOr<User>> GetUserByUserName(string userName)
     {
-        return await _userManager.FindByNameAsync(userName);
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user == null)
+        {
+            return Error.NotFound(description:$"User is not found (userName: {userName})");
+        }
+        return user;
     }
 
-    public async Task<bool> IsPasswordValid(User user, string password)
+    public async Task<ErrorOr<bool>> IsPasswordValid(User user, string password)
     {
         return await _userManager.CheckPasswordAsync(user, password);
     }
 
-    public async Task<IdentityResult> AddUserRole(User user, string role)
+    public async Task<ErrorOr<bool>> AddUserRole(User user, string role)
     {
-        return await _userManager.AddToRoleAsync(user, role);
+        var addRoleResult = (await _userManager.AddToRoleAsync(user, role)).ToErrorOr();
+        if (addRoleResult.IsError)
+        {
+            return addRoleResult.Errors;
+        }
+        return true;
+    }
+
+    public Task<ErrorOr<User>> Update(User user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ErrorOr<User>> Delete(int userId)
+    {
+        throw new NotImplementedException();
     }
 }

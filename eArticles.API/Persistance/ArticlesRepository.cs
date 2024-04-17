@@ -26,7 +26,7 @@ public class ArticlesRepository : IArticlesRepository
         Article? articleToDelete = await _dbContext.Articles.FindAsync(id);
         if (articleToDelete == null)
         {
-            return null;
+            return Error.NotFound(description: $"Article is not found (article id: {id})");
         }
         _dbContext.Articles.Remove(articleToDelete);
         await _dbContext.SaveChangesAsync();
@@ -35,28 +35,17 @@ public class ArticlesRepository : IArticlesRepository
 
     public async Task<ErrorOr<Article>> GetById(int id)
     {
-        return await _dbContext.Articles
+        var article = await _dbContext.Articles
             .Include(ar => ar.Tags)
             .Include(ar => ar.User)
             .Include(ar => ar.ContentType)
             .Include(ar => ar.Category)
             .FirstOrDefaultAsync(ar => ar.Id == id);
-    }
-
-    public async Task<ErrorOr<IEnumerable<string>>> GetArticleTags(int id)
-    {
-        var article = await GetById(id);
-
         if (article == null)
         {
-            return null;
+            return Error.NotFound(description: $"Article is not found (article id: {id})");
         }
-        var tags = article.Tags?.Select(t => t.Title).ToList();
-        if (tags?.Count() == 0 || tags == null)
-        {
-            return null;
-        }
-        return tags;
+        return article;
     }
 
     public async Task<ErrorOr<IEnumerable<Article>>> GetPage(
@@ -121,33 +110,8 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
-    public async Task<ErrorOr<Article>> Update(Article updateArticle, string articleType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Update(Article updateArticle)
     {
-        Article? article = await GetById(updateArticle.Id);
-        if (article == null)
-        {
-            return null;
-        }
-        _dbContext.Entry(article).State = EntityState.Detached;
-        if (tagNames != null && tagNames.Any())
-        {
-            foreach (var tagName in tagNames)
-            {
-                var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
-                if (tag == null)
-                {
-                    return null;
-                }
-            }
-        }
-        var articleTypeEntity = await _dbContext.ContentTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
-        var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
-        if (articleTypeEntity == null || articleCategory == null)
-        {
-            return null;
-        }
-        updateArticle.ContentType = articleTypeEntity;
-        updateArticle.Category = articleCategory;
         _dbContext.Articles.Update(updateArticle);
         await _dbContext.SaveChangesAsync();
         return updateArticle;

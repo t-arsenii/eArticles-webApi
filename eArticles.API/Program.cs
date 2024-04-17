@@ -52,9 +52,14 @@ builder.Services.AddSwaggerGen(opt =>
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<IContentTypeRepository, ContentTypeRepository>();
 
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ITagsService, TagsService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IContentTypeService, ContentTypeService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services
     .AddIdentity<User, IdentityRole<int>>(options =>

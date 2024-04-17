@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Persistance;
 
-public class CategoryRepository : ICategoryRepository
+public class CategoriesRepository : ICategoriesRepository
 {
     eArticlesDbContext _dbContext;
-    public CategoryRepository(eArticlesDbContext dbContext)
+    public CategoriesRepository(eArticlesDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -63,12 +63,6 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<ErrorOr<Category>> Update(Category updateCategory)
     {
-        var category = await _dbContext.Categories.FindAsync(updateCategory.Id);
-        if (category == null)
-        {
-            return Error.NotFound(description: $"Category is not found (category id: {updateCategory.Id})");
-        }
-        _dbContext.Entry(category).State = EntityState.Detached;
         _dbContext.Categories.Update(updateCategory);
         await _dbContext.SaveChangesAsync();
         return updateCategory;

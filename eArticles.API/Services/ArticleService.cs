@@ -8,13 +8,13 @@ namespace eArticles.API.Services;
 public class ArticleService : IArticleService
 {
     IArticlesRepository _articlesRepository;
-    IContentTypeRepository _contentTypeRepository;
-    ICategoryRepository _categoryRepository;
+    IContentTypeService _contentTypeRepository;
+    ICategoriesRepository _categoryRepository;
     ITagsRepository _tagsRepository;
     public ArticleService(
         IArticlesRepository articlesRepository,
-        IContentTypeRepository contentTypeRepository,
-        ICategoryRepository categoryRepository,
+        IContentTypeService contentTypeRepository,
+        ICategoriesRepository categoryRepository,
         ITagsRepository tagsRepository)
     {
         _articlesRepository = articlesRepository;
@@ -23,7 +23,7 @@ public class ArticleService : IArticleService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<ErrorOr<Article?>> Create(
+    public async Task<ErrorOr<Article>> Create(
         Article newArticle,
         string contentType,
         string category,
@@ -54,31 +54,94 @@ public class ArticleService : IArticleService
         newArticle.ContentType = getContentTypeResult.Value;
         newArticle.Category = getCategoryResult.Value;
         newArticle.Published_Date = DateTime.Now;
-        return newArticle;
+        var createArticleResult = await _articlesRepository.Create(newArticle);
+        if (createArticleResult.IsError)
+        {
+            return createArticleResult.Errors;
+        }
+        return createArticleResult.Value;
     }
 
-    public Task<ErrorOr<Article>> Delete(int id)
+    public async Task<ErrorOr<Article>> Delete(int id)
     {
-        throw new NotImplementedException();
+        var deleteArticleResult = await _articlesRepository.Delete(id);
+        if (deleteArticleResult.IsError)
+        {
+            return deleteArticleResult.Errors;
+        }
+        return deleteArticleResult.Value;
     }
 
-    public Task<ErrorOr<Article>> GetById(int id)
+    public async Task<ErrorOr<Article>> GetById(int id)
     {
-        throw new NotImplementedException();
+        var getArticleResult = await _articlesRepository.GetById(id);
+        if (getArticleResult.IsError)
+        {
+            return getArticleResult.Errors;
+        }
+        return getArticleResult.Value;
     }
 
-    public Task<ErrorOr<IEnumerable<Article>>> GetPage(int currentPage = 1, int pageSize = 10, int? userId = null, string? contentType = null, string? category = null, string? order = null, string[]? tags = null)
+    public async Task<ErrorOr<IEnumerable<Article>>> GetPage(
+        int currentPage = 1,
+        int pageSize = 10,
+        int? userId = null,
+        string? contentType = null,
+        string? category = null,
+        string? order = null,
+        string[]? tags = null)
     {
-        throw new NotImplementedException();
+        var getArticlePageResult = await _articlesRepository.GetPage(currentPage, pageSize, userId, contentType, category, order, tags);
+        if (getArticlePageResult.IsError)
+        {
+            return getArticlePageResult.Errors;
+        }
+        return getArticlePageResult.Value.ToList();
     }
 
-    public Task<ErrorOr<int>> GetTotalItems(int? userId = null)
+    public async Task<ErrorOr<int>> GetTotalItems(int? userId = null)
     {
-        throw new NotImplementedException();
+        var getTotalItemsResult = await _articlesRepository.GetTotalItems(userId);
+        if (getTotalItemsResult.IsError)
+        {
+            return getTotalItemsResult.Errors;
+        }
+        return getTotalItemsResult.Value;
     }
 
-    public Task<ErrorOr<Article>> Update(Article updateArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Update(Article updateArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
     {
-        throw new NotImplementedException();
+        var getArticleResult = await _articlesRepository.GetById(updateArticle.Id);
+        if (getArticleResult.IsError)
+        {
+            return getArticleResult.Errors;
+        }
+        if (tagNames != null && tagNames.Any())
+        {
+            foreach (var tagName in tagNames)
+            {
+                var getTagResult = await _tagsRepository.GetByTitle(tagName);
+                if (getTagResult.IsError)
+                {
+                    return getArticleResult.Errors;
+                }
+            }
+        }
+        var getContentTypeResult = await _contentTypeRepository.GetByTitle(contentType);
+        var getCategoryResult = await _categoryRepository.GetByTitle(category);
+        if (getContentTypeResult.IsError)
+        {
+            return getContentTypeResult.Errors;
+        }
+        if (getCategoryResult.IsError)
+        {
+            return getCategoryResult.Errors;
+        }
+        var updateArticleResult = await _articlesRepository.Update(updateArticle);
+        if (updateArticleResult.IsError)
+        {
+            return updateArticleResult.Errors;
+        }
+        return updateArticleResult.Value;
     }
 }

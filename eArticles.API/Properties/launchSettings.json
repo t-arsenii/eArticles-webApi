@@ -2,7 +2,6 @@
   "profiles": {
     "http": {
       "commandName": "Project",
-      "commandLineArgs": "INITDB=true",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

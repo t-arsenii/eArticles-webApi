@@ -7,7 +7,7 @@ public interface IArticleService
 {
     Task<ErrorOr<Article>> GetById(int id);
 
-    public Task<ErrorOr<Article?>> Create(
+    public Task<ErrorOr<Article>> Create(
         Article newArticle,
         string contentType,
         string category,
