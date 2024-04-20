@@ -1,7 +1,8 @@
 ﻿using eArticles.API.Data;
 using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using eArticles.API.Services.Repositories;
+using eArticles.API.Persistance;
+using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,73 +14,73 @@ namespace eArticles.API.Controllers;
 [Authorize(Roles = "Admin")]
 public class CategoryController : ControllerBase
 {
-    ICategoryRepository _categoryRepo;
-    public CategoryController(ICategoryRepository categoryRepo)
+    ICategoryService _categoryService;
+    public CategoryController(ICategoryService categoryService)
     {
-        _categoryRepo = categoryRepo;
+        _categoryService = categoryService;
     }
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
-        var category = await _categoryRepo.GetById(id);
-        if (category == null)
+        var getCategoryResult = await _categoryService.GetById(id);
+        if (getCategoryResult.IsError)
         {
-            return NotFound();
+            return NotFound(getCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryDto(Id: category.Id, Title: category.Title));
+        return Ok(new CategoryDto(Id: getCategoryResult.Value.Id, Title: getCategoryResult.Value.Title));
     }
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
-        var categories = await _categoryRepo.GetAll();
+        var getCategoriesResult = await _categoryService.GetAll();
+        if (getCategoriesResult.IsError)
+        {
+            return NotFound(getCategoriesResult.FirstError.Description);
+        }
         List<CategoryDto> categoryDtos = new();
-        foreach (var category in categories)
+        foreach (var category in getCategoriesResult.Value)
         {
             categoryDtos.Add(new CategoryDto(Id: category.Id, Title: category.Title));
-        }
-        if (!categoryDtos.Any())
-        {
-            return NotFound();
         }
         return Ok(categoryDtos);
     }
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(CreateCategoryDto newCategory)
+    public async Task<IActionResult> Create(CreateCategoryDto createCategoryDto)
     {
         Category category = new();
-        category.Title = newCategory.Title;
-        var createdCategory = await _categoryRepo.Create(category);
-        if (createdCategory == null)
+        category.Title = createCategoryDto.Title;
+        var createdCategory = await _categoryService.Create(category);
+        if (createdCategory.IsError)
         {
-            return BadRequest();
+            return BadRequest(createdCategory.IsError);
         }
-        return Ok(new CategoryDto(createdCategory.Id, createdCategory.Title));
+        return Ok(new CategoryDto(createdCategory.Value.Id, createdCategory.Value.Title));
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCategoryDto updateCategoryDto)
     {
         Category category = new Category() { Id = id, Title = updateCategoryDto.Title };
-        var updateCategory = await _categoryRepo.Update(category);
-        if (updateCategory == null)
+        var updateCategoryResult = await _categoryService.Update(category);
+        if (updateCategoryResult.IsError)
         {
-            return NotFound();
+            return NotFound(updateCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryDto(updateCategory.Id, updateCategory.Title));
+        return Ok(new CategoryDto(updateCategoryResult.Value.Id, updateCategoryResult.Value.Title));
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deletedCategory = await _categoryRepo.Delete(id);
-        if (deletedCategory == null)
+        var deleteCategoryResult = await _categoryService.Delete(id);
+        if (deleteCategoryResult.IsError)
         {
-            return NotFound();
+            return NotFound(deleteCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryDto(deletedCategory.Id, deletedCategory.Title));
+        return Ok(new CategoryDto(deleteCategoryResult.Value.Id, deleteCategoryResult.Value.Title));
     }
 }
 

@@ -1,8 +1,9 @@
 using eArticles.API.Data;
 using eArticles.API.Models;
+using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Services.Repositories;
+namespace eArticles.API.Persistance;
 
 public class ArticlesRepository : IArticlesRepository
 {
@@ -13,73 +14,41 @@ public class ArticlesRepository : IArticlesRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Article?> Create(Article newArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Create(Article newArticle)
     {
-        if (tagNames != null && tagNames.Any())
-        {
-            foreach (var tagName in tagNames)
-            {
-                var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == tagName);
-                if (tag == null)
-                {
-                    return null;
-                }
-                newArticle.Tags.Add(tag);
-            }
-        }
-        var contentTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == contentType);
-        var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
-        if (contentTypeEntity == null || articleCategory == null)
-        {
-            return null;
-        }
-        newArticle.ContentType = contentTypeEntity;
-        newArticle.Category = articleCategory;
-        newArticle.Published_Date = DateTime.Now;
         await _dbContext.Articles.AddAsync(newArticle);
         await _dbContext.SaveChangesAsync();
         return newArticle;
     }
 
-    public async Task<Article?> Delete(int id)
+    public async Task<ErrorOr<Article>> Delete(int id)
     {
         Article? articleToDelete = await _dbContext.Articles.FindAsync(id);
         if (articleToDelete == null)
         {
-            return null;
+            return Error.NotFound(description: $"Article is not found (article id: {id})");
         }
         _dbContext.Articles.Remove(articleToDelete);
         await _dbContext.SaveChangesAsync();
         return articleToDelete;
     }
 
-    public async Task<Article?> GetById(int id)
+    public async Task<ErrorOr<Article>> GetById(int id)
     {
-        return await _dbContext.Articles
+        var article = await _dbContext.Articles
             .Include(ar => ar.Tags)
             .Include(ar => ar.User)
             .Include(ar => ar.ContentType)
-            .Include (ar => ar.Category)
+            .Include(ar => ar.Category)
             .FirstOrDefaultAsync(ar => ar.Id == id);
-    }
-
-    public async Task<IEnumerable<string>?> GetArticleTags(int id)
-    {
-        var article = await GetById(id);
-
         if (article == null)
         {
-            return null;
+            return Error.NotFound(description: $"Article is not found (article id: {id})");
         }
-        var tags = article.Tags?.Select(t => t.Title).ToList();
-        if (tags?.Count() == 0 || tags == null)
-        {
-            return null;
-        }
-        return tags;
+        return article;
     }
 
-    public async Task<IEnumerable<Article>?> GetPage(
+    public async Task<ErrorOr<IEnumerable<Article>>> GetPage(
         int currentPage = 1,
         int pageSize = 10,
         int? userId = null,
@@ -132,7 +101,7 @@ public class ArticlesRepository : IArticlesRepository
             .ToListAsync();
     }
 
-    public async Task<int> GetTotalItems(int? userId = null)
+    public async Task<ErrorOr<int>> GetTotalItems(int? userId = null)
     {
         if (userId == null)
         {
@@ -141,33 +110,8 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
-    public async Task<Article?> Update(Article updateArticle, string articleType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Update(Article updateArticle)
     {
-        Article? article = await GetById(updateArticle.Id);
-        if (article == null)
-        {
-            return null;
-        }
-        _dbContext.Entry(article).State = EntityState.Detached;
-        if (tagNames != null && tagNames.Any())
-        {
-            foreach (var tagName in tagNames)
-            {
-                var tag = _dbContext.Tags.FirstOrDefault(t => t.Title == tagName);
-                if (tag == null)
-                {
-                    return null;
-                }
-            }
-        }
-        var articleTypeEntity = await _dbContext.ArticleTypes.FirstOrDefaultAsync(aType => aType.Title == articleType);
-        var articleCategory = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == category);
-        if (articleTypeEntity == null || articleCategory == null)
-        {
-            return null;
-        }
-        updateArticle.ContentType = articleTypeEntity;
-        updateArticle.Category = articleCategory;
         _dbContext.Articles.Update(updateArticle);
         await _dbContext.SaveChangesAsync();
         return updateArticle;

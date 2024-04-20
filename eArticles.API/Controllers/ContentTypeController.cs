@@ -1,6 +1,6 @@
 ﻿using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using eArticles.API.Services.Repositories;
+using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,68 +12,68 @@ namespace eArticles.API.Controllers;
 [Route("api/[controller]")]
 public class ContentTypeController : ControllerBase
 {
-    IContentTypeRepository _contentTypeRepo;
-    public ContentTypeController(IContentTypeRepository articleTypeRepo)
+    IContentTypeService _contentTypeService;
+    public ContentTypeController(IContentTypeService contentTypeService)
     {
-        _contentTypeRepo = articleTypeRepo;
+        _contentTypeService = contentTypeService;
     }
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var articleType = await _contentTypeRepo.GetById(id);
-        if (articleType == null)
+        var getContentTypeResult = await _contentTypeService.GetById(id);
+        if (getContentTypeResult.IsError)
         {
-            return NotFound();
+            return NotFound(getContentTypeResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(articleType.Id, articleType.Title));
+        return Ok(new ContentTypeDto(getContentTypeResult.Value.Id, getContentTypeResult.Value.Title));
     }
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
-        var articleTypes = await _contentTypeRepo.GetAll();
-        if (!articleTypes.Any())
+        var getContentTypesResult = await _contentTypeService.GetAll();
+        if (!getContentTypesResult.IsError)
         {
-            return NotFound();
+            return NotFound(getContentTypesResult.FirstError.Description);
         }
         List<ContentTypeDto> articleTypeDtos = new();
-        foreach (var articleType in articleTypes)
+        foreach (var contentType in getContentTypesResult.Value)
         {
-            articleTypeDtos.Add(new ContentTypeDto(Id: articleType.Id, Title: articleType.Title));
+            articleTypeDtos.Add(new ContentTypeDto(Id: contentType.Id, Title: contentType.Title));
         }
         return Ok(articleTypeDtos);
     }
     [HttpPost]
-    public async Task<IActionResult> Create(CreateArticleTypeDto createArticleTypeDto)
+    public async Task<IActionResult> Create(CreateContentTypeDto createArticleTypeDto)
     {
-        ContentType articleType = new() { Title = createArticleTypeDto.Title };
-        var createdArticle = await _contentTypeRepo.Create(articleType);
-        if (createdArticle == null)
+        ContentType contentType = new() { Title = createArticleTypeDto.Title };
+        var createdArticleResult = await _contentTypeService.Create(contentType);
+        if (createdArticleResult.IsError)
         {
-            return BadRequest();
+            return BadRequest(createdArticleResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(Id: createdArticle.Id, Title: createdArticle.Title));
+        return Ok(new ContentTypeDto(Id: createdArticleResult.Value.Id, Title: createdArticleResult.Value.Title));
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArticleTypeDto updateArticleTypeDto)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateContentTypeDto updateContentTypeDto)
     {
-        ContentType articleType = new() { Id = id, Title = updateArticleTypeDto.Title };
-        var updatedArticle = await _contentTypeRepo.Update(articleType);
-        if (updatedArticle == null)
+        ContentType contentType = new() { Id = id, Title = updateContentTypeDto.Title };
+        var updateArticleResult = await _contentTypeService.Update(contentType);
+        if (updateArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(updateArticleResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(Id: updatedArticle.Id, Title: updatedArticle.Title));
+        return Ok(new ContentTypeDto(Id: updateArticleResult.Value.Id, Title: updateArticleResult.Value.Title));
     }
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deletedArticle = await _contentTypeRepo.Delete(id);
-        if (deletedArticle == null)
+        var deleteArticleResult = await _contentTypeService.Delete(id);
+        if (deleteArticleResult.IsError)
         {
-            return NotFound();
+            return NotFound(deleteArticleResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(Id: deletedArticle.Id, Title: deletedArticle.Title));
+        return Ok(new ContentTypeDto(Id: deleteArticleResult.Value.Id, Title: deleteArticleResult.Value.Title));
     }
 }

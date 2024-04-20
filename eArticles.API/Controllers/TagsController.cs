@@ -1,6 +1,7 @@
 ﻿using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
-using eArticles.API.Services.Repositories;
+using eArticles.API.Persistance;
+using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,32 +15,36 @@ namespace eArticles.API.Controllers
     [Authorize(Roles = "Admin")]
     public class TagsController : ControllerBase
     {
-        ITagsRepository _tagsRepo { get; set; }
-        public TagsController(ITagsRepository tagsRepo)
+        ITagsService _tagsService;
+
+        public TagsController(ITagsService tagsService)
         {
-            _tagsRepo = tagsRepo;
+            _tagsService = tagsService;
         }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateTagDto tagDto)
         {
             Tag tag = new Tag();
             tag.Title = tagDto.Title;
-            var createdTag = await _tagsRepo.Create(tag);
-            if (createdTag == null)
+            var createTagResult = await _tagsService.Create(tag);
+            if (createTagResult.IsError)
             {
-                return BadRequest();
+                return BadRequest(createTagResult.FirstError.Description);
             }
+            var createdTag = createTagResult.Value;
             return Ok(new TagDto(id: createdTag.Id, title: createdTag.Title));
         }
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var tag = await _tagsRepo.GetById(id);
-            if (tag == null)
+            var getTagResult = await _tagsService.GetById(id);
+            if (getTagResult.IsError)
             {
-                return NotFound();
+                return NotFound(getTagResult.FirstError.Description);
             }
+            var tag = getTagResult.Value;
             return Ok(new TagDto(id: tag.Id, title: tag.Title));
         }
 
@@ -47,12 +52,13 @@ namespace eArticles.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
-            var tags = await _tagsRepo.GetAll();
-            if (tags == null)
+            var getTagsResult = await _tagsService.GetAll();
+            if (getTagsResult.IsError)
             {
-                return BadRequest();
+                return NotFound(getTagsResult.FirstError.Description);
             }
             var tagDtos = new List<TagDto>();
+            var tags = getTagsResult.Value;
             foreach (var tag in tags)
             {
                 tagDtos.Add(new TagDto(id: tag.Id, title: tag.Title));
@@ -62,23 +68,25 @@ namespace eArticles.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var tagDeleted = await _tagsRepo.Delete(id);
-            if (tagDeleted == null)
+            var deleteTagResult = await _tagsService.Delete(id);
+            if (deleteTagResult.IsError)
             {
-                return NotFound();
+                return NotFound(deleteTagResult.FirstError.Description);
             }
-            return Ok(new TagDto(id: tagDeleted.Id, title: tagDeleted.Title));
+            var deletedTag = deleteTagResult.Value;
+            return Ok($"Tag was deleted (tag id: {deletedTag.Id})");
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateTagDto updateTagDto)
         {
             var tag = new Tag() { Id = id, Title = updateTagDto.Title };
-            var updatedTag = await _tagsRepo.Update(tag);
-            if (updatedTag == null)
+            var updateTagResult = await _tagsService.Update(tag);
+            if (updateTagResult.IsError)
             {
-                return NotFound();
+                return NotFound(updateTagResult.FirstError.Description);
             }
+            var updatedTag = updateTagResult.Value; 
             return Ok(new TagDto(id: updatedTag.Id, title: updatedTag.Title));
         }
 

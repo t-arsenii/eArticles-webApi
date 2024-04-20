@@ -1,4 +1,3 @@
-using eArticles.API.Data.Enums;
 using eArticles.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +25,7 @@ public static class SeedDataExtension
         if (!await roleManager.RoleExistsAsync("Admin"))
             await roleManager.CreateAsync(new IdentityRole<int>("Admin"));
 
-        if (!dbContext.Articles.Any() && !dbContext.ArticleTags.Any() && !dbContext.Tags.Any() && !dbContext.ArticleTypes.Any())
+        if (!dbContext.Articles.Any() && !dbContext.ArticleTags.Any() && !dbContext.Tags.Any() && !dbContext.ContentTypes.Any())
         {
             ContentType[] articleTypes = new ContentType[]
             {

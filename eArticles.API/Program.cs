@@ -1,7 +1,7 @@
 using eArticles.API.Data;
 using eArticles.API.Models;
+using eArticles.API.Persistance;
 using eArticles.API.Services;
-using eArticles.API.Services.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
@@ -52,9 +52,14 @@ builder.Services.AddSwaggerGen(opt =>
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<IContentTypeRepository, ContentTypeRepository>();
 
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ITagsService, TagsService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IContentTypeService, ContentTypeService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services
     .AddIdentity<User, IdentityRole<int>>(options =>
