@@ -25,15 +25,14 @@ public class ArticleService : IArticleService
 
     public async Task<ErrorOr<Article>> Create(
         Article newArticle,
-        string contentType,
-        string category,
-        IEnumerable<string>? tagNames = null)
+        IEnumerable<string>? tagIds = null)
     {
-        if (tagNames != null && tagNames.Any())
+        if (tagIds != null && tagIds.Any())
         {
-            foreach (var tagName in tagNames)
+            foreach (var tagId in tagIds)
             {
-                var getTagResult = await _tagsRepository.GetByTitle(tagName);
+                int id = int.Parse(tagId);
+                var getTagResult = await _tagsRepository.GetById(id);
                 if (getTagResult.IsError)
                 {
                     return getTagResult.Errors;
@@ -41,8 +40,8 @@ public class ArticleService : IArticleService
                 newArticle.Tags.Add(getTagResult.Value);
             }
         }
-        var getContentTypeResult = await _contentTypeRepository.GetByTitle(contentType);
-        var getCategoryResult = await _categoryRepository.GetByTitle(category);
+        var getContentTypeResult = await _contentTypeRepository.GetById(newArticle.ContentTypeId);
+        var getCategoryResult = await _categoryRepository.GetById(newArticle.CategoryId);
         if (getContentTypeResult.IsError)
         {
             return getContentTypeResult.Errors;
@@ -109,16 +108,16 @@ public class ArticleService : IArticleService
         return getTotalItemsResult.Value;
     }
 
-    public async Task<ErrorOr<Article>> Update(Article updateArticle, string contentType, string category, IEnumerable<string>? tagNames = null)
+    public async Task<ErrorOr<Article>> Update(Article updateArticle, IEnumerable<string>? tagIds = null)
     {
         var getArticleResult = await _articlesRepository.GetById(updateArticle.Id);
         if (getArticleResult.IsError)
         {
             return getArticleResult.Errors;
         }
-        if (tagNames != null && tagNames.Any())
+        if (tagIds != null && tagIds.Any())
         {
-            foreach (var tagName in tagNames)
+            foreach (var tagName in tagIds)
             {
                 var getTagResult = await _tagsRepository.GetByTitle(tagName);
                 if (getTagResult.IsError)
@@ -127,8 +126,8 @@ public class ArticleService : IArticleService
                 }
             }
         }
-        var getContentTypeResult = await _contentTypeRepository.GetByTitle(contentType);
-        var getCategoryResult = await _categoryRepository.GetByTitle(category);
+        var getContentTypeResult = await _contentTypeRepository.GetById(updateArticle.ContentTypeId);
+        var getCategoryResult = await _categoryRepository.GetById(updateArticle.CategoryId);
         if (getContentTypeResult.IsError)
         {
             return getContentTypeResult.Errors;

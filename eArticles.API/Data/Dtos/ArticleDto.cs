@@ -6,10 +6,10 @@ public abstract record BaseArticleDto(
     string Title,
     string Description,
     string Content,
-    string ContentType,
-    string Category,
+    string ContentTypeId,
+    string CategoryId,
     string? ImgUrl,
-    IEnumerable<string>? ArticleTags
+    IEnumerable<string>? TagIds
 );
 
 public record ArticleDto(
@@ -17,13 +17,13 @@ public record ArticleDto(
     string Title,
     string Description,
     string Content,
-    string ContentType,
-    string Category,
+    string ContentTypeId,
+    string CategoryId,
     string PublishedDate,
     string ImgUrl,
-    IEnumerable<string>? ArticleTags,
+    IEnumerable<string>? TagIds,
     UserDto User
-) : BaseArticleDto(Title, Description, Content, ContentType, Category, ImgUrl, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ContentTypeId, CategoryId, ImgUrl, TagIds);
 
 public record PageArticleDto(
     IEnumerable<ArticleDto> items,
@@ -50,11 +50,11 @@ public record CreateArticleDto(
         ErrorMessage = "The Content must be between 100 and 3000 characters."
     )]
         string Content,
-    [Required] string ContentType,
-    [Required] string Category,
-    IEnumerable<string>? ArticleTags = null,
+    [Required] string ContentTypeId,
+    [Required] string CategoryId,
+    IEnumerable<string>? TagIds = null,
     [Url] string? Img_Url = null
-) : BaseArticleDto(Title, Description, Content, ContentType, Category, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ContentTypeId, CategoryId, Img_Url, TagIds);
 
 public record UpdateArticleDto(
     [Required]
@@ -78,8 +78,8 @@ public record UpdateArticleDto(
         ErrorMessage = "The Content must be between 100 and 3000 characters."
     )]
         string Content,
-    [Required] string ContentType,
-    [Required] string Category,
-    IEnumerable<string>? ArticleTags = null,
+    [Required] string ContentTypeId,
+    [Required] string CategoryId,
+    IEnumerable<string>? TagIds = null,
     [Url] string? Img_Url = null
-) : BaseArticleDto(Title, Description, Content, ContentType, Category, Img_Url, ArticleTags);
+) : BaseArticleDto(Title, Description, Content, ContentTypeId, CategoryId, Img_Url, TagIds);

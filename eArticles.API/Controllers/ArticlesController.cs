@@ -132,10 +132,7 @@ public class ArticlesController : ControllerBase
         }
         Article artcile = articleDto.AsArticle();
         artcile.User = getUserResult.Value;
-        var createArticleResult = await _articlesService.Create(artcile,
-                                                            articleDto.ContentType,
-                                                            articleDto.Category,
-                                                            articleDto.ArticleTags);
+        var createArticleResult = await _articlesService.Create(artcile, articleDto.TagIds);
         if (createArticleResult.IsError)
         {
             return BadRequest(createArticleResult.FirstError.Description);
@@ -173,7 +170,7 @@ public class ArticlesController : ControllerBase
         var articleToUpdate = updateArticleDto.AsArticle();
         articleToUpdate.Id = article.Id;
         articleToUpdate.User = article.User;
-        var updatedArticleResult = await _articlesService.Update(articleToUpdate, updateArticleDto.ContentType, updateArticleDto.Category);
+        var updatedArticleResult = await _articlesService.Update(articleToUpdate, updateArticleDto.TagIds);
         if (updatedArticleResult.IsError)
         {
             return NotFound(updatedArticleResult.FirstError.Description);
