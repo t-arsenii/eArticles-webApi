@@ -148,7 +148,7 @@ public class UsersController : ControllerBase
         }
         var user = getUserResult.Value;
         var isPasswordValidResult = await _userService.IsPasswordValid(user, userData.Password);
-        if (!isPasswordValidResult.IsError)
+        if (isPasswordValidResult.IsError)
         {
             return Problem();
         }
