@@ -66,7 +66,7 @@ public class ContentTypeController : ControllerBase
         {
             return NotFound(updateArticleResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(Id: updateArticleResult.Value.Id, Title: updateArticleResult.Value.Title));
+        return NoContent();
     }
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
@@ -76,6 +76,6 @@ public class ContentTypeController : ControllerBase
         {
             return NotFound(deleteArticleResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(Id: deleteArticleResult.Value.Id, Title: deleteArticleResult.Value.Title));
+        return NoContent();
     }
 }

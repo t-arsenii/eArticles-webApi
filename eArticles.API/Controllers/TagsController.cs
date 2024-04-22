@@ -76,7 +76,7 @@ namespace eArticles.API.Controllers
                 return NotFound(deleteTagResult.FirstError.Description);
             }
             var deletedTag = deleteTagResult.Value;
-            return Ok($"Tag was deleted (tag id: {deletedTag.Id})");
+            return NoContent();
         }
 
         [HttpPut("{id:guid}")]
@@ -89,7 +89,7 @@ namespace eArticles.API.Controllers
                 return NotFound(updateTagResult.FirstError.Description);
             }
             var updatedTag = updateTagResult.Value; 
-            return Ok(new TagDto(Id: updatedTag.Id, Title: updatedTag.Title));
+            return NoContent();
         }
 
     }

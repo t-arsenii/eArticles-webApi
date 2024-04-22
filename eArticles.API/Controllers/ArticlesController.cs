@@ -123,10 +123,6 @@ public class ArticlesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateArticleDto articleDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         Guid userId;
         if (!Guid.TryParse(
            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
@@ -210,7 +206,7 @@ public class ArticlesController : ControllerBase
         {
             return NotFound(updatedArticleResult.FirstError.Description);
         }
-        return Ok(updatedArticleResult.Value.AsDto());
+        return NoContent();
     }
 
     [Authorize]
@@ -246,6 +242,6 @@ public class ArticlesController : ControllerBase
         {
             return NotFound(getArticleResult.FirstError.Description);
         }
-        return Ok($"Deleted article with id {id}");
+        return NoContent();
     }
 }

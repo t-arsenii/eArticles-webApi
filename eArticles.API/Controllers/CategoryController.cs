@@ -70,7 +70,7 @@ public class CategoryController : ControllerBase
         {
             return NotFound(updateCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryDto(updateCategoryResult.Value.Id, updateCategoryResult.Value.Title));
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
@@ -81,7 +81,7 @@ public class CategoryController : ControllerBase
         {
             return NotFound(deleteCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryDto(deleteCategoryResult.Value.Id, deleteCategoryResult.Value.Title));
+        return NoContent();
     }
 }
 
