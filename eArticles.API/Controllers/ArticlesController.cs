@@ -23,9 +23,9 @@ public class ArticlesController : ControllerBase
         _usersRepo = usersRepo;
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> Get(Guid id)
     {
         var getArticleResult = await _articlesService.GetById(id);
         if (getArticleResult.IsError)
@@ -39,19 +39,24 @@ public class ArticlesController : ControllerBase
     public async Task<IActionResult> GetUserPage(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
-        [FromQuery] string? contentType = null,
-        [FromQuery] string? category = null,
+        [FromQuery] Guid? contentTypeId = null,
+        [FromQuery] Guid? categoryId = null,
         [FromQuery] string? order = null,
-        [FromQuery] string[]? tags = null
+        [FromQuery] IEnumerable<Guid>? tagIds = null
     )
     {
         if (pageNumber <= 0)
         {
             return NotFound("PageNumber can't be less or equal to 0");
         }
-        var userId = int.Parse(
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
-        );
+        Guid userId;
+        if (!Guid.TryParse(
+           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+           out userId
+       ))
+        {
+            return BadRequest("Wrong user id format");
+        };
         var getUserResult = await _usersRepo.GetUserById(userId);
         if (getUserResult.IsError)
         {
@@ -61,16 +66,16 @@ public class ArticlesController : ControllerBase
         var getArticlesPageResult = await _articlesService.GetPage(pageNumber,
                                                                    pageSize,
                                                                    userId: user.Id,
-                                                                   contentType: contentType,
-                                                                   category: category,
+                                                                   contentTypeId: contentTypeId,
+                                                                   categoryId: categoryId,
                                                                    order: order,
-                                                                   tags: tags);
+                                                                   tagIds: tagIds);
         var getTotalItemsResult = await _articlesService.GetTotalItems(user.Id);
         if (getArticlesPageResult.IsError)
         {
             return NotFound(getArticlesPageResult.FirstError);
         }
-        List<ArticleDto> articleDTOs = new List<ArticleDto>();
+        var articleDTOs = new List<ArticleDto>();
         foreach (var article in getArticlesPageResult.Value)
         {
             articleDTOs.Add(article.AsDto());
@@ -83,10 +88,10 @@ public class ArticlesController : ControllerBase
     public async Task<IActionResult> GetPage(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
-        [FromQuery] string? contentType = null,
-        [FromQuery] string? category = null,
+        [FromQuery] Guid? contentTypeId = null,
+        [FromQuery] Guid? categoryId = null,
         [FromQuery] string? order = null,
-        [FromQuery] string[]? tags = null
+        [FromQuery] IEnumerable<Guid>? tagIds = null
     )
     {
         if (pageNumber <= 0)
@@ -96,10 +101,10 @@ public class ArticlesController : ControllerBase
         var getArticlesPageResult = await _articlesService.GetPage(
             currentPage: pageNumber,
             pageSize: pageSize,
-            contentType: contentType,
-            category: category,
+            contentTypeId: contentTypeId,
+            categoryId: categoryId,
             order: order,
-            tags: tags);
+            tagIds: tagIds);
 
         if (getArticlesPageResult.IsError)
         {
@@ -122,15 +127,28 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var userId = int.Parse(
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
-        );
+        Guid userId;
+        if (!Guid.TryParse(
+           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+           out userId
+       ))
+        {
+            return BadRequest("Wrong user id format");
+        };
         var getUserResult = await _usersRepo.GetUserById(userId);
         if (getUserResult.IsError)
         {
             return NotFound(getUserResult.FirstError.Description);
         }
-        Article artcile = articleDto.AsArticle();
+        Article artcile = new Article()
+        {
+            Title = articleDto.Title,
+            Description = articleDto.Description,
+            Content = articleDto.Content,
+            CategoryId = articleDto.CategoryId,
+            ContentTypeId = articleDto.ContentTypeId,
+            Img_Url = articleDto.Img_Url
+        };
         artcile.User = getUserResult.Value;
         var createArticleResult = await _articlesService.Create(artcile, articleDto.TagIds);
         if (createArticleResult.IsError)
@@ -141,16 +159,21 @@ public class ArticlesController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArticleDto updateArticleDto)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateArticleDto updateArticleDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        var userId = int.Parse(
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
-        );
+        Guid userId;
+        if (!Guid.TryParse(
+           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+           out userId
+       ))
+        {
+            return BadRequest("Wrong user id format");
+        };
         var getUserResult = await _usersRepo.GetUserById(userId);
         if (getUserResult.IsError)
         {
@@ -167,7 +190,15 @@ public class ArticlesController : ControllerBase
         {
             return Forbid();
         }
-        var articleToUpdate = updateArticleDto.AsArticle();
+        var articleToUpdate = new Article()
+        {
+            Title = updateArticleDto.Title,
+            Description = updateArticleDto.Description,
+            Content = updateArticleDto.Content,
+            CategoryId = updateArticleDto.CategoryId,
+            ContentTypeId = updateArticleDto.ContentTypeId,
+            Img_Url = updateArticleDto.Img_Url
+        };
         articleToUpdate.Id = article.Id;
         articleToUpdate.User = article.User;
         var updatedArticleResult = await _articlesService.Update(articleToUpdate, updateArticleDto.TagIds);
@@ -179,12 +210,17 @@ public class ArticlesController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var userId = int.Parse(
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
-        );
+        Guid userId;
+        if (!Guid.TryParse(
+           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+           out userId
+       ))
+        {
+            return BadRequest("Wrong user id format");
+        };
         var getUserResult = await _usersRepo.GetUserById(userId);
         if (getUserResult.IsError)
         {

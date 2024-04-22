@@ -35,9 +35,9 @@ namespace eArticles.API.Controllers
             var createdTag = createTagResult.Value;
             return Ok(new TagDto(id: createdTag.Id, title: createdTag.Title));
         }
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var getTagResult = await _tagsService.GetById(id);
             if (getTagResult.IsError)
@@ -65,8 +65,8 @@ namespace eArticles.API.Controllers
             }
             return Ok(tagDtos);
         }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var deleteTagResult = await _tagsService.Delete(id);
             if (deleteTagResult.IsError)
@@ -77,8 +77,8 @@ namespace eArticles.API.Controllers
             return Ok($"Tag was deleted (tag id: {deletedTag.Id})");
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateTagDto updateTagDto)
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, UpdateTagDto updateTagDto)
         {
             var tag = new Tag() { Id = id, Title = updateTagDto.Title };
             var updateTagResult = await _tagsService.Update(tag);

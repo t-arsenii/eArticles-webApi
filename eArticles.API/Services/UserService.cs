@@ -44,7 +44,7 @@ public class UserService : IUserService
         return createUserResult.Value;
     }
 
-    public async Task<ErrorOr<User>> Delete(int id)
+    public async Task<ErrorOr<User>> Delete(Guid id)
     {
         var deleteUserResult = await _usersRepository.Delete(id);
         if (deleteUserResult.IsError)
@@ -54,7 +54,7 @@ public class UserService : IUserService
         return deleteUserResult.Value;
     }
 
-    public async Task<ErrorOr<User>> GetUserById(int id)
+    public async Task<ErrorOr<User>> GetUserById(Guid id)
     {
         var getUserResult = await _usersRepository.GetUserById(id);
         if (getUserResult.IsError)

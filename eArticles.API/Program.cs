@@ -23,6 +23,7 @@ builder.Services.AddDbContext<eArticlesDbContext>(opts =>
 {
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
 });
+builder.Services.AddHostedService<DbConnectionTestService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -62,7 +63,7 @@ builder.Services.AddScoped<IContentTypeService, ContentTypeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services
-    .AddIdentity<User, IdentityRole<int>>(options =>
+    .AddIdentity<User, IdentityRole<Guid>>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.User.RequireUniqueEmail = true;

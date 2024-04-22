@@ -14,16 +14,16 @@ public static class SeedDataExtension
         UserManager<User>? userManager = app.Services
             .CreateScope()
             .ServiceProvider.GetService<UserManager<User>>();
-        RoleManager<IdentityRole<int>>? roleManager = app.Services
+        RoleManager<IdentityRole<Guid>>? roleManager = app.Services
             .CreateScope()
-            .ServiceProvider.GetService<RoleManager<IdentityRole<int>>>();
+            .ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
 
         dbContext!.Database.Migrate();
 
         if (!await roleManager.RoleExistsAsync("User"))
-            await roleManager.CreateAsync(new IdentityRole<int>("User"));
+            await roleManager.CreateAsync(new IdentityRole<Guid>("User"));
         if (!await roleManager.RoleExistsAsync("Admin"))
-            await roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+            await roleManager.CreateAsync(new IdentityRole<Guid>("Admin"));
 
         if (!dbContext.Articles.Any() && !dbContext.ArticleTags.Any() && !dbContext.Tags.Any() && !dbContext.ContentTypes.Any())
         {

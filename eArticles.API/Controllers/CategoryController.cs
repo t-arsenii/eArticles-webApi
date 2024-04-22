@@ -19,9 +19,9 @@ public class CategoryController : ControllerBase
     {
         _categoryService = categoryService;
     }
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var getCategoryResult = await _categoryService.GetById(id);
         if (getCategoryResult.IsError)
@@ -60,8 +60,8 @@ public class CategoryController : ControllerBase
         return Ok(new CategoryDto(createdCategory.Value.Id, createdCategory.Value.Title));
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCategoryDto updateCategoryDto)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryDto updateCategoryDto)
     {
         Category category = new Category() { Id = id, Title = updateCategoryDto.Title };
         var updateCategoryResult = await _categoryService.Update(category);
@@ -72,8 +72,8 @@ public class CategoryController : ControllerBase
         return Ok(new CategoryDto(updateCategoryResult.Value.Id, updateCategoryResult.Value.Title));
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
     {
         var deleteCategoryResult = await _categoryService.Delete(id);
         if (deleteCategoryResult.IsError)

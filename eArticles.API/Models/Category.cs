@@ -2,7 +2,7 @@
 
 public class Category
 {
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public List<Article> Articles { get; set; } = new();
+    public Guid Id { get; set; }
+    public string? Title { get; set; }
+    public ICollection<Article> Articles { get; set; } = new List<Article>();
 }

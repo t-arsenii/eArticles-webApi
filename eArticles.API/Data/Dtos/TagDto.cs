@@ -1,7 +1,7 @@
 ﻿namespace eArticles.API.Data.Dtos;
 
 public record TagDto(
-    int id,
+    Guid id,
     string title
 );
 public record CreateTagDto(

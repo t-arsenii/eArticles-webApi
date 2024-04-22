@@ -22,10 +22,10 @@ public class ContentTypeRepository : IContentTypeRepository
         return articleType;
     }
 
-    public async Task<ErrorOr<ContentType>> Delete(int id)
+    public async Task<ErrorOr<ContentType>> Delete(Guid id)
     {
         var articleType = await _dbContext.ContentTypes.FindAsync(id);
-        if (articleType == null)
+        if (articleType is null)
         {
             return Error.NotFound(description: $"ContentType is not found (contentType id: {id})");
         }
@@ -45,10 +45,10 @@ public class ContentTypeRepository : IContentTypeRepository
 
     }
 
-    public async Task<ErrorOr<ContentType>> GetById(int id)
+    public async Task<ErrorOr<ContentType>> GetById(Guid id)
     {
         var contentType = await _dbContext.ContentTypes.FindAsync(id);
-        if (contentType == null)
+        if (contentType is null)
         {
             return Error.NotFound(description: $"ContentType is not found (contentType id: {id})");
         }
@@ -58,7 +58,7 @@ public class ContentTypeRepository : IContentTypeRepository
     public async Task<ErrorOr<ContentType>> GetByTitle(string title)
     {
         var contentType = await _dbContext.ContentTypes.FirstOrDefaultAsync(c => c.Title == title);
-        if(contentType == null)
+        if (contentType is null)
         {
             return Error.NotFound(description: $"ContentType is not ContentType (ContentType title: {title})");
         }
@@ -68,7 +68,7 @@ public class ContentTypeRepository : IContentTypeRepository
     public async Task<ErrorOr<ContentType>> Update(ContentType contentTypeUpdate)
     {
         var contentType = await _dbContext.ContentTypes.FindAsync(contentTypeUpdate.Id);
-        if (contentType == null)
+        if (contentType is null)
         {
             return Error.NotFound(description: $"ContentType is not found (contentType id: {contentTypeUpdate.Id})");
 

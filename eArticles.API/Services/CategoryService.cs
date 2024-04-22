@@ -23,7 +23,7 @@ public class CategoryService : ICategoryService
         return createCategoryResult.Value;
     }
 
-    public async Task<ErrorOr<Category>> Delete(int id)
+    public async Task<ErrorOr<Category>> Delete(Guid id)
     {
         var deleteCategoryResult = await _categoryRepository.Delete(id);
         if (deleteCategoryResult.IsError)
@@ -43,7 +43,7 @@ public class CategoryService : ICategoryService
         return getCategoriesResult.Value.ToList();
     }
 
-    public async Task<ErrorOr<Category>> GetById(int id)
+    public async Task<ErrorOr<Category>> GetById(Guid id)
     {
         var getCategoryResult = await _categoryRepository.GetById(id);
         if (getCategoryResult.IsError)

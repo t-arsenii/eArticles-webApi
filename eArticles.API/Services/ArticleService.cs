@@ -25,14 +25,13 @@ public class ArticleService : IArticleService
 
     public async Task<ErrorOr<Article>> Create(
         Article newArticle,
-        IEnumerable<string>? tagIds = null)
+        IEnumerable<Guid>? tagIds = null)
     {
         if (tagIds != null && tagIds.Any())
         {
             foreach (var tagId in tagIds)
             {
-                int id = int.Parse(tagId);
-                var getTagResult = await _tagsRepository.GetById(id);
+                var getTagResult = await _tagsRepository.GetById(tagId);
                 if (getTagResult.IsError)
                 {
                     return getTagResult.Errors;
@@ -61,7 +60,7 @@ public class ArticleService : IArticleService
         return createArticleResult.Value;
     }
 
-    public async Task<ErrorOr<Article>> Delete(int id)
+    public async Task<ErrorOr<Article>> Delete(Guid id)
     {
         var deleteArticleResult = await _articlesRepository.Delete(id);
         if (deleteArticleResult.IsError)
@@ -71,7 +70,7 @@ public class ArticleService : IArticleService
         return deleteArticleResult.Value;
     }
 
-    public async Task<ErrorOr<Article>> GetById(int id)
+    public async Task<ErrorOr<Article>> GetById(Guid id)
     {
         var getArticleResult = await _articlesRepository.GetById(id);
         if (getArticleResult.IsError)
@@ -84,13 +83,13 @@ public class ArticleService : IArticleService
     public async Task<ErrorOr<IEnumerable<Article>>> GetPage(
         int currentPage = 1,
         int pageSize = 10,
-        int? userId = null,
-        string? contentType = null,
-        string? category = null,
+        Guid? userId = null,
+        Guid? contentTypeId = null,
+        Guid? categoryId = null,
         string? order = null,
-        string[]? tags = null)
+        IEnumerable<Guid>? tagIds = null)
     {
-        var getArticlePageResult = await _articlesRepository.GetPage(currentPage, pageSize, userId, contentType, category, order, tags);
+        var getArticlePageResult = await _articlesRepository.GetPage(currentPage, pageSize, userId, contentTypeId, categoryId, order, tagIds);
         if (getArticlePageResult.IsError)
         {
             return getArticlePageResult.Errors;
@@ -98,7 +97,7 @@ public class ArticleService : IArticleService
         return getArticlePageResult.Value.ToList();
     }
 
-    public async Task<ErrorOr<int>> GetTotalItems(int? userId = null)
+    public async Task<ErrorOr<int>> GetTotalItems(Guid? userId = null)
     {
         var getTotalItemsResult = await _articlesRepository.GetTotalItems(userId);
         if (getTotalItemsResult.IsError)
@@ -108,7 +107,7 @@ public class ArticleService : IArticleService
         return getTotalItemsResult.Value;
     }
 
-    public async Task<ErrorOr<Article>> Update(Article updateArticle, IEnumerable<string>? tagIds = null)
+    public async Task<ErrorOr<Article>> Update(Article updateArticle, IEnumerable<Guid>? tagIds = null)
     {
         var getArticleResult = await _articlesRepository.GetById(updateArticle.Id);
         if (getArticleResult.IsError)
@@ -117,9 +116,9 @@ public class ArticleService : IArticleService
         }
         if (tagIds != null && tagIds.Any())
         {
-            foreach (var tagName in tagIds)
+            foreach (var tagId in tagIds)
             {
-                var getTagResult = await _tagsRepository.GetByTitle(tagName);
+                var getTagResult = await _tagsRepository.GetById(tagId);
                 if (getTagResult.IsError)
                 {
                     return getArticleResult.Errors;

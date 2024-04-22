@@ -2,7 +2,7 @@
 
 public record ContentTypeDto
 (
-    int Id,
+    Guid Id,
     string Title
 );
 public record CreateContentTypeDto

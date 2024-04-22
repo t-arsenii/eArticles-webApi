@@ -23,7 +23,7 @@ public TagsService(ITagsRepository tagsRepository)
         return createTagResult.Value;
     }
 
-    public async Task<ErrorOr<Tag>> Delete(int id)
+    public async Task<ErrorOr<Tag>> Delete(Guid id)
     {
         var deleteTagResult = await _tagsRepository.Delete(id);
         if (deleteTagResult.IsError)
@@ -43,7 +43,7 @@ public TagsService(ITagsRepository tagsRepository)
         return getTagsResult.Value.ToList();
     }
 
-    public async Task<ErrorOr<Tag>> GetById(int id)
+    public async Task<ErrorOr<Tag>> GetById(Guid id)
     {
         var getTagResult = await _tagsRepository.GetById(id);
         if (getTagResult.IsError)

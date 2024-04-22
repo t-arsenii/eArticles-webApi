@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Data;
 
-public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int>
+public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();

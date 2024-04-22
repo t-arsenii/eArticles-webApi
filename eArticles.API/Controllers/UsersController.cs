@@ -71,9 +71,14 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetByToken()
     {
-        var userId = int.Parse(
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
-        );
+        Guid userId;
+        if (!Guid.TryParse(
+           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+           out userId
+       ))
+        {
+            return BadRequest("Wrong user id format");
+        }
         var getUserResult = await _userService.GetUserById(userId);
         if (getUserResult.IsError)
         {
@@ -93,7 +98,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var getUserResult = await _userService.GetUserById(id);
         if (getUserResult.IsError)
@@ -165,7 +170,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("admin/{id}")]
-    public async Task<IActionResult> GiveAdminRole(int id)
+    public async Task<IActionResult> GiveAdminRole(Guid id)
     {
         var getUserResult = await _userService.GetUserById(id);
         if (getUserResult.IsError)

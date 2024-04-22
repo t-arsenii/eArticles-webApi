@@ -21,10 +21,10 @@ public class ArticlesRepository : IArticlesRepository
         return newArticle;
     }
 
-    public async Task<ErrorOr<Article>> Delete(int id)
+    public async Task<ErrorOr<Article>> Delete(Guid id)
     {
         Article? articleToDelete = await _dbContext.Articles.FindAsync(id);
-        if (articleToDelete == null)
+        if (articleToDelete is null)
         {
             return Error.NotFound(description: $"Article is not found (article id: {id})");
         }
@@ -33,7 +33,7 @@ public class ArticlesRepository : IArticlesRepository
         return articleToDelete;
     }
 
-    public async Task<ErrorOr<Article>> GetById(int id)
+    public async Task<ErrorOr<Article>> GetById(Guid id)
     {
         var article = await _dbContext.Articles
             .Include(ar => ar.Tags)
@@ -41,7 +41,7 @@ public class ArticlesRepository : IArticlesRepository
             .Include(ar => ar.ContentType)
             .Include(ar => ar.Category)
             .FirstOrDefaultAsync(ar => ar.Id == id);
-        if (article == null)
+        if (article is null)
         {
             return Error.NotFound(description: $"Article is not found (article id: {id})");
         }
@@ -51,11 +51,11 @@ public class ArticlesRepository : IArticlesRepository
     public async Task<ErrorOr<IEnumerable<Article>>> GetPage(
         int currentPage = 1,
         int pageSize = 10,
-        int? userId = null,
-        string? contentType = null,
-        string? category = null,
+        Guid? userId = null,
+        Guid? contentTypeId = null,
+        Guid? categoryId = null,
         string? order = null,
-        string[]? tags = null
+        IEnumerable<Guid>? tagIds = null
     )
     {
         IQueryable<Article> query = _dbContext.Articles;
@@ -64,19 +64,19 @@ public class ArticlesRepository : IArticlesRepository
         {
             query = query.Where(a => a.UserId == userId);
         }
-        if (!string.IsNullOrEmpty(contentType))
+        if (contentTypeId is not null)
         {
-            query = query.Where(a => a.ContentType.Title.ToLower() == contentType.ToLower());
+            query = query.Where(a => a.ContentTypeId == contentTypeId);
         }
-        if (!string.IsNullOrEmpty(category))
+        if (categoryId is not null)
         {
-            query = query.Where(a => a.Category.Title.ToLower() == category.ToLower());
+            query = query.Where(a => a.CategoryId == categoryId);
         }
-        if (tags != null && tags.Any())
+        if (tagIds is not null && tagIds.Any())
         {
-            foreach (var tag in tags)
+            foreach (var tagId in tagIds)
             {
-                query = query.Where(a => a.Tags.Select(t => t.Title.ToLower()).Contains(tag.ToLower()));
+                query = query.Where(a => a.Tags.Select(t => t.Id).Contains(tagId));
             }
         }
         if (string.IsNullOrEmpty(order))
@@ -101,9 +101,9 @@ public class ArticlesRepository : IArticlesRepository
             .ToListAsync();
     }
 
-    public async Task<ErrorOr<int>> GetTotalItems(int? userId = null)
+    public async Task<ErrorOr<int>> GetTotalItems(Guid? userId = null)
     {
-        if (userId == null)
+        if (userId is null)
         {
             return await _dbContext.Articles.CountAsync();
         }

@@ -2,7 +2,7 @@
 
 public record CategoryDto
 (
-     int Id,
+     Guid Id,
      string Title
 );
 

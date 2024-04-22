@@ -23,7 +23,7 @@ public class ContentTypeService : IContentTypeService
         return createContentTypeResult;
     }
 
-    public async Task<ErrorOr<ContentType>> Delete(int id)
+    public async Task<ErrorOr<ContentType>> Delete(Guid id)
     {
         var createContentTypeResult = await _contentTypeRepository.Delete(id);
         if (createContentTypeResult.IsError)
@@ -43,7 +43,7 @@ public class ContentTypeService : IContentTypeService
         return getContentTypesResult.Value.ToList();
     }
 
-    public async Task<ErrorOr<ContentType>> GetById(int id)
+    public async Task<ErrorOr<ContentType>> GetById(Guid id)
     {
         var getContentTypeResult = await _contentTypeRepository.GetById(id);
         if (getContentTypeResult.IsError)

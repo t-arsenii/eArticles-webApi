@@ -24,10 +24,10 @@ public class TagsRepository : ITagsRepository
     }
 
 
-    public async Task<ErrorOr<Tag>> Delete(int id)
+    public async Task<ErrorOr<Tag>> Delete(Guid id)
     {
         var tag = await _dbContext.Tags.FindAsync(id);
-        if (tag == null)
+        if (tag is null)
         {
             return Error.NotFound(description: $"Tag is not found (tag id: {id})");
         }
@@ -46,10 +46,10 @@ public class TagsRepository : ITagsRepository
         return tags;
     }
 
-    public async Task<ErrorOr<Tag>> GetById(int id)
+    public async Task<ErrorOr<Tag>> GetById(Guid id)
     {
         var tag = await _dbContext.Tags.FindAsync(id);
-        if (tag == null)
+        if (tag is null)
         {
             return Error.NotFound(description: $"Tag is not found (tag id: {id})");
         }
@@ -59,7 +59,7 @@ public class TagsRepository : ITagsRepository
     public async Task<ErrorOr<Tag>> GetByTitle(string title)
     {
         var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == title);
-        if(tag == null)
+        if(tag is null)
         {
             return Error.NotFound(description: $"Tag is not found (tag title: {title})");
         }

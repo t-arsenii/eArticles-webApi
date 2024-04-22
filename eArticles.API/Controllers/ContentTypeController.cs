@@ -17,9 +17,9 @@ public class ContentTypeController : ControllerBase
     {
         _contentTypeService = contentTypeService;
     }
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById([FromRoute] int id)
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         var getContentTypeResult = await _contentTypeService.GetById(id);
         if (getContentTypeResult.IsError)
@@ -55,8 +55,8 @@ public class ContentTypeController : ControllerBase
         }
         return Ok(new ContentTypeDto(Id: createdArticleResult.Value.Id, Title: createdArticleResult.Value.Title));
     }
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateContentTypeDto updateContentTypeDto)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateContentTypeDto updateContentTypeDto)
     {
         ContentType contentType = new() { Id = id, Title = updateContentTypeDto.Title };
         var updateArticleResult = await _contentTypeService.Update(contentType);
@@ -66,8 +66,8 @@ public class ContentTypeController : ControllerBase
         }
         return Ok(new ContentTypeDto(Id: updateArticleResult.Value.Id, Title: updateArticleResult.Value.Title));
     }
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
     {
         var deleteArticleResult = await _contentTypeService.Delete(id);
         if (deleteArticleResult.IsError)

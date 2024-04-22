@@ -32,10 +32,10 @@ public class UsersRepository : IUsersRepository
         return user;
     }
 
-    public async Task<ErrorOr<User>> GetUserById(int id)
+    public async Task<ErrorOr<User>> GetUserById(Guid id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null)
+        if (user is null)
         {
             return Error.NotFound($"User is not found (user id: {id})");
         }
@@ -45,7 +45,7 @@ public class UsersRepository : IUsersRepository
     public async Task<ErrorOr<User>> GetUserByUserName(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
-        if (user == null)
+        if (user is null)
         {
             return Error.NotFound(description:$"User is not found (userName: {userName})");
         }
@@ -72,7 +72,7 @@ public class UsersRepository : IUsersRepository
         throw new NotImplementedException();
     }
 
-    public Task<ErrorOr<User>> Delete(int userId)
+    public Task<ErrorOr<User>> Delete(Guid userId)
     {
         throw new NotImplementedException();
     }
