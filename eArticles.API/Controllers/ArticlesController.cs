@@ -25,7 +25,7 @@ public class ArticlesController : ControllerBase
 
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
         var getArticleResult = await _articlesService.GetById(id);
         if (getArticleResult.IsError)
@@ -155,7 +155,11 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest(createArticleResult.FirstError.Description);
         }
-        return Ok(createArticleResult.Value.AsDto());
+        var createdArticleResponse = createArticleResult.Value.AsDto();
+        return CreatedAtAction(
+            actionName: nameof(GetById),
+            routeValues: new { id = createdArticleResponse.Id },
+            value: createdArticleResponse);
     }
 
     [Authorize]

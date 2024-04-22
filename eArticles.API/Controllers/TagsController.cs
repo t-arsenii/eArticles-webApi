@@ -33,7 +33,9 @@ namespace eArticles.API.Controllers
                 return BadRequest(createTagResult.FirstError.Description);
             }
             var createdTag = createTagResult.Value;
-            return Ok(new TagDto(id: createdTag.Id, title: createdTag.Title));
+            var tagResponse = new TagDto(Id: createdTag.Id, Title: createdTag.Title);
+            return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = tagResponse.Id }, value: tagResponse);
+
         }
         [HttpGet("{id:guid}")]
         [AllowAnonymous]
@@ -45,7 +47,7 @@ namespace eArticles.API.Controllers
                 return NotFound(getTagResult.FirstError.Description);
             }
             var tag = getTagResult.Value;
-            return Ok(new TagDto(id: tag.Id, title: tag.Title));
+            return Ok(new TagDto(Id: tag.Id, Title: tag.Title));
         }
 
         [HttpGet]
@@ -61,7 +63,7 @@ namespace eArticles.API.Controllers
             var tags = getTagsResult.Value;
             foreach (var tag in tags)
             {
-                tagDtos.Add(new TagDto(id: tag.Id, title: tag.Title));
+                tagDtos.Add(new TagDto(Id: tag.Id, Title: tag.Title));
             }
             return Ok(tagDtos);
         }
@@ -87,7 +89,7 @@ namespace eArticles.API.Controllers
                 return NotFound(updateTagResult.FirstError.Description);
             }
             var updatedTag = updateTagResult.Value; 
-            return Ok(new TagDto(id: updatedTag.Id, title: updatedTag.Title));
+            return Ok(new TagDto(Id: updatedTag.Id, Title: updatedTag.Title));
         }
 
     }

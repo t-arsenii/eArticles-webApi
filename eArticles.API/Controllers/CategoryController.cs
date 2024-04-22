@@ -57,7 +57,8 @@ public class CategoryController : ControllerBase
         {
             return BadRequest(createdCategory.IsError);
         }
-        return Ok(new CategoryDto(createdCategory.Value.Id, createdCategory.Value.Title));
+        var categoryResponse = new CategoryDto(createdCategory.Value.Id, createdCategory.Value.Title);
+        return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = categoryResponse.Id }, value: categoryResponse);
     }
 
     [HttpPut("{id:guid}")]

@@ -16,8 +16,6 @@ namespace eArticles.API.Controllers;
 public class UsersController : ControllerBase
 {
     IUserService _userService;
-    //RoleManager<IdentityRole<int>> _roleManager;
-
     public UsersController(IUserService userService)
     {
         _userService = userService;
@@ -48,23 +46,20 @@ public class UsersController : ControllerBase
         {
             return BadRequest("User not found after creation.");
         }
-        //if (!await _roleManager.RoleExistsAsync("User"))
-        //    await _roleManager.CreateAsync(new IdentityRole<int>("User"));
-        //if (!await _roleManager.RoleExistsAsync("Admin"))
-        //    await _roleManager.CreateAsync(new IdentityRole<int>("Admin"));
-
         var addRoleResult = await _userService.AddUserRole(user, "User");
         if (addRoleResult.IsError)
         {
             return BadRequest(addRoleResult.FirstError.Description);
         }
         var createdUser = getUserResult.Value;
-        return Ok(new UserDto(Id: createdUser.Id.ToString(),
+        var userResponse = new UserDto(Id: createdUser.Id.ToString(),
                               FirstName: createdUser.FirstName,
                               LastName: createdUser.LastName,
                               UserName: createdUser.LastName,
                               Email: createdUser.Email,
-                              PhoneNumber: createdUser.PhoneNumber));
+                              PhoneNumber: createdUser.PhoneNumber);
+
+        return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = userResponse.Id }, value: userResponse);
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

@@ -53,7 +53,9 @@ public class ContentTypeController : ControllerBase
         {
             return BadRequest(createdArticleResult.FirstError.Description);
         }
-        return Ok(new ContentTypeDto(Id: createdArticleResult.Value.Id, Title: createdArticleResult.Value.Title));
+        var contentTypeResponse = new ContentTypeDto(Id: createdArticleResult.Value.Id, Title: createdArticleResult.Value.Title);
+        return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = contentTypeResponse.Id }, value: contentTypeResponse);
+
     }
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateContentTypeDto updateContentTypeDto)
