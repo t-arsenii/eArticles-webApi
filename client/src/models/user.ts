@@ -1,4 +1,4 @@
-export interface IUserInfo {
+export interface IUser {
     id: string,
     firstName: string
     lastName: string
@@ -34,5 +34,5 @@ export interface IUserAuthRes {
 
 export interface IUserState {
     token: string | null;
-    userInfo: IUserInfo;
+    userInfo: IUser;
   }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IArticle, IArticleResPage } from "../models/articles";
+import { IArticle, IArticleGetPageRes } from "../models/articles";
 import { ArticleList } from "../components/ArticleList";
 import axios from "axios";
 import ArticlePage from "../components/ArticlePage";
@@ -21,7 +21,7 @@ export function Home() {
 
     const fetchLatestArticles = async () => {
         try {
-            const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date`);
+            const res = await axios.get<IArticleGetPageRes>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date`);
             setLatestArticles(res.data.items);
 
         } catch (error) {
@@ -30,7 +30,7 @@ export function Home() {
     }
     const fetchGuideArticles = async () => {
         try {
-            const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=guide`);
+            const res = await axios.get<IArticleGetPageRes>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=guide`);
             setGuideArticles(res.data.items);
         } catch (error) {
             console.log(error);
@@ -38,7 +38,7 @@ export function Home() {
     }
     const fetchNewsArticles = async () => {
         try {
-            const res = await axios.get<IArticleResPage>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=news`);
+            const res = await axios.get<IArticleGetPageRes>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=news`);
             setNewsArticles(res.data.items);
         } catch (error) {
             console.log(error);

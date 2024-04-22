@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createTheme, ThemeProvider, Container, Typography, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useState } from 'react';
-import { IUserAuthReq, IUserAuthRes, IUserInfo } from "../models/user"
+import { IUserAuthReq, IUserAuthRes, IUser } from "../models/user"
 import { useForm } from "react-hook-form"
 import PhoneInput from 'react-phone-number-input';
 import axios from 'axios';
@@ -30,7 +30,7 @@ export function Login() {
             localStorage.setItem('token', resAuthData.token);
             dispatch(updateToken(resAuthData.token))
             
-            const userInfoRes = await axios.get<IUserInfo>("http://localhost:5000/api/users", {
+            const userInfoRes = await axios.get<IUser>("http://localhost:5000/api/users", {
                 headers: {
                     Authorization: `Bearer ${resAuthData.token}`,
                     'Content-Type': 'application/json'

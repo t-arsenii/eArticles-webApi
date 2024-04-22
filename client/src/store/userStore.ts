@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { IUserInfo, IUserState } from '../models/user'
+import { IUser, IUserState } from '../models/user'
 
 const initialState: IUserState = {
     userInfo: {
@@ -18,7 +18,7 @@ export const counterSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        updateUser: (state, action: PayloadAction<IUserInfo>) => {
+        updateUser: (state, action: PayloadAction<IUser>) => {
             state.userInfo = { ...state, ...action.payload };
         },
         updateToken: (state, action: PayloadAction<string | null>) => {

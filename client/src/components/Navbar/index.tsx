@@ -62,9 +62,6 @@ export function Navbar() {
                         <StyledLink to={page.link}><Button color='inherit'>{page.name}</Button></StyledLink>
                     )
                     )}
-                    {token &&
-                        <StyledLink to='/article/create'><Button color='inherit'>Make article</Button></StyledLink>
-                    }
                 </Stack>
                 <Stack direction="row">
                     <Stack direction="row" sx={{ alignItems: 'center' }}>
@@ -78,7 +75,7 @@ export function Navbar() {
                     {token ?
                         <>
                             <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <Box sx={{ userSelect: "none", cursor:"pointer" }} onClick={handleMenu}><span>{userInfo.userName}</span></Box>
+                                <Box sx={{ userSelect: "none", cursor: "pointer" }} onClick={handleMenu}><span>{userInfo.userName}</span></Box>
                                 {/* <Link to={`/profile/${userInfo.userName}`} className='username'>
                                     {userInfo.userName}
                                 </Link> */}
@@ -98,8 +95,8 @@ export function Navbar() {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                                <MenuItem onClick={handleClose}>My account</MenuItem>
+                                <MenuItem onClick={handleClose}><Link style={{ color: "inherit", textDecoration: "none" }} to={`/profile/${userInfo.userName}`}>Profile</Link></MenuItem>
+                                <MenuItem onClick={handleClose}><Link style={{ color: "inherit", textDecoration: "none" }} to='/article/create'>Make article</Link></MenuItem>
                             </Menu>
                         </>
                         :

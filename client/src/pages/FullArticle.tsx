@@ -1,5 +1,5 @@
 import { Box, Chip, ListItem, Stack, Typography } from "@mui/material"
-import { IArticle, IArticleRes } from "../models/articles"
+import { IArticle, IArticleCreateRes } from "../models/articles"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { Link, useNavigate, useParams } from "react-router-dom"
@@ -17,7 +17,7 @@ export default function FullArticle() {
     const token = useSelector((state: RootState) => state.user.token)
     useEffect(() => {
         const fetchArticle = async () => {
-            const resArticle = await axios.get<IArticleRes>(`http://localhost:5000/api/Articles/${id}`)
+            const resArticle = await axios.get<IArticleCreateRes>(`http://localhost:5000/api/Articles/${id}`)
             const resArticleData: IArticle = { ...resArticle.data }
             setArticle(resArticleData)
         }
@@ -70,7 +70,7 @@ export default function FullArticle() {
                             <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
                         </Box>
                         <Box sx={{ display: "flex", marginY: "20px" }}><Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}><Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.contentType}</Typography></Box></Box>
-                        {article.userId === userInfo.id &&
+                        {article.user.id === userInfo.id &&
                             <Stack direction="row">
                                 <Box onClick={handleDeleteButton}><DeleteIcon /></Box>
                                 <Box><Link to={`/article/edit/${article.id}`}><EditIcon /></Link></Box>
@@ -79,7 +79,7 @@ export default function FullArticle() {
                         <Box><Typography sx={{ fontWeight: "bold" }} variant="h2">{article.title}</Typography></Box>
                         <Box><Typography variant="h5">{article.description}</Typography></Box>
                         <Box sx={{ marginTop: "10px" }}>
-                            {article.articleTags && article.articleTags.map((tag, key) => (
+                            {article.tags && article.tags.map((tag, key) => (
                                 <Chip
                                     label={tag}
                                     sx={{ marginRight: "5px" }}

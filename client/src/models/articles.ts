@@ -1,8 +1,8 @@
-import { IUserInfo } from "./user"
+import { IUser } from "./user"
 
 export interface IArticle {
     id: string,
-    userId: string,
+    user: IUser,
     publishedDate: string,
     title: string,
     description: string,
@@ -10,32 +10,30 @@ export interface IArticle {
     contentType: string,
     category: string,
     imgUrl: string,
-    articleTags: string[] | null,
-    user: IUserInfo
+    tags: string[] | null,
 }
-export interface IArticleReq {
+export interface IArticleCreateReq {
     title: string,
     description: string,
     content: string,
-    contentType: string,
-    category: string,
+    contentTypeId: string,
+    categoryId: string,
+    tagIds: string[] | null
     imgUrl: string,
-    articleTags: string[] | null
 }
-export interface IArticleResPage {
+export interface IArticleGetPageRes {
     items: IArticle[],
     totalCount: number
 }
-export interface IArticleRes {
+export interface IArticleCreateRes {
     id: string,
+    user: IUser
     publishedDate: string,
-    userId: string,
     title: string,
     description: string,
     content: string,
     contentType: string,
     category: string,
+    tags: string[] | null,
     imgUrl: string,
-    articleTags: string[] | null,
-    user: IUserInfo
 }

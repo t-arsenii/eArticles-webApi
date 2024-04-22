@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createTheme, ThemeProvider, Container, Typography, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useState } from 'react';
-import { IUserAuthReq, IUserAuthRes, IUserInfo, IUserRegReq, IUserRegRes } from "../models/user"
+import { IUserAuthReq, IUserAuthRes, IUser, IUserRegReq, IUserRegRes } from "../models/user"
 import { useForm } from "react-hook-form"
 import PhoneInput from 'react-phone-number-input';
 import axios from 'axios';
@@ -29,7 +29,7 @@ export function RegForm() {
         try {
             const resReg = await axios.post<IUserRegRes>("http://localhost:5000/api/users", data);
             const resRegData = resReg.data
-            const userInfo: IUserInfo = { ...resRegData }
+            const userInfo: IUser = { ...resRegData }
             dispatch(updateUser(userInfo))
 
             const authData: IUserAuthReq = {

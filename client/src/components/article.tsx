@@ -38,8 +38,8 @@ export function Article({ article }: ArticleProps) {
                     <Typography variant="caption" color="text.secondary">
                         Published on: {article.publishedDate}
                     </Typography>
-                    {article.articleTags && <div>
-                        {article.articleTags.map(tag => (
+                    {article.tags && <div>
+                        {article.tags.map(tag => (
                             <Chip key={tag} label={tag} variant="outlined" sx={{ margin: '2px' }} />
                         ))}
                     </div>}

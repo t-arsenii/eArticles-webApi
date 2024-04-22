@@ -2,20 +2,22 @@ import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typog
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { IArticle, IArticleReq, IArticleRes } from "../models/articles";
+import { IArticle, IArticleCreateReq, IArticleCreateRes } from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import axios from "axios";
-
+import ReactQuill from "react-quill";
+import 'react-quill/dist/quill.snow.css';
 export default function EditArticle() {
     const [articleType, setArticleType] = useState("Review")
     // const [initArticle, setInitArticle] = useState<IArticle>()
+    const [contentValue, setContentValue] = useState('');
     const token = useSelector((state: RootState) => state.user.token)
     const userInfo = useSelector((state: RootState) => state.user.userInfo)
     const navigate = useNavigate()
     const { id } = useParams()
     const fetchArticle = async () => {
-        const resArticle = await axios.get<IArticleRes>(`http://localhost:5000/api/Articles/${id}`)
+        const resArticle = await axios.get<IArticleCreateRes>(`http://localhost:5000/api/Articles/${id}`)
         const resArticleData: IArticle = { ...resArticle.data }
         reset(resArticleData)
         setArticleType(resArticleData.contentType)
@@ -27,23 +29,23 @@ export default function EditArticle() {
             console.log(err);
         }
     }, [])
-    const form = useForm<IArticleReq>({
+    const form = useForm<IArticleCreateReq>({
         defaultValues: {
             title: '',
             description: '',
             content: '',
-            contentType: '',
+            contentTypeId: '',
             imgUrl: '',
-            articleTags: null
+            tagIds: null
         }
     })
     const { reset, register, handleSubmit, formState, getValues } = form
     const { errors } = formState
-    const OnSubmit = async (data: IArticleReq) => {
+    const OnSubmit = async (data: IArticleCreateReq) => {
         try {
-            data.contentType = articleType
+            data.contentTypeId = articleType
             console.log(data)
-            const resArticle = await axios.put<IArticleRes>("http://localhost:5000/api/articles", data, {
+            const resArticle = await axios.put<IArticleCreateRes>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -86,7 +88,7 @@ export default function EditArticle() {
                                 label="Title"
                                 autoFocus
                                 {...register("title", {
-                                    required: "first name is required"
+                                    required: "title is required"
                                 })}
                             // error={!!errors.firstName}
                             // helperText={errors.firstName?.message}
@@ -100,7 +102,7 @@ export default function EditArticle() {
                                 label="Img Url"
                                 autoComplete="ImgUrl"
                                 {...register("imgUrl", {
-                                    required: "Email Address is required"
+                                    required: "Img url is required"
                                 })}
                             // error={!!errors.email}
                             // helperText={errors.email?.message}
@@ -129,7 +131,7 @@ export default function EditArticle() {
                                 autoComplete="Description"
                                 autoFocus
                                 {...register("description", {
-                                    required: "user name is required"
+                                    required: "Description is required"
                                 })}
                             // error={!!errors.userName}
                             // helperText={errors.userName?.message}
@@ -137,7 +139,7 @@ export default function EditArticle() {
                             />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
+                            {/* <TextField
                                 multiline
                                 required
                                 fullWidth
@@ -146,12 +148,15 @@ export default function EditArticle() {
                                 autoComplete="content"
                                 rows={20}
                                 {...register("content", {
-                                    required: "Email Address is required"
+                                    required: "Content is required"
                                 })}
                             // error={!!errors.email}
                             // helperText={errors.email?.message}
 
-                            />
+                            /> */}
+
+                            <ReactQuill theme="snow" value={contentValue} onChange={setContentValue} />
+
                         </Grid>
                     </Grid>
                     <Button
