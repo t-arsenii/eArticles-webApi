@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eArticles.API.Data;
 
@@ -11,9 +12,11 @@ using eArticles.API.Data;
 namespace eArticles.API.Migrations
 {
     [DbContext(typeof(eArticlesDbContext))]
-    partial class eArticlesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240422181638_image_path_article")]
+    partial class imagepatharticle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,8 +174,7 @@ namespace eArticles.API.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Img_Url")
-                        .IsRequired()
+                    b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Published_Date")

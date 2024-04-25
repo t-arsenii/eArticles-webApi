@@ -1,4 +1,5 @@
-using eArticles.API.Data.Dtos;
+using eArticles.API.Contracts.Auth;
+using eArticles.API.Contracts.User;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
 using eArticles.API.Services;
@@ -22,7 +23,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserDto)
     {
         if (!ModelState.IsValid)
         {
@@ -52,7 +53,7 @@ public class UsersController : ControllerBase
             return BadRequest(addRoleResult.FirstError.Description);
         }
         var createdUser = getUserResult.Value;
-        var userResponse = new UserDto(Id: createdUser.Id.ToString(),
+        var userResponse = new UserResponse(Id: createdUser.Id.ToString(),
                               FirstName: createdUser.FirstName,
                               LastName: createdUser.LastName,
                               UserName: createdUser.LastName,
@@ -81,7 +82,7 @@ public class UsersController : ControllerBase
         }
         var user = getUserResult.Value;
         return Ok(
-            new UserDto(
+            new UserResponse(
                 user.Id.ToString(),
                 user.FirstName,
                 user.LastName,
@@ -102,7 +103,7 @@ public class UsersController : ControllerBase
         }
         var user = getUserResult.Value;
         return Ok(
-            new UserDto(
+            new UserResponse(
                 user.Id.ToString(),
                 user.FirstName,
                 user.LastName,
@@ -123,7 +124,7 @@ public class UsersController : ControllerBase
         }
         var user = getUserResult.Value;
         return Ok(
-            new UserDto(
+            new UserResponse(
                 user.Id.ToString(),
                 user.FirstName,
                 user.LastName,

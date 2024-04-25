@@ -1,17 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace eArticles.API.Data.Dtos;
+namespace eArticles.API.Contracts.User;
 
-public record UserDto(
-    string Id,
-    string FirstName,
-    string LastName,
-    string UserName,
-    string Email,
-    string PhoneNumber
-);
-
-public record CreateUserDto(
+public record CreateUserRequest(
     [Required] string FirstName,
     [Required] string LastName,
     [Required][Phone] string PhoneNumber,

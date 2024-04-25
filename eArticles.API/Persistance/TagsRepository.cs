@@ -1,5 +1,5 @@
 ﻿using eArticles.API.Data;
-using eArticles.API.Data.Dtos;
+using eArticles.API.Contracts.User;
 using eArticles.API.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;

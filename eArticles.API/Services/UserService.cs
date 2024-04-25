@@ -1,4 +1,4 @@
-﻿using eArticles.API.Data.Dtos;
+﻿using eArticles.API.Contracts.Auth;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
 using ErrorOr;

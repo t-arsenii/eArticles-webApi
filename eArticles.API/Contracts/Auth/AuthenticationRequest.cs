@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace eArticles.API.Data.Dtos;
+namespace eArticles.API.Contracts.Auth;
 
 public record AuthenticationRequest(
     [Required]

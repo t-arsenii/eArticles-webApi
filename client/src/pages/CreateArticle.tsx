@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typog
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom"
-import { IArticleCreateReq, IArticleCreateRes } from "../models/articles";
+import { IArticle, IArticleCreateReq } from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import SendIcon from '@mui/icons-material/Send';
@@ -48,11 +48,11 @@ export default function CreateArticle() {
         setAllTags(res.data);
     }
     const fetchCategories = async () => {
-        const res = await axios.get<ICategory[]>("http://localhost:5000/api/tags");
+        const res = await axios.get<ICategory[]>("http://localhost:5000/api/category");
         setAllCategories(res.data);
     }
     const fetchContentTypes = async () => {
-        const res = await axios.get<IContentType[]>("http://localhost:5000/api/tags");
+        const res = await axios.get<IContentType[]>("http://localhost:5000/api/contentType");
         setAllContentTypes(res.data);
     }
     useEffect(() => {
@@ -100,7 +100,7 @@ export default function CreateArticle() {
         data.content = contentValue;
         console.log(data);
         try {
-            const resArticle = await axios.post<IArticleCreateRes>("http://localhost:5000/api/articles", data, {
+            const resArticle = await axios.post<IArticle>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -154,13 +154,13 @@ export default function CreateArticle() {
                         </Grid>
                         <Grid item xs={12} sm={12}>
                             <img src={imagePreview} alt="" />
-                            <br/>
+                            <br />
                             <Button
                                 variant="contained"
                                 component="label"
                             >
                                 Upload File
-                                <input type="file" hidden onChange={handleImageChange} accept="image/png, image/jpeg, image/jpg"/>
+                                <input type="file" hidden onChange={handleImageChange} accept="image/png, image/jpeg, image/jpg" />
                             </Button>
                         </Grid>
                         <Grid item xs={12}>
@@ -239,10 +239,9 @@ export default function CreateArticle() {
                                 value={articleType}
                                 onChange={(event: SelectChangeEvent) => setArticleType(event.target.value)}
                             >
-                                <MenuItem value="Review">Review</MenuItem>
-                                <MenuItem value="Guide">Guide</MenuItem>
-                                <MenuItem value="News">News</MenuItem>
-                                <MenuItem value="Opinion">Opinion</MenuItem>
+                                {allContentTypes && allContentTypes.map(conentType => (
+                                    <MenuItem id={conentType.id} value="Review">{conentType.title}</MenuItem>
+                                ))}
                             </Select>
                         </Grid>
                     </Grid>

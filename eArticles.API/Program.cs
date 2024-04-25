@@ -111,6 +111,7 @@ builder.Services
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 var app = builder.Build();
 app.UseExceptionHandler("/error");
+app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,4 +1,4 @@
-using eArticles.API.Data.Dtos;
+using eArticles.API.Contracts.Article;
 using eArticles.API.Extensions;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
@@ -12,15 +12,18 @@ namespace eArticles.API.Controllers;
 
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[ApiController]
 public class ArticlesController : ControllerBase
 {
     readonly IArticleService _articlesService;
     readonly IUsersRepository _usersRepo;
+    readonly IWebHostEnvironment _environment;
 
-    public ArticlesController(IArticleService articlesService, IUsersRepository usersRepo)
+    public ArticlesController(IArticleService articlesService, IUsersRepository usersRepo, IWebHostEnvironment environment)
     {
         _articlesService = articlesService;
         _usersRepo = usersRepo;
+        _environment = environment;
     }
 
     [HttpGet("{id:guid}")]
@@ -75,12 +78,12 @@ public class ArticlesController : ControllerBase
         {
             return NotFound(getArticlesPageResult.FirstError);
         }
-        var articleDTOs = new List<ArticleDto>();
+        var articleDTOs = new List<ArticleResponse>();
         foreach (var article in getArticlesPageResult.Value)
         {
             articleDTOs.Add(article.AsDto());
         }
-        return Ok(new PageArticleDto(articleDTOs, getTotalItemsResult.Value));
+        return Ok(new ArticlePageResponse(articleDTOs, getTotalItemsResult.Value));
     }
 
     [HttpGet]
@@ -112,16 +115,16 @@ public class ArticlesController : ControllerBase
         }
         var articles = getArticlesPageResult.Value;
         int totalArticles = articles.Count();
-        List<ArticleDto> articleDTOs = new List<ArticleDto>();
+        List<ArticleResponse> articleDTOs = new List<ArticleResponse>();
         foreach (var article in articles)
         {
             articleDTOs.Add(article.AsDto());
         }
-        return Ok(new PageArticleDto(articleDTOs, totalArticles));
+        return Ok(new ArticlePageResponse(articleDTOs, totalArticles));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateArticleDto articleDto)
+    public async Task<IActionResult> Create([FromForm] CreateArticleRequest articleDto)
     {
         Guid userId;
         if (!Guid.TryParse(
@@ -142,10 +145,25 @@ public class ArticlesController : ControllerBase
             Description = articleDto.Description,
             Content = articleDto.Content,
             CategoryId = articleDto.CategoryId,
-            ContentTypeId = articleDto.ContentTypeId,
-            Img_Url = articleDto.Img_Url
+            ContentTypeId = articleDto.ContentTypeId
         };
         artcile.User = getUserResult.Value;
+        string? path;
+        if (articleDto.image is null)
+        {
+            path = Path.Combine(_environment.WebRootPath, @"images\Placeholder.png");
+        }
+        else
+        {
+            path = Path.Combine(_environment.WebRootPath, "images", articleDto.image.FileName);
+            using (FileStream stream = new FileStream(path, FileMode.Create))
+            {
+                await articleDto.image.CopyToAsync(stream);
+                stream.Close();
+            }
+        }
+        artcile.ImagePath = path;
+
         var createArticleResult = await _articlesService.Create(artcile, articleDto.TagIds);
         if (createArticleResult.IsError)
         {
@@ -160,7 +178,7 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateArticleDto updateArticleDto)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateArticleRequest updateArticleDto)
     {
         if (!ModelState.IsValid)
         {
@@ -196,8 +214,7 @@ public class ArticlesController : ControllerBase
             Description = updateArticleDto.Description,
             Content = updateArticleDto.Content,
             CategoryId = updateArticleDto.CategoryId,
-            ContentTypeId = updateArticleDto.ContentTypeId,
-            Img_Url = updateArticleDto.Img_Url
+            ContentTypeId = updateArticleDto.ContentTypeId
         };
         articleToUpdate.Id = article.Id;
         articleToUpdate.User = article.User;

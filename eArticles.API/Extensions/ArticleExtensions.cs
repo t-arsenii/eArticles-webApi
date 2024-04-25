@@ -1,19 +1,16 @@
-using eArticles.API.Data.Dtos;
+using eArticles.API.Contracts.Article;
+using eArticles.API.Contracts.User;
 using eArticles.API.Models;
 
 namespace eArticles.API.Extensions;
 
 public static class ArticleExtensions
 {
-    public static ArticleDto AsDto(this Article article)
+    public static ArticleResponse AsDto(this Article article)
     {
-        List<string>? tagNames = new();
-        tagNames = article.Tags.Select(t => t.Title).ToList();
-        if (!tagNames.Any())
-        {
-            tagNames = null;
-        }
-        return new ArticleDto(
+        List<string>? tagNames = article.Tags?.Select(t => t.Title).ToList();
+        string? imageName = article.ImagePath?.Split(@"\").Last();
+       return new ArticleResponse(
             article.Id,
             article.Title,
             article.Description,
@@ -21,9 +18,9 @@ public static class ArticleExtensions
             article.ContentType.Title, 
             article.Category.Title,
             article.Published_Date.ToString(),
-            article.Img_Url,
+            imageName,
             tagNames,
-            User: new UserDto(
+            User: new UserResponse(
                 article.User.Id.ToString(),
                 article.User.FirstName,
                 article.User.LastName,

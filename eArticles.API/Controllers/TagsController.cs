@@ -1,4 +1,4 @@
-﻿using eArticles.API.Data.Dtos;
+﻿using eArticles.API.Contracts.Tag;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
 using eArticles.API.Services;
@@ -23,7 +23,7 @@ namespace eArticles.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateTagDto tagDto)
+        public async Task<IActionResult> Create(CreateTagRequest tagDto)
         {
             Tag tag = new Tag();
             tag.Title = tagDto.Title;
@@ -33,7 +33,7 @@ namespace eArticles.API.Controllers
                 return BadRequest(createTagResult.FirstError.Description);
             }
             var createdTag = createTagResult.Value;
-            var tagResponse = new TagDto(Id: createdTag.Id, Title: createdTag.Title);
+            var tagResponse = new TagResponse(Id: createdTag.Id, Title: createdTag.Title);
             return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = tagResponse.Id }, value: tagResponse);
 
         }
@@ -47,7 +47,7 @@ namespace eArticles.API.Controllers
                 return NotFound(getTagResult.FirstError.Description);
             }
             var tag = getTagResult.Value;
-            return Ok(new TagDto(Id: tag.Id, Title: tag.Title));
+            return Ok(new TagResponse(Id: tag.Id, Title: tag.Title));
         }
 
         [HttpGet]
@@ -59,11 +59,11 @@ namespace eArticles.API.Controllers
             {
                 return NotFound(getTagsResult.FirstError.Description);
             }
-            var tagDtos = new List<TagDto>();
+            var tagDtos = new List<TagResponse>();
             var tags = getTagsResult.Value;
             foreach (var tag in tags)
             {
-                tagDtos.Add(new TagDto(Id: tag.Id, Title: tag.Title));
+                tagDtos.Add(new TagResponse(Id: tag.Id, Title: tag.Title));
             }
             return Ok(tagDtos);
         }
@@ -80,7 +80,7 @@ namespace eArticles.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, UpdateTagDto updateTagDto)
+        public async Task<IActionResult> Update(Guid id, UpdateTagRequest updateTagDto)
         {
             var tag = new Tag() { Id = id, Title = updateTagDto.Title };
             var updateTagResult = await _tagsService.Update(tag);

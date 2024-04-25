@@ -1,3 +1,3 @@
-namespace eArticles.API.Data.Dtos;
+namespace eArticles.API.Contracts.Auth;
 
 public record AuthenticationResponse(string Token, DateTime Expiration);
