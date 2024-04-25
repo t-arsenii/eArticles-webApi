@@ -60,7 +60,7 @@ function App() {
         setIsDarkTheme(prefferedTheme === 'dark' ? true : false)
       }
     }
-    getPrefferedTheme()
+    // getPrefferedTheme()
     checkTokenExpiration()
     fetchUserInfo()
 
@@ -72,7 +72,7 @@ function App() {
       mode: 'dark',
     },
   });
-  const theme = isDarkTheme ? darkTheme : defaultTheme
+  const theme = isDarkTheme ? defaultTheme : darkTheme
   return (
     <>
       <ThemeProvider theme={theme}>

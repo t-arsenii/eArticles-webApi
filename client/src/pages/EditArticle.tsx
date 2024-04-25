@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typog
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { IArticle, IArticleCreateReq, IArticleCreateRes } from "../models/articles";
+import { IArticle, IArticleCreateReq} from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import axios from "axios";
@@ -17,7 +17,7 @@ export default function EditArticle() {
     const navigate = useNavigate()
     const { id } = useParams()
     const fetchArticle = async () => {
-        const resArticle = await axios.get<IArticleCreateRes>(`http://localhost:5000/api/Articles/${id}`)
+        const resArticle = await axios.get<IArticle>(`http://localhost:5000/api/Articles/${id}`)
         const resArticleData: IArticle = { ...resArticle.data }
         reset(resArticleData)
         setArticleType(resArticleData.contentType)
@@ -45,7 +45,7 @@ export default function EditArticle() {
         try {
             data.contentTypeId = articleType
             console.log(data)
-            const resArticle = await axios.put<IArticleCreateRes>("http://localhost:5000/api/articles", data, {
+            const resArticle = await axios.put<IArticleCreateReq, IArticle>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'

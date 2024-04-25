@@ -1,5 +1,5 @@
 import { Box, Chip, ListItem, Stack, Typography } from "@mui/material"
-import { IArticle, IArticleCreateRes } from "../models/articles"
+import { IArticle } from "../models/articles"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { Link, useNavigate, useParams } from "react-router-dom"
@@ -8,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useSelector } from "react-redux"
 import { RootState } from "../store/store"
 import { ConfirmationModal } from "../components/ConfirmationModal"
+import { getImagePath } from "../utils/getImagePath"
 export default function FullArticle() {
     const [open, setOpen] = useState(false);
     const [article, setArticle] = useState<IArticle>()
@@ -17,9 +18,10 @@ export default function FullArticle() {
     const token = useSelector((state: RootState) => state.user.token)
     useEffect(() => {
         const fetchArticle = async () => {
-            const resArticle = await axios.get<IArticleCreateRes>(`http://localhost:5000/api/Articles/${id}`)
+            const resArticle = await axios.get<IArticle>(`http://localhost:5000/api/Articles/${id}`)
             const resArticleData: IArticle = { ...resArticle.data }
             setArticle(resArticleData)
+            console.log(getImagePath(resArticleData.imgName))
         }
         try {
             fetchArticle()
@@ -102,7 +104,7 @@ export default function FullArticle() {
                                 width: "800px",
                                 marginTop: "10px",
                                 marginBottom: "20px",
-                                backgroundImage: `url(${article.imgUrl})`,
+                                backgroundImage: `url(${getImagePath(article.imgName)})`,
                                 backgroundSize: "cover",
                                 backgroundPosition: "center",
                                 backgroundRepeat: "no-repeat"
