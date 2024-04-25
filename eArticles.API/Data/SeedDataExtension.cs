@@ -8,16 +8,11 @@ public static class SeedDataExtension
 {
     public static async Task SeedInitialData(this WebApplication app)
     {
-        eArticlesDbContext? dbContext = app.Services
-            .CreateScope()
-            .ServiceProvider.GetService<eArticlesDbContext>();
-        UserManager<User>? userManager = app.Services
-            .CreateScope()
-            .ServiceProvider.GetService<UserManager<User>>();
-        RoleManager<IdentityRole<Guid>>? roleManager = app.Services
-            .CreateScope()
-            .ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
-
+        var serviceProvider = app.Services.CreateScope().ServiceProvider;
+        eArticlesDbContext? dbContext = serviceProvider.GetService<eArticlesDbContext>();
+        UserManager<User>? userManager = serviceProvider.GetService<UserManager<User>>();
+        RoleManager<IdentityRole<Guid>>? roleManager = serviceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
+        IWebHostEnvironment? _environment = serviceProvider.GetService<IWebHostEnvironment>();
         dbContext!.Database.Migrate();
 
         if (!await roleManager.RoleExistsAsync("User"))
@@ -66,7 +61,7 @@ public static class SeedDataExtension
                     ContentType = articleTypes[2],
                     Category = articleCategories[0],
                     Published_Date = new DateTime(2023, 07, 14),
-                    Img_Url = "https://miro.medium.com/v2/resize:fit:1400/1*sksPNCErleqJpPr7fiv4qA.png",
+                    ImagePath = Path.Join(_environment.WebRootPath, "images", "testImage1.png"),
                     UserId = user1!.Id
                 },
                 new()
@@ -78,7 +73,7 @@ public static class SeedDataExtension
                     ContentType = articleTypes[1],
                     Category = articleCategories[1],
                     Published_Date = new DateTime(2023, 07, 14),
-                    Img_Url = "https://assetsio.reedpopcdn.com/elden-ring-bosses-in-order-main-mandatory-8042-1647011924713.jpg?width=1600&height=900&fit=crop&quality=100&format=png&enable=upscale&auto=webp",
+                    ImagePath = Path.Join(_environment.WebRootPath, "images", "testImage2.jpg"),
                     UserId = user1!.Id
                 },
                 new()
@@ -90,7 +85,7 @@ public static class SeedDataExtension
                     ContentType = articleTypes[0],
                     Category = articleCategories[2],
                     Published_Date = new DateTime(2023, 07, 14),
-                    Img_Url = "https://i.ytimg.com/vi/BqaAjgpsoW8/maxresdefault.jpg",
+                    ImagePath = Path.Join(_environment.WebRootPath, "images", "testImage3.jpg"),
                     UserId = user2!.Id
                 }
             };

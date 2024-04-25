@@ -1,4 +1,3 @@
-using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 
 namespace eArticles.API.Extensions;

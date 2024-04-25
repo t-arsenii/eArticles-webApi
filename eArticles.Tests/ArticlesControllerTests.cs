@@ -1,5 +1,5 @@
+using eArticles.API.Contracts.Article;
 using eArticles.API.Controllers;
-using eArticles.API.Data.Dtos;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
 using eArticles.Tests.Data;
@@ -31,7 +31,7 @@ public class ArticlesControllerTests
         Assert.NotNull(result);
         Assert.Equal(200, result.StatusCode);
 
-        var resArticleDTO = result.Value as ArticleDto;
+        var resArticleDTO = result.Value as ArticleResponse;
 
         Assert.Equal(expectedArticle.Id.ToString(), resArticleDTO?.Id);
         Assert.Equal(expectedArticle.Title, resArticleDTO?.Title);
@@ -68,7 +68,7 @@ public class ArticlesControllerTests
         var okObjectResult = actionResult as OkObjectResult;
         Assert.NotNull(okObjectResult);
 
-        var articleDtoList = okObjectResult.Value as PageArticleDto;
+        var articleDtoList = okObjectResult.Value as ArticlePageResponse;
         Assert.NotNull(articleDtoList);
 
         Assert.NotEmpty(articleDtoList.items);
@@ -90,7 +90,7 @@ public class ArticlesControllerTests
 
         var expectedCreatedArticle = articles.First();
 
-        CreateArticleDto createArticleDto =
+        CreateArticleRequest createArticleDto =
             new(
                 expectedCreatedArticle.Title,
                 expectedCreatedArticle.Description,
@@ -120,7 +120,7 @@ public class ArticlesControllerTests
 
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var createdArticleDto = Assert.IsType<ArticleDto>(okResult.Value);
+        var createdArticleDto = Assert.IsType<ArticleResponse>(okResult.Value);
 
         Assert.Equal(expectedCreatedArticle.Id.ToString(), createdArticleDto.Id);
 
@@ -164,7 +164,7 @@ public class ArticlesControllerTests
         mockUserManager
             .Setup(x => x.GetUserById(It.IsAny<int>()))
             .ReturnsAsync(expectedCreatedArticle.User);
-        UpdateArticleDto updateArticleDto =
+        UpdateArticleRequest updateArticleDto =
             new(
                 expectedCreatedArticle.Title,
                 expectedCreatedArticle.Description,
@@ -194,7 +194,7 @@ public class ArticlesControllerTests
 
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var updatedArticleDto = Assert.IsType<ArticleDto>(okResult.Value);
+        var updatedArticleDto = Assert.IsType<ArticleResponse>(okResult.Value);
 
         Assert.Equal(expectedCreatedArticle.Id.ToString(), updatedArticleDto.Id);
 

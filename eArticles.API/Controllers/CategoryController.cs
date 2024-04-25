@@ -1,5 +1,5 @@
-﻿using eArticles.API.Data;
-using eArticles.API.Data.Dtos;
+﻿using eArticles.API.Contracts.Category;
+using eArticles.API.Data;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
 using eArticles.API.Services;
@@ -28,7 +28,7 @@ public class CategoryController : ControllerBase
         {
             return NotFound(getCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryDto(Id: getCategoryResult.Value.Id, Title: getCategoryResult.Value.Title));
+        return Ok(new CategoryResponse(Id: getCategoryResult.Value.Id, Title: getCategoryResult.Value.Title));
     }
     [HttpGet]
     [AllowAnonymous]
@@ -39,16 +39,16 @@ public class CategoryController : ControllerBase
         {
             return NotFound(getCategoriesResult.FirstError.Description);
         }
-        List<CategoryDto> categoryDtos = new();
+        List<CategoryResponse> categoryDtos = new();
         foreach (var category in getCategoriesResult.Value)
         {
-            categoryDtos.Add(new CategoryDto(Id: category.Id, Title: category.Title));
+            categoryDtos.Add(new CategoryResponse(Id: category.Id, Title: category.Title));
         }
         return Ok(categoryDtos);
     }
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(CreateCategoryDto createCategoryDto)
+    public async Task<IActionResult> Create(CreateCategoryRequest createCategoryDto)
     {
         Category category = new();
         category.Title = createCategoryDto.Title;
@@ -57,12 +57,12 @@ public class CategoryController : ControllerBase
         {
             return BadRequest(createdCategory.IsError);
         }
-        var categoryResponse = new CategoryDto(createdCategory.Value.Id, createdCategory.Value.Title);
+        var categoryResponse = new CategoryResponse(createdCategory.Value.Id, createdCategory.Value.Title);
         return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = categoryResponse.Id }, value: categoryResponse);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryDto updateCategoryDto)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryRequest updateCategoryDto)
     {
         Category category = new Category() { Id = id, Title = updateCategoryDto.Title };
         var updateCategoryResult = await _categoryService.Update(category);
