@@ -6,7 +6,13 @@ using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing.Drawing2D;
+using System.Drawing;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Xml.Linq;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace eArticles.API.Controllers;
 
@@ -124,8 +130,19 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] CreateArticleRequest articleDto)
+    public async Task<IActionResult> Create([FromForm] CreateArticleRequest articleRequest)
     {
+
+        var image = articleRequest.image;
+        var articleDto = JsonSerializer.Deserialize<CreateArticleRequestDto>(articleRequest.json);
+        if (articleDto is null)
+        {
+            return BadRequest("json format error");
+        }
+        if (!TryValidateModel(articleDto))
+        {
+            return ValidationProblem(ModelState);
+        }
         Guid userId;
         if (!Guid.TryParse(
            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
@@ -141,30 +158,32 @@ public class ArticlesController : ControllerBase
         }
         Article artcile = new Article()
         {
-            Title = articleDto.Title,
-            Description = articleDto.Description,
-            Content = articleDto.Content,
-            CategoryId = articleDto.CategoryId,
-            ContentTypeId = articleDto.ContentTypeId
+            Title = articleDto.title,
+            Description = articleDto.description,
+            Content = articleDto.content,
+            CategoryId = articleDto.categoryId,
+            ContentTypeId = articleDto.contentTypeId
         };
         artcile.User = getUserResult.Value;
         string? path;
-        if (articleDto.image is null)
+        if (articleRequest.image is null)
         {
             path = Path.Combine(_environment.WebRootPath, @"images\Placeholder.png");
         }
         else
         {
-            path = Path.Combine(_environment.WebRootPath, "images", articleDto.image.FileName);
-            using (FileStream stream = new FileStream(path, FileMode.Create))
+            path = Path.Combine(_environment.WebRootPath, "images", articleRequest.image.FileName);
+            using (var stream = articleRequest.image.OpenReadStream())
             {
-                await articleDto.image.CopyToAsync(stream);
+                var newImage = new Bitmap(stream);
+                Bitmap resizedImage = ResizeImage(newImage, 1024, 768);
+                resizedImage.Save(path);
                 stream.Close();
             }
         }
         artcile.ImagePath = path;
 
-        var createArticleResult = await _articlesService.Create(artcile, articleDto.TagIds);
+        var createArticleResult = await _articlesService.Create(artcile, articleDto.tagIds);
         if (createArticleResult.IsError)
         {
             return BadRequest(createArticleResult.FirstError.Description);
@@ -260,5 +279,34 @@ public class ArticlesController : ControllerBase
             return NotFound(getArticleResult.FirstError.Description);
         }
         return NoContent();
+    }
+
+    public static Bitmap ResizeImage(Image image, int width, int height)
+    {
+        var destImage = new Bitmap(width, height);
+
+        using (var graphics = Graphics.FromImage(destImage))
+        {
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            float scaleX = (float)width / image.Width;
+            float scaleY = (float)height / image.Height;
+
+            float scale = Math.Max(scaleX, scaleY);
+
+            int newWidth = (int)(image.Width * scale);
+            int newHeight = (int)(image.Height * scale);
+
+            int posX = (width - newWidth) / 2;
+            int posY = (height - newHeight) / 2;
+
+            graphics.DrawImage(image, posX, posY, newWidth, newHeight);
+        }
+
+        return destImage;
     }
 }

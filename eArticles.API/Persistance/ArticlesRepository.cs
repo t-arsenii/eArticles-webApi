@@ -87,7 +87,7 @@ public class ArticlesRepository : IArticlesRepository
         {
             if (order.ToLower() == "date")
             {
-                query = query.OrderBy(a => a.Published_Date);
+                query = query.OrderByDescending(a => a.Published_Date);
 
             }
         }
