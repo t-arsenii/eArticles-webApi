@@ -176,7 +176,7 @@ public class ArticlesController : ControllerBase
             using (var stream = articleRequest.image.OpenReadStream())
             {
                 var newImage = new Bitmap(stream);
-                Bitmap resizedImage = ResizeImage(newImage, 1024, 768);
+                Bitmap resizedImage = ResizeImage(newImage, 1024, 576);
                 resizedImage.Save(path);
                 stream.Close();
             }
