@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eArticles.API.Data;
 
-public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int>
+public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
     public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<ContentType> ContentTypes => Set<ContentType>();
+    public DbSet<Category> Categories => Set<Category>();
 
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
         : base(options) { }
@@ -18,31 +20,40 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<int>, int
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Article>().Property(a => a.Article_type).HasConversion<string>();
-
         modelBuilder
             .Entity<Article>()
             .HasMany(e => e.Tags)
             .WithMany(e => e.Articles)
             .UsingEntity<ArticleTag>();
 
-        // modelBuilder
-        //     .Entity<User>()
-        //     .HasMany(user => user.Articles)
-        //     .WithOne(article => article.User)
-        //     .HasForeignKey(article => article.UserId);
+        modelBuilder
+            .Entity<Article>()
+            .HasOne(e => e.ContentType)
+            .WithMany(e => e.Articles);
 
-        // modelBuilder.Entity<ArticleTag>()
-        // .HasKey(at => new { at.ArticleId, at.TagId});
+        modelBuilder
+            .Entity<Article>()
+            .HasOne(e => e.Category)
+            .WithMany(e => e.Articles);
 
-        // modelBuilder.Entity<ArticleTag>()
-        // .HasOne(at => at.Article)
-        // .WithMany(at => at.ArticleTags)
-        // .HasForeignKey(at => at.ArticleId);
+        modelBuilder
+            .Entity<Tag>()
+            .HasIndex(t => t.Title).IsUnique();
 
-        // modelBuilder.Entity<ArticleTag>()
-        // .HasOne(at => at.Tag)
-        // .WithMany(at => at.ArticleTags)
-        // .HasForeignKey(at => at.TagId);
+        modelBuilder
+            .Entity<ContentType>()
+            .HasIndex(e => e.Title)
+            .IsUnique();
+
+        modelBuilder
+            .Entity<Category>()
+            .HasIndex(e => e.Title)
+            .IsUnique();
+
+        modelBuilder
+            .Entity<User>()
+            .HasMany(user => user.Articles)
+            .WithOne(article => article.User)
+            .HasForeignKey(article => article.UserId);
     }
 }

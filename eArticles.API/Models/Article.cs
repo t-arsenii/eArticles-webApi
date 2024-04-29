@@ -1,25 +1,27 @@
 namespace eArticles.API.Models;
 
-using Data.Enums;
 using System.ComponentModel.DataAnnotations;
-
 public class Article
 {
     [Key]
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public ArticleType Article_type { get; set; }
+    public Guid Id { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? Content { get; set; }
+    public Guid ContentTypeId { get; set; }
+    public ContentType? ContentType { get; set; }
+    public Guid CategoryId { get; set; }
+    public Category? Category { get; set; }
     public DateTime Published_Date { get; set; }
-    private string _img_Url = "https://placehold.co/100";
-    public string Img_Url
-    {
-        set { _img_Url = value ?? _img_Url; }
-        get { return _img_Url; }
-    }
-    public List<ArticleTag> ArticleTags { get; } = new();
-    public List<Tag> Tags { get; } = new();
-    public int? UserId { get; set; }
-    public User User { get; set; } = null!;
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public Guid UserId { get; set; }
+    public User? User { get; set; }
+    
+    //private string _imgUrl = "https://placehold.co/100";
+    //public string Img_Url
+    //{
+    //    set { _imgUrl = value ?? _imgUrl; }
+    //    get { return _imgUrl; }
+    //}
+    public string? ImagePath { get; set; }
 }

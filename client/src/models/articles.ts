@@ -1,30 +1,35 @@
+import { IUser } from "./user"
+
 export interface IArticle {
-    id: string
-    userId: string
-    publishedDate: string
-    title: string
-    description: string
-    content: string
-    articleType: string
-    imgUrl: string
-    articleTags: string[] | null
+    id: string,
+    user: IUser,
+    publishedDate: string,
+    title: string,
+    description: string,
+    content: string,
+    contentType: string,
+    category: string,
+    imgName: string,
+    tags: string[] | null,
 }
-export interface IArticleReq {
-    title: string
-    description: string
-    content: string
-    articleType: string
-    imgUrl: string
-    articleTags: string[] | null
+export interface IArticleCreateForm {
+    title: string,
+    description: string,
+    content: string,
+    contentTypeId: string,
+    categoryId: string,
+    tagIds: string[] | null,
+    image: FileList
 }
-export interface IArticleRes {
-    id: string
-    publishedDate: string
-    userId: string
-    title: string
-    description: string
-    content: string
-    articleType: string
-    imgUrl: string
-    articleTags: string[] | null
+export interface IArticleCreateReq {
+    title: string,
+    description: string,
+    content: string,
+    contentTypeId: string,
+    categoryId: string,
+    tagIds: string[] | null
+}
+export interface IArticleGetPageRes {
+    items: IArticle[],
+    totalCount: number
 }

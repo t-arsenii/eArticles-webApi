@@ -1,6 +1,9 @@
-using eArticles.API.Data.Dtos;
+using eArticles.API.Contracts.Auth;
+using eArticles.API.Contracts.User;
 using eArticles.API.Models;
-using eArticles.API.Services.Repositories;
+using eArticles.API.Persistance;
+using eArticles.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,68 +13,103 @@ using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 namespace eArticles.API.Controllers;
 
 [Route("api/[controller]")]
+[ApiController]
 public class UsersController : ControllerBase
 {
-    IUsersRepository _usersRepo;
-
-    public UsersController(IUsersRepository usersRepository)
+    IUserService _userService;
+    public UsersController(IUserService userService)
     {
-        _usersRepo = usersRepository;
+        _userService = userService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        IdentityResult result = await _usersRepo.Create(createUserDto);
-        if (!result.Succeeded)
+        var user = new User()
         {
-            return BadRequest(result.Errors);
+            FirstName = createUserDto.FirstName,
+            LastName = createUserDto.LastName,
+            UserName = createUserDto.UserName,
+            Email = createUserDto.Email,
+            PhoneNumber = createUserDto.PhoneNumber,
+        };
+        var createUserResult = await _userService.Create(user, createUserDto.Password);
+        if (createUserResult.IsError)
+        {
+            return BadRequest(createUserResult.FirstError.Description);
         }
-        return Ok(createUserDto);
+        var getUserResult = await _userService.GetUserByUserName(createUserDto.UserName);
+        if (getUserResult.IsError)
+        {
+            return BadRequest("User not found after creation.");
+        }
+        var addRoleResult = await _userService.AddUserRole(user, "User");
+        if (addRoleResult.IsError)
+        {
+            return BadRequest(addRoleResult.FirstError.Description);
+        }
+        var createdUser = getUserResult.Value;
+        var userResponse = new UserResponse(Id: createdUser.Id.ToString(),
+                              FirstName: createdUser.FirstName,
+                              LastName: createdUser.LastName,
+                              UserName: createdUser.LastName,
+                              Email: createdUser.Email,
+                              PhoneNumber: createdUser.PhoneNumber);
+
+        return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = userResponse.Id }, value: userResponse);
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet]
-    public async Task<IActionResult> GetById()
+    public async Task<IActionResult> GetByToken()
     {
-        var userId = int.Parse(
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value!
-        );
-        var user = await _usersRepo.GetUserById(userId);
-        if (user == null)
+        Guid userId;
+        if (!Guid.TryParse(
+           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
+           out userId
+       ))
         {
-            return BadRequest();
+            return BadRequest("Wrong user id format");
         }
+        var getUserResult = await _userService.GetUserById(userId);
+        if (getUserResult.IsError)
+        {
+            return NotFound(getUserResult.FirstError.Description);
+        }
+        var user = getUserResult.Value;
         return Ok(
-            new UserDto(
-                user.FirstName!,
-                user.LastName!,
-                user.UserName!,
-                user.Email!,
-                user.PhoneNumber!
+            new UserResponse(
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
             )
         );
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        User? user = await _usersRepo.GetUserById(id);
-        if (user == null)
+        var getUserResult = await _userService.GetUserById(id);
+        if (getUserResult.IsError)
         {
-            return NotFound();
+            return NotFound(getUserResult.FirstError.Description);
         }
+        var user = getUserResult.Value;
         return Ok(
-            new UserDto(
-                user.FirstName!,
-                user.LastName!,
-                user.UserName!,
-                user.Email!,
-                user.PhoneNumber!
+            new UserResponse(
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
             )
         );
     }
@@ -79,18 +117,20 @@ public class UsersController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUserName(string username)
     {
-        User? user = await _usersRepo.GetUserByUserName(username);
-        if (user == null)
+        var getUserResult = await _userService.GetUserByUserName(username);
+        if (getUserResult.IsError)
         {
-            return NotFound();
+            return NotFound(getUserResult.FirstError.Description);
         }
+        var user = getUserResult.Value;
         return Ok(
-            new UserDto(
-                user.FirstName!,
-                user.LastName!,
-                user.UserName!,
-                user.Email!,
-                user.PhoneNumber!
+            new UserResponse(
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.UserName,
+                user.Email,
+                user.PhoneNumber
             )
         );
     }
@@ -102,17 +142,43 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        User? user = await _usersRepo.GetUserByUserName(userData.UserName);
-        if (user == null)
+        var getUserResult = await _userService.GetUserByUserName(userData.UserName);
+        if (getUserResult.IsError)
         {
             return NotFound("Bad credentials");
         }
-        var isPasswordValid = await _usersRepo.IsPasswordValid(user, userData.Password);
-        if (!isPasswordValid)
+        var user = getUserResult.Value;
+        var isPasswordValidResult = await _userService.IsPasswordValid(user, userData.Password);
+        if (isPasswordValidResult.IsError)
+        {
+            return Problem();
+        }
+        if (!isPasswordValidResult.Value)
         {
             return NotFound("Bad credentials");
         }
-        var authenticationResponse = _usersRepo.AuthenticateUser(user);
-        return Ok(authenticationResponse);
+        var authenticationResponseResult = await _userService.AuthenticateUser(user);
+        if (authenticationResponseResult.IsError)
+        {
+            return Problem();
+        }
+        return Ok(authenticationResponseResult.Value);
+    }
+
+    [HttpPost("admin/{id}")]
+    public async Task<IActionResult> GiveAdminRole(Guid id)
+    {
+        var getUserResult = await _userService.GetUserById(id);
+        if (getUserResult.IsError)
+        {
+            return NotFound(getUserResult.FirstError.Description);
+        }
+        var user = getUserResult.Value;
+        var addUserRoleResult = await _userService.AddUserRole(user, "Admin");
+        if (addUserRoleResult.IsError)
+        {
+            return Problem();
+        }
+        return Ok(new { message = $"{user.UserName} is now an Admin" });
     }
 }

@@ -1,8 +1,10 @@
 using eArticles.API.Data;
 using eArticles.API.Models;
+using eArticles.API.Persistance;
 using eArticles.API.Services;
-using eArticles.API.Services.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -21,6 +23,7 @@ builder.Services.AddDbContext<eArticlesDbContext>(opts =>
 {
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
 });
+builder.Services.AddHostedService<DbConnectionTestService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -49,8 +52,18 @@ builder.Services.AddSwaggerGen(opt =>
  });
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
+builder.Services.AddScoped<ITagsRepository, TagsRepository>();
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+builder.Services.AddScoped<IContentTypeRepository, ContentTypeRepository>();
+
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ITagsService, TagsService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IContentTypeService, ContentTypeService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services
-    .AddIdentityCore<User>(options =>
+    .AddIdentity<User, IdentityRole<Guid>>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.User.RequireUniqueEmail = true;
@@ -97,6 +110,8 @@ builder.Services
     );
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 var app = builder.Build();
+app.UseExceptionHandler("/error");
+app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -106,6 +121,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 if (app.Environment.IsDevelopment() && cmdLineInit)
 {

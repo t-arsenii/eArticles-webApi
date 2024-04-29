@@ -8,14 +8,20 @@ interface ArticleProps {
 }
 export function ArticleList({ articles }: ArticleProps) {
     return (
-        <Container>
-            <Grid my={"5px"} container spacing={2}>
-                {articles.map(article => (
-                    <Grid key={article.id} item xs={4}>
-                        <Article article={article} />
+        <>
+            {articles.length > 0 ? (
+                <Container>
+                    <Grid my={"5px"} container spacing={2}>
+                        {articles.map(article => (
+                            <Grid key={article.id} item xs={4}>
+                                <Article article={article} />
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
-        </Container>
-    )
+                </Container>
+            ) : (
+                <div>No items</div>
+            )}
+        </>
+    );
 }
