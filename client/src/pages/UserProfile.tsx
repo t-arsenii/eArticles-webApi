@@ -16,7 +16,7 @@ export function UserProfile() {
                 <Box>{userInfo.phoneNumber}</Box>
             </Stack>
             <Typography variant='h4'>Your articles:</Typography>
-            <ArticlePage url='http://localhost:5000/api/articles/my' isToken={true} />
+            <ArticlePage url='http://localhost:5000/api/articles/my' order='date' isToken={true} />
         </>
     )
 }

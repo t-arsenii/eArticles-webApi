@@ -1,8 +1,8 @@
-import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography, InputLabel, Select, MenuItem, SelectChangeEvent, Paper, Chip, styled, Stack, FormControl, Input } from "@mui/material";
+import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typography, InputLabel, Select, MenuItem, SelectChangeEvent, Paper, Chip, styled, Stack, FormControl, Input, Theme, OutlinedInput, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom"
-import { IArticle, IArticleCreateReq } from "../models/articles";
+import { IArticle, IArticleCreateForm, IArticleCreateReq } from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import SendIcon from '@mui/icons-material/Send';
@@ -13,14 +13,10 @@ import 'react-quill/dist/quill.snow.css';
 import { Image } from "@mui/icons-material";
 import { ICategory } from "../models/category";
 import { IContentType } from "../models/contentType";
+import DeleteIcon from '@mui/icons-material/Delete';
+import toast from "react-hot-toast";
 
-interface ChipData {
-    key: number;
-    label: string;
-}
-const ListItem = styled('li')(({ theme }) => ({
-    margin: theme.spacing(0.5),
-}));
+const DEFAULT_IMAGE_PREVIEW_URL = "https://placehold.co/1920x1080/png?text=16x9"
 const textEditorModules = {
     toolbar: [
         [{ header: [1, 2, 3, false] }],
@@ -36,76 +32,146 @@ const textEditorModules = {
         ["link", "image", "video"]
     ]
 }
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+function getStyles(name: string, personName: readonly string[], theme: Theme) {
+    return {
+        fontWeight:
+            personName.indexOf(name) === -1
+                ? theme.typography.fontWeightRegular
+                : theme.typography.fontWeightMedium,
+    };
+}
 export default function CreateArticle() {
+    const handleDeleteImage = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        setImageSrc(DEFAULT_IMAGE_PREVIEW_URL);
+    }
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) {
             return;
         }
-        setImagePreview(URL.createObjectURL(e.target.files[0]));
+        setImageSrc(URL.createObjectURL(e.target.files[0]));
     }
+    const handleChange = (event: SelectChangeEvent<typeof selectedTagIds>) => {
+        const {
+            target: { value },
+        } = event;
+        setSelectedTagIds(
+            typeof value === 'string' ? value.split(',') : value,
+        );
+    };
     const fetchTags = async () => {
-        const res = await axios.get<ITag[]>("http://localhost:5000/api/tags");
-        setAllTags(res.data);
+        try {
+            const { data } = await axios.get<ITag[]>("http://localhost:5000/api/tags");
+            setAllTags(data);
+        } catch (err: any) {
+            console.error(err.message);
+        }
     }
     const fetchCategories = async () => {
-        const res = await axios.get<ICategory[]>("http://localhost:5000/api/category");
-        setAllCategories(res.data);
+        try {
+            const { data } = await axios.get<ICategory[]>("http://localhost:5000/api/category");
+            setAllCategories(data);
+            setCategoryId(data[0].id);
+        } catch (err: any) {
+            console.error(err.message);
+        }
     }
     const fetchContentTypes = async () => {
-        const res = await axios.get<IContentType[]>("http://localhost:5000/api/contentType");
-        setAllContentTypes(res.data);
+        try {
+            const { data } = await axios.get<IContentType[]>("http://localhost:5000/api/contentType");
+            setAllContentTypes(data);
+            setContentTypeId(data[0].id);
+        } catch (err: any) {
+            console.log(err.message)
+        }
     }
     useEffect(() => {
-        try {
-            fetchTags();
-            fetchCategories();
-            fetchContentTypes();
-        } catch (err) {
-            console.log(err);
-        }
+        fetchTags();
+        fetchCategories();
+        fetchContentTypes();
     }, []);
+    const theme = useTheme();
     const [allTags, setAllTags] = useState<ITag[]>();
     const [allCategories, setAllCategories] = useState<ICategory[]>();
     const [allContentTypes, setAllContentTypes] = useState<IContentType[]>();
 
-    const [imagePreview, setImagePreview] = useState<string>('');
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+
     const [contentValue, setContentValue] = useState<string>('');
-    const [selectedTag, setSelectedTag] = useState<string>('');
+    const [contentTypeId, setContentTypeId] = useState<string>('');
+    const [categoryId, setCategoryId] = useState<string>('');
+
+    const [imageSrc, setImageSrc] = useState<string>(DEFAULT_IMAGE_PREVIEW_URL);
     const [tagsData, setTagsData] = useState<string[]>([]);
-    const [articleType, setArticleType] = useState("Review");
     const token = useSelector((state: RootState) => state.user.token);
     const userInfo = useSelector((state: RootState) => state.user.userInfo);
     const navigate = useNavigate();
-    const handleAddTag = () => {
-        if (selectedTag !== '' && !tagsData.includes(selectedTag)) {
-            setTagsData([...tagsData, selectedTag]);
-        }
-        setSelectedTag('');
-    }
-    const form = useForm<IArticleCreateReq>({
+    const form = useForm<IArticleCreateForm>({
         defaultValues: {
             title: '',
             description: '',
             content: '',
             contentTypeId: '',
-            imgUrl: '',
             tagIds: null
         }
     })
     const { register, handleSubmit, formState, getValues } = form;
     const { errors } = formState;
-    const OnSubmit = async (data: IArticleCreateReq) => {
-        data.contentTypeId = articleType;
-        data.tagIds = tagsData;
-        data.content = contentValue;
-        console.log(data);
+    const OnSubmit = async (data: IArticleCreateForm) => {
+        var formData = new FormData();
+        var dataRequest: IArticleCreateReq = {
+            title: "",
+            description: "",
+            content: "",
+            contentTypeId: "",
+            categoryId: "",
+            tagIds: null
+        };
+        if (data.title) {
+            dataRequest.title = data.title;
+        }
+        if (data.description) {
+            dataRequest.description = data.description;
+        }
+        if (selectedTagIds) {
+            dataRequest.tagIds = selectedTagIds;
+        }
+        if (data.contentTypeId) {
+            dataRequest.contentTypeId = data.contentTypeId;
+        } else {
+            dataRequest.contentTypeId = contentTypeId;
+        }
+        if (data.categoryId) {
+            dataRequest.categoryId = data.categoryId;
+        } else {
+            dataRequest.categoryId = categoryId;
+        }
+        if (contentValue) {
+            dataRequest.content = contentValue;
+        }
+        if (imageSrc !== DEFAULT_IMAGE_PREVIEW_URL) {
+            formData.append("image", data.image[0])
+        }
+        formData.append("json", JSON.stringify(dataRequest));
+        console.log(formData);
         try {
-            const resArticle = await axios.post<IArticle>("http://localhost:5000/api/articles", data, {
+            const resArticle = await axios.post<IArticle>("http://localhost:5000/api/articles", formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'multipart/form-data'
                 }
             });
+            toast.success("Articles published successfully!")
             return navigate(`/profile/${userInfo.userName}`)
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -118,26 +184,20 @@ export default function CreateArticle() {
             } else {
                 console.error("Error:", error);
             }
+            toast.error("Something went wrong!");
         }
     }
-    const handleDelete = (chipToDelete: string) => () => {
-        setTagsData((chips) => chips.filter((chip) => chip !== chipToDelete));
-    };
     return (
         <>
-            <Typography component="h1" variant="h5">
-                Create article
-            </Typography>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Box component="form" noValidate onSubmit={handleSubmit(OnSubmit)} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12}>
+            <Box>
+                <Box mt="15px">
+                    <Typography component="h1" variant="h4">
+                        Create article
+                    </Typography>
+                </Box>
+                <Box component="form" noValidate onSubmit={handleSubmit(OnSubmit)} sx={{ mt: 3, width: "100%" }}>
+                    <Stack spacing={2}>
+                        <Box>
                             <TextField
                                 autoComplete="given-title"
                                 required
@@ -148,22 +208,9 @@ export default function CreateArticle() {
                                 {...register("title", {
                                     required: "Title is required"
                                 })}
-                            // error={!!errors.firstName}
-                            // helperText={errors.firstName?.message}
                             />
-                        </Grid>
-                        <Grid item xs={12} sm={12}>
-                            <img src={imagePreview} alt="" />
-                            <br />
-                            <Button
-                                variant="contained"
-                                component="label"
-                            >
-                                Upload File
-                                <input type="file" hidden onChange={handleImageChange} accept="image/png, image/jpeg, image/jpg" />
-                            </Button>
-                        </Grid>
-                        <Grid item xs={12}>
+                        </Box>
+                        <Box>
                             <TextField
                                 multiline
                                 required
@@ -175,88 +222,91 @@ export default function CreateArticle() {
                                 {...register("description", {
                                     required: "Description is required"
                                 })}
-                            // error={!!errors.userName}
-                            // helperText={errors.userName?.message}
 
                             />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <ReactQuill style={{ margin: "5px 0 50px 0", height: "300px" }} theme="snow" value={contentValue} onChange={setContentValue} modules={textEditorModules} />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Stack direction={"row"}>
-                                <FormControl sx={{ m: 1, minWidth: 80 }}>
-                                    <InputLabel id="demo-simple-select-autowidth-label">Tag</InputLabel>
+                        </Box>
+                        <Box>
+                            <Stack direction="row" spacing="10px">
+                                <Box>
+                                    <FormControl sx={{ width: 300 }}>
+                                        <InputLabel id="demo-multiple-chip-label">Tags</InputLabel>
+                                        <Select
+                                            labelId="demo-multiple-chip-label"
+                                            id="demo-multiple-chip"
+                                            multiple
+                                            value={selectedTagIds}
+                                            onChange={handleChange}
+                                            input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                                            renderValue={(selected) => (
+                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                    {selected.map((value) => (
+                                                        <Chip key={value} label={allTags?.find(t => t.id === value)?.title} />
+                                                    ))}
+                                                </Box>
+                                            )}
+                                            MenuProps={MenuProps}>
+                                            {allTags && allTags.map((tag) => (
+                                                <MenuItem
+                                                    key={tag.id}
+                                                    value={tag.id}
+                                                    style={getStyles(tag.title, selectedTagIds, theme)}
+                                                >
+                                                    {tag.title}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+                                <Box>
                                     <Select
-                                        labelId="demo-simple-select-autowidth-label"
-                                        id="demo-simple-select-autowidth"
-                                        value={selectedTag}
-                                        onChange={(event) => {
-                                            setSelectedTag(event.target.value);
-                                        }}
-                                        autoWidth
-                                        label="Age"
+                                        {...register("contentTypeId")}
+                                        id="ContentType"
+                                        value={contentTypeId}
+                                        onChange={(event: SelectChangeEvent) => setContentTypeId(event.target.value)}
                                     >
-                                        {allTags && allTags.map(tag => (
-                                            <MenuItem key={tag.id} value={tag.title}>
-                                                {tag.title}
-                                            </MenuItem>
+                                        {allContentTypes && allContentTypes.map(conentType => (
+                                            <MenuItem id={conentType.id} value={conentType.id}>{conentType.title}</MenuItem>
                                         ))}
                                     </Select>
-                                </FormControl>
-
-                                <Button onClick={handleAddTag} variant="contained" endIcon={<SendIcon />} />
+                                </Box>
+                                <Box>
+                                    <Select
+                                        {...register("categoryId")}
+                                        id="Category"
+                                        value={categoryId}
+                                        onChange={(event: SelectChangeEvent) => setCategoryId(event.target.value)}>
+                                        {allCategories && allCategories.map(category => (
+                                            <MenuItem id={category.id} value={category.id}>{category.title}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </Box>
                             </Stack>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Paper
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    flexWrap: 'wrap',
-                                    listStyle: 'none',
-                                    p: 0.5,
-                                    m: 0,
-                                }}
-                                component="ul"
-                            >
-                                {tagsData.map((data, key) => {
-                                    return (
-                                        <ListItem key={key}>
-                                            <Chip
-                                                // icon={icon}
-                                                label={data}
-                                                onDelete={handleDelete(data)}
-                                            />
-                                        </ListItem>
-                                    );
-                                })}
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} sm={2}>
-                            <Select
-                                id="ArticlType"
-                                value={articleType}
-                                onChange={(event: SelectChangeEvent) => setArticleType(event.target.value)}
-                            >
-                                {allContentTypes && allContentTypes.map(conentType => (
-                                    <MenuItem id={conentType.id} value="Review">{conentType.title}</MenuItem>
-                                ))}
-                            </Select>
-                        </Grid>
-                    </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Publish
-                    </Button>
-                </Box>
+                        </Box>
+                        <Box>
+                            <img style={{ height: "316px", width: "562px", display: "block", objectFit: "cover" }} src={imageSrc} alt="" />
+                            <Stack sx={{ mt: "10px" }} direction="row" alignItems="center">
+                                <Input {...register("image")} type="file" hidden onChange={handleImageChange} inputProps={{ accept: "image/png, image/jpeg, image/jpg" }} />
+                                <Box sx={{ cursor: "pointer" }} onClick={handleDeleteImage}>
+                                    {(imageSrc !== DEFAULT_IMAGE_PREVIEW_URL) && <DeleteIcon fontSize="large" />}
+                                </Box>
+                            </Stack>
+                        </Box>
+                        <Box>
+                            <ReactQuill style={{ margin: "5px 0 50px 0", height: "300px" }} theme="snow" value={contentValue} onChange={setContentValue} modules={textEditorModules} />
+                        </Box>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2 }}
+                        >
+                            Publish
+                        </Button>
+                    </Stack>
+                </Box >
 
 
-            </Box>
+            </Box >
         </>
     )
 }

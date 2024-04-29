@@ -71,15 +71,23 @@ export default function FullArticle() {
                             </Box>
                             <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
                         </Box>
-                        <Box sx={{ display: "flex", marginY: "20px" }}><Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}><Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.contentType}</Typography></Box></Box>
+                        <Box sx={{ display: "flex", marginY: "20px" }}>
+                            <Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}>
+                                <Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.contentType}</Typography>
+                            </Box>
+                        </Box>
                         {article.user.id === userInfo.id &&
                             <Stack direction="row">
                                 <Box onClick={handleDeleteButton}><DeleteIcon /></Box>
                                 <Box><Link to={`/article/edit/${article.id}`}><EditIcon /></Link></Box>
                             </Stack>
                         }
-                        <Box><Typography sx={{ fontWeight: "bold" }} variant="h2">{article.title}</Typography></Box>
-                        <Box><Typography variant="h5">{article.description}</Typography></Box>
+                        <Box>
+                            <Typography sx={{ fontWeight: "bold" }} variant="h2">{article.title}</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="h5">{article.description}</Typography>
+                        </Box>
                         <Box sx={{ marginTop: "10px" }}>
                             {article.tags && article.tags.map((tag, key) => (
                                 <Chip
@@ -109,7 +117,9 @@ export default function FullArticle() {
                                 backgroundPosition: "center",
                                 backgroundRepeat: "no-repeat"
                             }}></Box>
-                            <Box><Typography sx={{ width: "100%", wordWrap: "break-word", fontSize: "18px", lineHeight: "29px", fontFamily: "Times New Roman" }} variant="body1">{article.content}</Typography></Box>
+                            <Box>
+                                <Typography sx={{ width: "100%", wordWrap: "break-word", fontSize: "18px", lineHeight: "29px", fontFamily: "Times New Roman" }} variant="body1" dangerouslySetInnerHTML={{ __html: article.content }} />
+                            </Box>
                         </Box>
                     </Stack >
                     <ConfirmationModal open={open} onClose={() => {

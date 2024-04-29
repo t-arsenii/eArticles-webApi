@@ -12,6 +12,15 @@ export interface IArticle {
     imgName: string,
     tags: string[] | null,
 }
+export interface IArticleCreateForm {
+    title: string,
+    description: string,
+    content: string,
+    contentTypeId: string,
+    categoryId: string,
+    tagIds: string[] | null,
+    image: FileList
+}
 export interface IArticleCreateReq {
     title: string,
     description: string,
@@ -19,7 +28,6 @@ export interface IArticleCreateReq {
     contentTypeId: string,
     categoryId: string,
     tagIds: string[] | null
-    imgUrl: string,
 }
 export interface IArticleGetPageRes {
     items: IArticle[],

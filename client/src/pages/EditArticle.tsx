@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typog
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { IArticle, IArticleCreateReq} from "../models/articles";
+import { IArticle, IArticleCreateForm} from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import axios from "axios";
@@ -29,23 +29,22 @@ export default function EditArticle() {
             console.log(err);
         }
     }, [])
-    const form = useForm<IArticleCreateReq>({
+    const form = useForm<IArticleCreateForm>({
         defaultValues: {
             title: '',
             description: '',
             content: '',
             contentTypeId: '',
-            imgUrl: '',
             tagIds: null
         }
     })
     const { reset, register, handleSubmit, formState, getValues } = form
     const { errors } = formState
-    const OnSubmit = async (data: IArticleCreateReq) => {
+    const OnSubmit = async (data: IArticleCreateForm) => {
         try {
             data.contentTypeId = articleType
             console.log(data)
-            const resArticle = await axios.put<IArticleCreateReq, IArticle>("http://localhost:5000/api/articles", data, {
+            const resArticle = await axios.put<IArticleCreateForm, IArticle>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -101,9 +100,6 @@ export default function EditArticle() {
                                 id="imgUrl"
                                 label="Img Url"
                                 autoComplete="ImgUrl"
-                                {...register("imgUrl", {
-                                    required: "Img url is required"
-                                })}
                             // error={!!errors.email}
                             // helperText={errors.email?.message}
 

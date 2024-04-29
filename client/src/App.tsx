@@ -19,6 +19,7 @@ import FullArticle from './pages/FullArticle';
 import EditArticle from './pages/EditArticle';
 import AppRouter from './routes/AppRouter';
 import Footer from './components/Footer';
+import { Toaster } from 'react-hot-toast';
 function App() {
   const dispatch = useDispatch()
   const [isDarkTheme, setIsDarkTheme] = useState(false)
@@ -54,13 +55,6 @@ function App() {
         window.location.reload();
       }
     }
-    const getPrefferedTheme = () => {
-      const prefferedTheme = localStorage.getItem("preferredTheme")
-      if (prefferedTheme) {
-        setIsDarkTheme(prefferedTheme === 'dark' ? true : false)
-      }
-    }
-    // getPrefferedTheme()
     checkTokenExpiration()
     fetchUserInfo()
 
@@ -72,16 +66,17 @@ function App() {
       mode: 'dark',
     },
   });
-  const theme = isDarkTheme ? defaultTheme : darkTheme
+  const theme = localStorage.getItem("preferredTheme") === 'dark' ? darkTheme : defaultTheme;
   return (
     <>
       <ThemeProvider theme={theme}>
+        <Toaster />
         <CssBaseline />
         <Navbar />
         <Container component="main">
           <AppRouter />
         </Container>
-        <Footer/>
+        <Footer />
       </ThemeProvider>
     </>
   )
