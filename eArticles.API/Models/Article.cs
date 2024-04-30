@@ -16,12 +16,6 @@ public class Article
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
     public Guid UserId { get; set; }
     public User? User { get; set; }
-    
-    //private string _imgUrl = "https://placehold.co/100";
-    //public string Img_Url
-    //{
-    //    set { _imgUrl = value ?? _imgUrl; }
-    //    get { return _imgUrl; }
-    //}
     public string? ImagePath { get; set; }
+    public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 }

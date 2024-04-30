@@ -12,7 +12,7 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<ContentType> ContentTypes => Set<ContentType>();
     public DbSet<Category> Categories => Set<Category>();
-
+    public DbSet<Rating> Ratings => Set<Rating>();
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
         : base(options) { }
 
@@ -55,5 +55,10 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
             .HasMany(user => user.Articles)
             .WithOne(article => article.User)
             .HasForeignKey(article => article.UserId);
+
+        modelBuilder
+            .Entity<Rating>()
+            .HasIndex(e => new { e.UserId, e.ArticleId })
+            .IsUnique();
     }
 }

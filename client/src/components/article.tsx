@@ -17,11 +17,8 @@ interface ArticleProps {
     article: IArticle
 }
 export function Article({ article }: ArticleProps) {
-    const userInfo = useSelector((state: RootState) => state.user.userInfo)
+    const userInfo = useSelector((state: RootState) => state.user.user)
     const theme = useTheme()
-    useEffect(()=>{
-        console.log(getImagePath(article.imgName))
-    },[article])
     return (
         <Link style={{ textDecoration: "none" }} to={`/article/${article.id}`}>
             <StyledCard theme={theme}>

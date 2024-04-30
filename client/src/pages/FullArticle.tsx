@@ -14,14 +14,13 @@ export default function FullArticle() {
     const [article, setArticle] = useState<IArticle>()
     const navigate = useNavigate()
     const { id } = useParams()
-    const userInfo = useSelector((state: RootState) => state.user.userInfo)
+    const userInfo = useSelector((state: RootState) => state.user.user)
     const token = useSelector((state: RootState) => state.user.token)
     useEffect(() => {
         const fetchArticle = async () => {
             const resArticle = await axios.get<IArticle>(`http://localhost:5000/api/Articles/${id}`)
             const resArticleData: IArticle = { ...resArticle.data }
             setArticle(resArticleData)
-            console.log(getImagePath(resArticleData.imgName))
         }
         try {
             fetchArticle()

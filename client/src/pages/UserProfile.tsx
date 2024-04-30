@@ -6,7 +6,7 @@ import axios from 'axios'
 import { IArticle } from '../models/articles'
 import ArticlePage from '../components/ArticlePage'
 export function UserProfile() {
-    const { userInfo } = useSelector((state: RootState) => state.user)
+    const { user: userInfo } = useSelector((state: RootState) => state.user)
     return (
         <>
             <Stack>
