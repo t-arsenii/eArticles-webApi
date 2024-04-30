@@ -51,7 +51,7 @@ export default function ArticlePage({ url, isToken = false, order, contentType, 
             setTotalPages(Math.ceil(totalCount / ItemsPerPage));
 
         } catch (err) {
-            console.log("Error fetching data", err)
+            console.error("Error fetching data", err)
         }
     }
     useEffect(() => {

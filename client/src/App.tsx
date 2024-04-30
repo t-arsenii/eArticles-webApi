@@ -9,37 +9,45 @@ import { Navbar } from './components/Navbar'
 import { RegForm } from './pages/RegForm'
 import { Container, CssBaseline } from '@mui/material';
 import { Login } from './pages/Login'
-import { useDispatch, useSelector } from 'react-redux';
-import { updateToken, updateUser } from './store/userStore';
+import { useAppDispatch, RootState, AppDispatch } from "./store/store";
+import { getMe, updateToken, updateUser } from './store/userStore';
 import { IUser } from './models/user';
 import { UserProfile } from './pages/UserProfile';
-import { RootState } from './store/store';
 import CreateArticle from './pages/CreateArticle';
 import FullArticle from './pages/FullArticle';
 import EditArticle from './pages/EditArticle';
 import AppRouter from './routes/AppRouter';
 import Footer from './components/Footer';
 import { Toaster } from 'react-hot-toast';
+import { useSelector } from 'react-redux';
+import { updateColorTheme } from './store/localDataStore';
 function App() {
-  const dispatch = useDispatch()
-  const [isDarkTheme, setIsDarkTheme] = useState(false)
+  const dispatch: AppDispatch = useAppDispatch();
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const colorTheme = useSelector((state: RootState) => state.localData.colorTheme);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("colorTheme") === 'dark' ? createTheme({
+      palette: {
+        mode: 'dark',
+      },
+    }) : createTheme();
+  });
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const colorThemeLs = localStorage.getItem("colorTheme");
+    if (colorThemeLs) {
+      dispatch(updateColorTheme(colorThemeLs))
+    }
+  }, [])
+
+  useEffect(() => {
+    const fetchUser = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        return
+        return;
       }
-      dispatch(updateToken(token))
-      try {
-        const userInfoRes = await axios.get<IUser>("http://localhost:5000/api/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        dispatch(updateUser(userInfoRes.data))
-      } catch (err: any) {
-        console.log(err.message);
+      dispatch(updateToken(token));
+      if (token) {
+        dispatch(getMe(token));
       }
     }
     const checkTokenExpiration = () => {
@@ -56,17 +64,18 @@ function App() {
       }
     }
     checkTokenExpiration()
-    fetchUserInfo()
+    fetchUser()
+  }, [dispatch])
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  const defaultTheme = createTheme()
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-    },
-  });
-  const theme = localStorage.getItem("preferredTheme") === 'dark' ? darkTheme : defaultTheme;
+  useEffect(() => {
+    const newTheme = colorTheme === 'dark' ? createTheme({
+      palette: {
+        mode: 'dark',
+      },
+    }) : createTheme();
+    setTheme(newTheme);
+  }, [colorTheme]);
+
   return (
     <>
       <ThemeProvider theme={theme}>

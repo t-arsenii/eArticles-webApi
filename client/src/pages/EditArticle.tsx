@@ -13,7 +13,7 @@ export default function EditArticle() {
     // const [initArticle, setInitArticle] = useState<IArticle>()
     const [contentValue, setContentValue] = useState('');
     const token = useSelector((state: RootState) => state.user.token)
-    const userInfo = useSelector((state: RootState) => state.user.userInfo)
+    const userInfo = useSelector((state: RootState) => state.user.user)
     const navigate = useNavigate()
     const { id } = useParams()
     const fetchArticle = async () => {
@@ -26,7 +26,7 @@ export default function EditArticle() {
         try {
             fetchArticle()
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     }, [])
     const form = useForm<IArticleCreateForm>({
@@ -43,7 +43,6 @@ export default function EditArticle() {
     const OnSubmit = async (data: IArticleCreateForm) => {
         try {
             data.contentTypeId = articleType
-            console.log(data)
             const resArticle = await axios.put<IArticleCreateForm, IArticle>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,

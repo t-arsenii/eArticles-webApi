@@ -15,7 +15,7 @@ export interface IUserRegReq {
     password: string
 }
 export interface IUserRegRes {
-    id:string,
+    id: string,
     firstName: string
     lastName: string
     userName: string
@@ -24,15 +24,15 @@ export interface IUserRegRes {
     password: string
 }
 export interface IUserAuthReq {
-    userName : string,
-    password: string 
+    userName: string,
+    password: string
 }
 export interface IUserAuthRes {
-    token : string,
-    expiration: string 
+    token: string,
+    expiration: string
 }
 
 export interface IUserState {
+    user: IUser;
     token: string | null;
-    userInfo: IUser;
-  }
+}

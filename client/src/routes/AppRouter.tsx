@@ -15,7 +15,7 @@ import AnimePage from "../pages/AnimePage";
 
 export default function AppRouter() {
     const token = useSelector((state: RootState) => state.user.token)
-    const userInfo = useSelector((state: RootState) => state.user.userInfo)
+    const userInfo = useSelector((state: RootState) => state.user.user)
     return (
         <Routes>
             <Route path='/' element={<Home />} />

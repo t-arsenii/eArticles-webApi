@@ -15,9 +15,6 @@ export function Home() {
         fetchGuideArticles();
         fetchNewsArticles();
     }, []);
-    useEffect(() => {
-        console.log(latestArticles);
-    }, [latestArticles]);
 
     const fetchLatestArticles = async () => {
         try {
@@ -25,7 +22,7 @@ export function Home() {
             setLatestArticles(res.data.items);
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
     const fetchGuideArticles = async () => {
@@ -33,7 +30,7 @@ export function Home() {
             const res = await axios.get<IArticleGetPageRes>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=guide`);
             setGuideArticles(res.data.items);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
     const fetchNewsArticles = async () => {
@@ -41,7 +38,7 @@ export function Home() {
             const res = await axios.get<IArticleGetPageRes>(`http://localhost:5000/api/articles?pageNumber=1&pageSize=3&order=date&articleType=news`);
             setNewsArticles(res.data.items);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
     return (

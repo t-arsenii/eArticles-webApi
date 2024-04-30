@@ -92,7 +92,7 @@ export default function CreateArticle() {
             setAllContentTypes(data);
             setContentTypeId(data[0].id);
         } catch (err: any) {
-            console.log(err.message)
+            console.error(err.message)
         }
     }
     useEffect(() => {
@@ -114,7 +114,7 @@ export default function CreateArticle() {
     const [imageSrc, setImageSrc] = useState<string>(DEFAULT_IMAGE_PREVIEW_URL);
     const [tagsData, setTagsData] = useState<string[]>([]);
     const token = useSelector((state: RootState) => state.user.token);
-    const userInfo = useSelector((state: RootState) => state.user.userInfo);
+    const userInfo = useSelector((state: RootState) => state.user.user);
     const navigate = useNavigate();
     const form = useForm<IArticleCreateForm>({
         defaultValues: {
@@ -163,7 +163,6 @@ export default function CreateArticle() {
             formData.append("image", data.image[0])
         }
         formData.append("json", JSON.stringify(dataRequest));
-        console.log(formData);
         try {
             const resArticle = await axios.post<IArticle>("http://localhost:5000/api/articles", formData, {
                 headers: {
