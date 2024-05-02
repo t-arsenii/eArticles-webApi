@@ -24,6 +24,7 @@ builder.Services.AddDbContext<eArticlesDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
 });
 builder.Services.AddHostedService<DbConnectionTestService>();
+builder.Services.AddHostedService<CalculateAverageRatingService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -55,12 +56,14 @@ builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<IContentTypeRepository, ContentTypeRepository>();
+builder.Services.AddScoped<IRatingsRepository, RatingsRepository>();
 
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ITagsService, TagsService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IContentTypeService, ContentTypeService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services
     .AddIdentity<User, IdentityRole<Guid>>(options =>

@@ -12,6 +12,7 @@ public sealed record ArticleResponse(
     string Category,
     string PublishedDate,
     string ImgName,
+    double AverageRating,
     IEnumerable<string>? Tags,
     UserResponse User
 );

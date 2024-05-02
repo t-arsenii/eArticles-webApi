@@ -17,5 +17,6 @@ public class Article
     public Guid UserId { get; set; }
     public User? User { get; set; }
     public string? ImagePath { get; set; }
+    public double AverageRating { get; set; }
     public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 }
