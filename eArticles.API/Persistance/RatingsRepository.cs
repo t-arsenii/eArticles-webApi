@@ -50,22 +50,29 @@ public class RatingsRepository : IRatingsRepository
     public async Task<ErrorOr<IEnumerable<Rating>>> GetUserRatings(Guid userId)
     {
         var ratings = await _dbContext.Ratings.Where(e => e.UserId == userId).ToListAsync();
-        if(ratings is null || !ratings.Any())
+        if (ratings is null || !ratings.Any())
         {
             return Error.NotFound($"Ratings are not found for user (user id: ${userId})");
         }
         return ratings;
     }
 
-    public async Task<bool> HasRating(Guid userId, Guid articleId)
+    public async Task<bool> UserHasRating(Guid userId, Guid articleId)
     {
         var rating = await _dbContext.Ratings.Where(e => e.UserId == userId)
                                        .Where(e => e.ArticleId == articleId)
                                        .FirstOrDefaultAsync();
-        if(rating is null)
+        if (rating is null)
         {
             return false;
         }
         return true;
+    }
+
+    public async Task<ErrorOr<Updated>> CalculateAverage(Article article)
+    {
+        article.AverageRating = Math.Round(article.Ratings.Average(e => e.Value), 2);
+        await _dbContext.SaveChangesAsync();
+        return Result.Updated;
     }
 }

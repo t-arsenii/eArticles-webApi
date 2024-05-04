@@ -22,6 +22,10 @@ public class DbConnectionTestService : IHostedService
             {
                logger.LogError("Database connection failed");
             }
+            else
+            {
+                logger.LogInformation($"Database connection success: {dbContext.Database.ProviderName}");
+            }
         }
         catch (Exception ex)
         {

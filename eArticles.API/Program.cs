@@ -24,7 +24,6 @@ builder.Services.AddDbContext<eArticlesDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:MSSQLCONNETION"]);
 });
 builder.Services.AddHostedService<DbConnectionTestService>();
-builder.Services.AddHostedService<CalculateAverageRatingService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {

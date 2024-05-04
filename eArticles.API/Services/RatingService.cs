@@ -17,15 +17,29 @@ public class RatingService : IRatingService
 
     public async Task<ErrorOr<Rating>> Create(Rating newRating)
     {
-
-        if (await _ratingsRepository.HasRating(newRating.UserId, newRating.ArticleId))
+        var getArticleResult = await _articlesRepository.GetById(newRating.ArticleId);
+        if (getArticleResult.IsError)
         {
-            return Error.Unexpected($"User already has a rating for the article (articleId: ${newRating.ArticleId})");
+            return getArticleResult.Errors;
+        }
+        var article = getArticleResult.Value;
+        if (article.UserId == newRating.UserId)
+        {
+            return Error.Unexpected($"User can't rate his own article");
+        }
+        if (await _ratingsRepository.UserHasRating(newRating.UserId, newRating.ArticleId))
+        {
+            return Error.Unexpected(description: $"User already has a rating for the article (articleId: ${newRating.ArticleId})");
         }
         var createRatingResult = await _ratingsRepository.Create(newRating);
         if (createRatingResult.IsError)
         {
             return createRatingResult.Errors;
+        }
+        var calculateAverageRatingResult = await _ratingsRepository.CalculateAverage(article);
+        if (calculateAverageRatingResult.IsError)
+        {
+            return calculateAverageRatingResult.Errors;
         }
         return createRatingResult;
     }
@@ -54,7 +68,7 @@ public class RatingService : IRatingService
     public async Task<ErrorOr<Rating>> GetById(Guid id)
     {
         var getRatingResult = await _ratingsRepository.GetById(id);
-        if(getRatingResult.IsError)
+        if (getRatingResult.IsError)
         {
             return getRatingResult.Errors;
         }
