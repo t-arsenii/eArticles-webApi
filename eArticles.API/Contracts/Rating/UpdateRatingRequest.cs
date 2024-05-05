@@ -2,7 +2,7 @@
 
 namespace eArticles.API.Contracts.Rating;
 
-public record CreateRatingRequest(
-    [Required] Guid articleId,
+public record UpdateRatingRequest
+(
     [Required] int value
 );

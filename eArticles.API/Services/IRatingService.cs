@@ -10,4 +10,5 @@ public interface IRatingService
     public Task<ErrorOr<double>> GetArticleAverageRating(Guid articleId);
     public Task<ErrorOr<Rating>> Update(Rating updateRating);
     public Task<ErrorOr<Rating>> Delete(Guid id);
+    Task<ErrorOr<bool>> UserHasAccess(Guid userId, Guid ratingId);
 }

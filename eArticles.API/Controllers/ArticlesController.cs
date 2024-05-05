@@ -274,9 +274,9 @@ public class ArticlesController : ControllerBase
             return Forbid();
         }
         var deleteArticleResult = await _articlesService.Delete(id);
-        if (getArticleResult.IsError)
+        if (deleteArticleResult.IsError)
         {
-            return NotFound(getArticleResult.FirstError.Description);
+            return NotFound(deleteArticleResult.FirstError.Description);
         }
         return NoContent();
     }

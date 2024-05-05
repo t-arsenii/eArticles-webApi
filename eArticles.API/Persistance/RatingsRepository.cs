@@ -13,15 +13,16 @@ public class RatingsRepository : IRatingsRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ErrorOr<Rating>> Create(Rating newRating)
+    public async Task<ErrorOr<Rating>> Create(Rating rating)
     {
-        await _dbContext.Ratings.AddAsync(newRating);
+        await _dbContext.Ratings.AddAsync(rating);
         await _dbContext.SaveChangesAsync();
-        return newRating;
+        return rating;
     }
     public async Task<ErrorOr<Rating>> GetById(Guid id)
     {
-        var rating = await _dbContext.Ratings.FindAsync(id);
+        var rating = await _dbContext.Ratings.Include(e => e.Article)
+                                             .FirstOrDefaultAsync(e => e.Id == id);
         if (rating is null)
         {
             return Error.NotFound(description: $"Rating is not found (rating id: {id})");
@@ -29,22 +30,17 @@ public class RatingsRepository : IRatingsRepository
         return rating;
     }
 
-    public async Task<ErrorOr<Rating>> Delete(Guid id)
+    public async Task<ErrorOr<Deleted>> Delete(Rating rating)
     {
-        var rating = await _dbContext.Ratings.FindAsync(id);
-        if (rating is null)
-        {
-            return Error.NotFound(description: $"Rating is not found (rating id: {id})");
-        }
         _dbContext.Ratings.Remove(rating);
         await _dbContext.SaveChangesAsync();
-        return rating;
+        return Result.Deleted;
     }
-    public async Task<ErrorOr<Rating>> Update(Rating updateRating)
+    public async Task<ErrorOr<Updated>> Update(Rating rating)
     {
-        _dbContext.Ratings.Update(updateRating);
+        _dbContext.Ratings.Update(rating);
         await _dbContext.SaveChangesAsync();
-        return updateRating;
+        return Result.Updated;
     }
 
     public async Task<ErrorOr<IEnumerable<Rating>>> GetUserRatings(Guid userId)
