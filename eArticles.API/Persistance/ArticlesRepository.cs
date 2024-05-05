@@ -40,6 +40,7 @@ public class ArticlesRepository : IArticlesRepository
             .Include(ar => ar.User)
             .Include(ar => ar.ContentType)
             .Include(ar => ar.Category)
+            .Include(ar => ar.Ratings)
             .FirstOrDefaultAsync(ar => ar.Id == id);
         if (article is null)
         {

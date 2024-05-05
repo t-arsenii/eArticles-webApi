@@ -22,13 +22,13 @@ namespace eArticles.API.Controllers;
 public class ArticlesController : ControllerBase
 {
     readonly IArticleService _articlesService;
-    readonly IUsersRepository _usersRepo;
+    readonly IUserService _usersService;
     readonly IWebHostEnvironment _environment;
 
-    public ArticlesController(IArticleService articlesService, IUsersRepository usersRepo, IWebHostEnvironment environment)
+    public ArticlesController(IArticleService articlesService, IUserService userService, IWebHostEnvironment environment)
     {
         _articlesService = articlesService;
-        _usersRepo = usersRepo;
+        _usersService = userService;
         _environment = environment;
     }
 
@@ -66,7 +66,7 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest("Wrong user id format");
         };
-        var getUserResult = await _usersRepo.GetUserById(userId);
+        var getUserResult = await _usersService.GetUserById(userId);
         if (getUserResult.IsError)
         {
             return BadRequest(getUserResult.FirstError.Description);
@@ -151,7 +151,7 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest("Wrong user id format");
         };
-        var getUserResult = await _usersRepo.GetUserById(userId);
+        var getUserResult = await _usersService.GetUserById(userId);
         if (getUserResult.IsError)
         {
             return NotFound(getUserResult.FirstError.Description);
@@ -211,7 +211,7 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest("Wrong user id format");
         };
-        var getUserResult = await _usersRepo.GetUserById(userId);
+        var getUserResult = await _usersService.GetUserById(userId);
         if (getUserResult.IsError)
         {
             return BadRequest(getUserResult.FirstError.Description);
@@ -257,7 +257,7 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest("Wrong user id format");
         };
-        var getUserResult = await _usersRepo.GetUserById(userId);
+        var getUserResult = await _usersService.GetUserById(userId);
         if (getUserResult.IsError)
         {
             return NotFound(getUserResult.FirstError.Description);
@@ -274,9 +274,9 @@ public class ArticlesController : ControllerBase
             return Forbid();
         }
         var deleteArticleResult = await _articlesService.Delete(id);
-        if (getArticleResult.IsError)
+        if (deleteArticleResult.IsError)
         {
-            return NotFound(getArticleResult.FirstError.Description);
+            return NotFound(deleteArticleResult.FirstError.Description);
         }
         return NoContent();
     }
