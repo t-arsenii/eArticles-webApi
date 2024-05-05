@@ -2,7 +2,7 @@
 using eArticles.API.Models;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.Users;
 
 public interface IUserService
 {

@@ -2,7 +2,6 @@ using eArticles.API.Contracts.Article;
 using eArticles.API.Extensions;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
-using eArticles.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +12,8 @@ using System.Text.Json;
 using System.Xml.Linq;
 using System.Drawing.Imaging;
 using System.IO;
+using eArticles.API.Services.Articles;
+using eArticles.API.Services.Users;
 
 namespace eArticles.API.Controllers;
 

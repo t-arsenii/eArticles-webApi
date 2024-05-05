@@ -1,7 +1,8 @@
 using eArticles.API.Contracts.Article;
 using eArticles.API.Controllers;
 using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.Articles;
+using eArticles.API.Persistance.Users;
 using eArticles.Tests.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

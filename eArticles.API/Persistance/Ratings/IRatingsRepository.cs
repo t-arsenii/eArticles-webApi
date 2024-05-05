@@ -1,7 +1,7 @@
 ﻿using eArticles.API.Models;
 using ErrorOr;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Ratings;
 
 public interface IRatingsRepository
 {

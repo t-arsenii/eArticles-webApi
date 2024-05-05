@@ -1,7 +1,8 @@
 ﻿using eArticles.API.Contracts.Article;
 using eArticles.API.Contracts.Rating;
 using eArticles.API.Models;
-using eArticles.API.Services;
+using eArticles.API.Services.Ratings;
+using eArticles.API.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

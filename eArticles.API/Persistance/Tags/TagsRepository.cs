@@ -5,7 +5,7 @@ using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Tags;
 
 public class TagsRepository : ITagsRepository
 {
@@ -59,7 +59,7 @@ public class TagsRepository : ITagsRepository
     public async Task<ErrorOr<Tag>> GetByTitle(string title)
     {
         var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Title == title);
-        if(tag is null)
+        if (tag is null)
         {
             return Error.NotFound(description: $"Tag is not found (tag title: {title})");
         }

@@ -1,7 +1,7 @@
 ﻿using eArticles.API.Contracts.Tag;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
-using eArticles.API.Services;
+using eArticles.API.Services.Tags;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

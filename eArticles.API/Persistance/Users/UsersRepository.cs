@@ -4,7 +4,7 @@ using eArticles.API.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Users;
 
 public class UsersRepository : IUsersRepository
 {
@@ -47,7 +47,7 @@ public class UsersRepository : IUsersRepository
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null)
         {
-            return Error.NotFound(description:$"User is not found (userName: {userName})");
+            return Error.NotFound(description: $"User is not found (userName: {userName})");
         }
         return user;
     }

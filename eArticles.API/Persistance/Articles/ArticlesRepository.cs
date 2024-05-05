@@ -3,7 +3,7 @@ using eArticles.API.Models;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Articles;
 
 public class ArticlesRepository : IArticlesRepository
 {

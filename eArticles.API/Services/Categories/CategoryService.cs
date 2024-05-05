@@ -1,8 +1,8 @@
 ﻿using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.Categories;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.Categories;
 
 public class CategoryService : ICategoryService
 {

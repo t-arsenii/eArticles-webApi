@@ -1,6 +1,6 @@
 ﻿using eArticles.API.Contracts.ContentType;
 using eArticles.API.Models;
-using eArticles.API.Services;
+using eArticles.API.Services.ContentTypes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

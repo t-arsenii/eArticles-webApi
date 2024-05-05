@@ -1,9 +1,12 @@
 ﻿using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.Articles;
+using eArticles.API.Persistance.Categories;
+using eArticles.API.Persistance.Tags;
+using eArticles.API.Services.ContentTypes;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.Articles;
 
 public class ArticleService : IArticleService
 {

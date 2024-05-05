@@ -1,8 +1,8 @@
 ﻿using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.ContentTypes;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.ContentTypes;
 
 public class ContentTypeService : IContentTypeService
 {

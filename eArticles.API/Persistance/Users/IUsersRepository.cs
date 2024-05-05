@@ -3,7 +3,7 @@ using eArticles.API.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Users;
 
 public interface IUsersRepository
 {

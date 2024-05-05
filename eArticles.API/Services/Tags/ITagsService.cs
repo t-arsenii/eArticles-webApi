@@ -1,9 +1,9 @@
-﻿using eArticles.API.Contracts.User;
-using eArticles.API.Models;
+﻿using eArticles.API.Models;
 using ErrorOr;
-using Microsoft.AspNetCore.Identity;
-namespace eArticles.API.Persistance;
-public interface ITagsRepository
+
+namespace eArticles.API.Services.Tags;
+
+public interface ITagsService
 {
     Task<ErrorOr<Tag>> Create(Tag tag);
     Task<ErrorOr<Tag>> Update(Tag tag);

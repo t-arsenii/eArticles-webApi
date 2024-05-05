@@ -1,14 +1,14 @@
 ﻿using Azure;
 using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.Tags;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.Tags;
 
 public class TagsService : ITagsService
 {
     ITagsRepository _tagsRepository;
-public TagsService(ITagsRepository tagsRepository)
+    public TagsService(ITagsRepository tagsRepository)
     {
         _tagsRepository = tagsRepository;
     }

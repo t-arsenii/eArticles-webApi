@@ -3,7 +3,7 @@ using eArticles.API.Models;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Categories;
 
 public class CategoriesRepository : ICategoriesRepository
 {
@@ -34,7 +34,7 @@ public class CategoriesRepository : ICategoriesRepository
     public async Task<ErrorOr<IEnumerable<Category>>> GetAll()
     {
         var categories = await _dbContext.Categories.ToListAsync();
-        if(!categories.Any())
+        if (!categories.Any())
         {
             return Error.NotFound(description: $"Categories are not found");
         }
@@ -44,7 +44,7 @@ public class CategoriesRepository : ICategoriesRepository
     public async Task<ErrorOr<Category>> GetById(Guid id)
     {
         var category = await _dbContext.Categories.FindAsync(id);
-        if(category is null)
+        if (category is null)
         {
             return Error.NotFound(description: $"Category is not found (category id: {id})");
         }
@@ -54,7 +54,7 @@ public class CategoriesRepository : ICategoriesRepository
     public async Task<ErrorOr<Category>> GetByTitle(string title)
     {
         var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Title == title);
-        if(category is null)
+        if (category is null)
         {
             return Error.NotFound(description: $"Category is not found (category title: {title})");
         }

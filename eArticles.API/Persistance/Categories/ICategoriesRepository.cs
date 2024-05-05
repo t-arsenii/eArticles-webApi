@@ -1,9 +1,9 @@
 ﻿using eArticles.API.Models;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Persistance.Categories;
 
-public interface ICategoryService
+public interface ICategoriesRepository
 {
     public Task<ErrorOr<Category>> GetById(Guid id);
     public Task<ErrorOr<Category>> GetByTitle(string title);

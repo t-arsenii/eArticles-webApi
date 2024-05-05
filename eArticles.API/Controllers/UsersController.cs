@@ -2,7 +2,7 @@ using eArticles.API.Contracts.Auth;
 using eArticles.API.Contracts.User;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
-using eArticles.API.Services;
+using eArticles.API.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

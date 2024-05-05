@@ -1,8 +1,10 @@
 ﻿using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.Articles;
+using eArticles.API.Persistance.Ratings;
+using eArticles.API.Persistance.Users;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.Ratings;
 
 public class RatingService : IRatingService
 {
@@ -104,7 +106,7 @@ public class RatingService : IRatingService
         var rating = getRatingResult.Value;
 
         rating.Value = updateRating.Value;
-        
+
         var updateRatingResult = await _ratingsRepository.Update(rating);
         if (updateRatingResult.IsError)
         {

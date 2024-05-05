@@ -2,7 +2,7 @@ using eArticles.API.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
-namespace eArticles.API.Persistance;
+namespace eArticles.API.Persistance.Articles;
 
 public interface IArticlesRepository
 {

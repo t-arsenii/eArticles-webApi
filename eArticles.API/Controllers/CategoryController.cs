@@ -2,7 +2,7 @@
 using eArticles.API.Data;
 using eArticles.API.Models;
 using eArticles.API.Persistance;
-using eArticles.API.Services;
+using eArticles.API.Services.Categories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

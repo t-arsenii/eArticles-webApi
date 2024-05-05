@@ -1,9 +1,9 @@
 ﻿using eArticles.API.Contracts.Auth;
 using eArticles.API.Models;
-using eArticles.API.Persistance;
+using eArticles.API.Persistance.Users;
 using ErrorOr;
 
-namespace eArticles.API.Services;
+namespace eArticles.API.Services.Users;
 
 public class UserService : IUserService
 {
