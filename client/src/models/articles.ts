@@ -11,6 +11,7 @@ export interface IArticle {
     category: string,
     imgName: string,
     tags: string[] | null,
+    averageRating: number
 }
 export interface IArticleCreateForm {
     title: string,

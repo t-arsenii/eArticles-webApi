@@ -1,4 +1,4 @@
-import { Box, Chip, ListItem, Stack, Typography } from "@mui/material"
+import { Box, Chip, ListItem, Rating, Stack, Typography } from "@mui/material"
 import { IArticle } from "../models/articles"
 import { useEffect, useState } from "react"
 import axios from "axios"
@@ -70,7 +70,7 @@ export default function FullArticle() {
                             </Box>
                             <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
                         </Box>
-                        <Box sx={{ display: "flex", marginY: "20px" }}>
+                        <Box sx={{ marginY: "20px" }}>
                             <Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}>
                                 <Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.contentType}</Typography>
                             </Box>
@@ -116,6 +116,22 @@ export default function FullArticle() {
                                 backgroundPosition: "center",
                                 backgroundRepeat: "no-repeat"
                             }}></Box>
+                            <Box>
+                                <Stack direction="row">
+                                    <Typography>Rate this article:</Typography>
+                                    <Rating
+                                        name="simple-controlled"
+                                        value={article.averageRating}
+                                        onChange={(event, newValue) => {
+
+                                        }}
+                                        precision={0.5}
+                                        size="medium"
+                                        sx={{ marginLeft: "5px", marginRight: "3px" }}
+                                    />
+                                    <Typography fontSize="20px" sx={{color:"#4287f5"}}>{article.averageRating}</Typography>
+                                </Stack>
+                            </Box>
                             <Box>
                                 <Typography sx={{ width: "100%", wordWrap: "break-word", fontSize: "18px", lineHeight: "29px", fontFamily: "Times New Roman" }} variant="body1" dangerouslySetInnerHTML={{ __html: article.content }} />
                             </Box>
