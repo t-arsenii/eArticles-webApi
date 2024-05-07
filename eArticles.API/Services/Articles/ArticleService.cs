@@ -2,6 +2,7 @@
 using eArticles.API.Persistance.Articles;
 using eArticles.API.Persistance.Categories;
 using eArticles.API.Persistance.Tags;
+using eArticles.API.Persistance.Users;
 using eArticles.API.Services.ContentTypes;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
@@ -14,16 +15,19 @@ public class ArticleService : IArticleService
     IContentTypeService _contentTypeRepository;
     ICategoriesRepository _categoryRepository;
     ITagsRepository _tagsRepository;
+    IUsersRepository _usersRepository;
     public ArticleService(
         IArticlesRepository articlesRepository,
         IContentTypeService contentTypeRepository,
         ICategoriesRepository categoryRepository,
-        ITagsRepository tagsRepository)
+        ITagsRepository tagsRepository,
+        IUsersRepository usersRepository)
     {
         _articlesRepository = articlesRepository;
         _contentTypeRepository = contentTypeRepository;
         _tagsRepository = tagsRepository;
         _categoryRepository = categoryRepository;
+        _usersRepository = usersRepository;
     }
 
     public async Task<ErrorOr<Article>> Create(
@@ -124,7 +128,7 @@ public class ArticleService : IArticleService
                 var getTagResult = await _tagsRepository.GetById(tagId);
                 if (getTagResult.IsError)
                 {
-                    return getArticleResult.Errors;
+                    return getTagResult.Errors;
                 }
             }
         }
@@ -143,6 +147,26 @@ public class ArticleService : IArticleService
         {
             return updateArticleResult.Errors;
         }
-        return updateArticleResult.Value;
+        return updateArticle;
+    }
+    public async Task<ErrorOr<bool>> UserHasAccess(Guid userId, Guid articleId)
+    {
+        var getUserResult = await _usersRepository.GetUserById(userId);
+        if (getUserResult.IsError)
+        {
+            return getUserResult.Errors;
+        }
+        var getArticleResult = await _articlesRepository.GetById(articleId);
+        if (getArticleResult.IsError)
+        {
+            return getArticleResult.Errors;
+        }
+        var article = getArticleResult.Value;
+        var user = getUserResult.Value;
+        if (article.UserId == user.Id)
+        {
+            return true;
+        }
+        return false;
     }
 }

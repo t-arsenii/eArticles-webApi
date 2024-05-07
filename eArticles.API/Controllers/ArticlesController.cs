@@ -198,7 +198,7 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateArticleRequest updateArticleDto)
+    public async Task<IActionResult> Update([FromRoute(Name = "id")] Guid articleId, [FromBody] UpdateArticleRequest updateArticleDto)
     {
         if (!ModelState.IsValid)
         {
@@ -212,32 +212,26 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest("Wrong user id format");
         };
-        var getUserResult = await _usersService.GetUserById(userId);
-        if (getUserResult.IsError)
+        var userHasAccessResult = await _articlesService.UserHasAccess(userId, articleId);
+        if (userHasAccessResult.IsError)
         {
-            return BadRequest(getUserResult.FirstError.Description);
+            return NotFound(userHasAccessResult.FirstError.Description);
         }
-        var getArticleResult = await _articlesService.GetById(id);
-        if (getArticleResult.IsError)
-        {
-            return NotFound(getArticleResult.FirstError.Description);
-        }
-        var article = getArticleResult.Value;
-        var user = getUserResult.Value;
-        if (article.UserId != user.Id)
+        bool UserHasAccess = userHasAccessResult.Value;
+        if (!UserHasAccess)
         {
             return Forbid();
         }
         var articleToUpdate = new Article()
         {
+            Id = articleId,
+            UserId = userId,
             Title = updateArticleDto.Title,
             Description = updateArticleDto.Description,
             Content = updateArticleDto.Content,
             CategoryId = updateArticleDto.CategoryId,
             ContentTypeId = updateArticleDto.ContentTypeId
         };
-        articleToUpdate.Id = article.Id;
-        articleToUpdate.User = article.User;
         var updatedArticleResult = await _articlesService.Update(articleToUpdate, updateArticleDto.TagIds);
         if (updatedArticleResult.IsError)
         {
@@ -258,19 +252,13 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest("Wrong user id format");
         };
-        var getUserResult = await _usersService.GetUserById(userId);
-        if (getUserResult.IsError)
+        var userHasAccessResult = await _articlesService.UserHasAccess(userId, articleId);
+        if (userHasAccessResult.IsError)
         {
-            return NotFound(getUserResult.FirstError.Description);
+            return NotFound(userHasAccessResult.FirstError.Description);
         }
-        var getArticleResult = await _articlesService.GetById(id);
-        if (getArticleResult.IsError)
-        {
-            return NotFound(getUserResult.FirstError.Description);
-        }
-        var article = getArticleResult.Value;
-        var user = getUserResult.Value;
-        if (article.UserId != user.Id)
+        bool UserHasAccess = userHasAccessResult.Value;
+        if (!UserHasAccess)
         {
             return Forbid();
         }

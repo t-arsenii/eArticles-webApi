@@ -41,6 +41,7 @@ public class ArticlesRepository : IArticlesRepository
             .Include(ar => ar.ContentType)
             .Include(ar => ar.Category)
             .Include(ar => ar.Ratings)
+            .AsNoTracking()
             .FirstOrDefaultAsync(ar => ar.Id == id);
         if (article is null)
         {
@@ -111,10 +112,10 @@ public class ArticlesRepository : IArticlesRepository
         return await _dbContext.Articles.Where(ar => ar.UserId == userId).CountAsync();
     }
 
-    public async Task<ErrorOr<Article>> Update(Article updateArticle)
+    public async Task<ErrorOr<Updated>> Update(Article updateArticle)
     {
         _dbContext.Articles.Update(updateArticle);
         await _dbContext.SaveChangesAsync();
-        return updateArticle;
+        return Result.Updated;
     }
 }

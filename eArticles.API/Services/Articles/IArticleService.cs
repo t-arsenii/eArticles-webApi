@@ -22,4 +22,5 @@ public interface IArticleService
         Article updateArticle,
         IEnumerable<Guid>? tagIds = null);
     public Task<ErrorOr<Article>> Delete(Guid id);
+    Task<ErrorOr<bool>> UserHasAccess(Guid userId, Guid ratingId);
 }

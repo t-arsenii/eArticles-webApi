@@ -18,6 +18,6 @@ public interface IArticlesRepository
         IEnumerable<Guid>? tagIds = null
     );
     public Task<ErrorOr<int>> GetTotalItems(Guid? userId = null);
-    public Task<ErrorOr<Article>> Update(Article updateArticle);
+    public Task<ErrorOr<Updated>> Update(Article updateArticle);
     public Task<ErrorOr<Article>> Delete(Guid id);
 }

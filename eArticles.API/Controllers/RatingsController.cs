@@ -62,7 +62,12 @@ public class RatingsController : ControllerBase
         var userHasAccessResult = await _ratingService.UserHasAccess(userId, ratingId);
         if (userHasAccessResult.IsError)
         {
-            return NotFound(userHasAccessResult.FirstError);
+            return NotFound(userHasAccessResult.FirstError.Description);
+        }
+        bool UserHasAccess = userHasAccessResult.Value;
+        if (!UserHasAccess)
+        {
+            return Forbid();
         }
         var rating = new Rating()
         {
