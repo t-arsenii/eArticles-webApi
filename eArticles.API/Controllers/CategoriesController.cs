@@ -12,10 +12,10 @@ namespace eArticles.API.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Authorize(Roles = "Admin")]
-public class CategoryController : ControllerBase
+public class CategoriesController : ControllerBase
 {
     ICategoryService _categoryService;
-    public CategoryController(ICategoryService categoryService)
+    public CategoriesController(ICategoryService categoryService)
     {
         _categoryService = categoryService;
     }

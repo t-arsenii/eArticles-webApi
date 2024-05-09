@@ -10,10 +10,10 @@ namespace eArticles.API.Controllers;
 [Authorize(Roles = "Admin")]
 [ApiController]
 [Route("api/[controller]")]
-public class ContentTypeController : ControllerBase
+public class ContentTypesController : ControllerBase
 {
     IContentTypeService _contentTypeService;
-    public ContentTypeController(IContentTypeService contentTypeService)
+    public ContentTypesController(IContentTypeService contentTypeService)
     {
         _contentTypeService = contentTypeService;
     }

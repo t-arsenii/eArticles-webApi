@@ -2,6 +2,7 @@ using eArticles.API.Data;
 using eArticles.API.Models;
 using eArticles.API.Persistance.Articles;
 using eArticles.API.Persistance.Categories;
+using eArticles.API.Persistance.Comments;
 using eArticles.API.Persistance.ContentTypes;
 using eArticles.API.Persistance.Ratings;
 using eArticles.API.Persistance.Tags;
@@ -9,6 +10,7 @@ using eArticles.API.Persistance.Users;
 using eArticles.API.Services;
 using eArticles.API.Services.Articles;
 using eArticles.API.Services.Categories;
+using eArticles.API.Services.Comments;
 using eArticles.API.Services.ContentTypes;
 using eArticles.API.Services.Ratings;
 using eArticles.API.Services.Tags;
@@ -66,6 +68,7 @@ builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<IContentTypeRepository, ContentTypeRepository>();
 builder.Services.AddScoped<IRatingsRepository, RatingsRepository>();
+builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ITagsService, TagsService>();
@@ -73,6 +76,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IContentTypeService, ContentTypeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 builder.Services
     .AddIdentity<User, IdentityRole<Guid>>(options =>
