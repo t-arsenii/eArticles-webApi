@@ -242,7 +242,7 @@ public class ArticlesController : ControllerBase
 
     [Authorize]
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete([FromRoute(Name = "id")] Guid articleId)
     {
         Guid userId;
         if (!Guid.TryParse(
@@ -262,7 +262,7 @@ public class ArticlesController : ControllerBase
         {
             return Forbid();
         }
-        var deleteArticleResult = await _articlesService.Delete(id);
+        var deleteArticleResult = await _articlesService.Delete(articleId);
         if (deleteArticleResult.IsError)
         {
             return NotFound(deleteArticleResult.FirstError.Description);

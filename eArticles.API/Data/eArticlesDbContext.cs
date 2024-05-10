@@ -13,6 +13,8 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
     public DbSet<ContentType> ContentTypes => Set<ContentType>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Rating> Ratings => Set<Rating>();
+    public DbSet<Comment> Comments => Set<Comment>();
+
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
         : base(options) { }
 
@@ -26,39 +28,30 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
             .WithMany(e => e.Articles)
             .UsingEntity<ArticleTag>();
 
-        modelBuilder
-            .Entity<Article>()
-            .HasOne(e => e.ContentType)
-            .WithMany(e => e.Articles);
+        modelBuilder.Entity<Article>().HasOne(e => e.ContentType).WithMany(e => e.Articles);
 
-        modelBuilder
-            .Entity<Article>()
-            .HasOne(e => e.Category)
-            .WithMany(e => e.Articles);
+        modelBuilder.Entity<Article>().HasOne(e => e.Category).WithMany(e => e.Articles);
 
-        modelBuilder
-            .Entity<Tag>()
-            .HasIndex(t => t.Title).IsUnique();
+        modelBuilder.Entity<Tag>().HasIndex(t => t.Title).IsUnique();
 
-        modelBuilder
-            .Entity<ContentType>()
-            .HasIndex(e => e.Title)
-            .IsUnique();
+        modelBuilder.Entity<ContentType>().HasIndex(e => e.Title).IsUnique();
 
-        modelBuilder
-            .Entity<Category>()
-            .HasIndex(e => e.Title)
-            .IsUnique();
+        modelBuilder.Entity<Category>().HasIndex(e => e.Title).IsUnique();
 
         modelBuilder
             .Entity<User>()
             .HasMany(user => user.Articles)
             .WithOne(article => article.User)
-            .HasForeignKey(article => article.UserId);
+            .HasForeignKey(article => article.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Rating>().HasIndex(e => new { e.UserId, e.ArticleId }).IsUnique();
 
         modelBuilder
-            .Entity<Rating>()
-            .HasIndex(e => new { e.UserId, e.ArticleId })
-            .IsUnique();
+            .Entity<Comment>()
+            .HasOne(e => e.ParentComment)
+            .WithMany(e => e.ChildComments)
+            .HasForeignKey(e => e.ParentCommentId)
+            .IsRequired(false);
     }
 }
