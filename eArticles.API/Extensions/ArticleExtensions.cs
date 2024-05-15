@@ -21,6 +21,7 @@ public static class ArticleExtensions
              ImgName: imageName,
              AverageRating: article.AverageRating,
              Tags: tagNames,
+             viewsCount: article.ViewsCount,
              User: new UserResponse(
                  article.User.Id.ToString(),
                  article.User.FirstName,

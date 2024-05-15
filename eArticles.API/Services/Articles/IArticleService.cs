@@ -23,4 +23,5 @@ public interface IArticleService
         IEnumerable<Guid>? tagIds = null);
     public Task<ErrorOr<Article>> Delete(Guid id);
     Task<ErrorOr<bool>> UserHasAccess(Guid userId, Guid ratingId);
+    Task<ErrorOr<Updated>> IncrementViews(Guid articleId);
 }

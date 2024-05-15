@@ -16,12 +16,14 @@ public class ArticleService : IArticleService
     ICategoriesRepository _categoryRepository;
     ITagsRepository _tagsRepository;
     IUsersRepository _usersRepository;
+
     public ArticleService(
         IArticlesRepository articlesRepository,
         IContentTypeService contentTypeRepository,
         ICategoriesRepository categoryRepository,
         ITagsRepository tagsRepository,
-        IUsersRepository usersRepository)
+        IUsersRepository usersRepository
+    )
     {
         _articlesRepository = articlesRepository;
         _contentTypeRepository = contentTypeRepository;
@@ -30,9 +32,7 @@ public class ArticleService : IArticleService
         _usersRepository = usersRepository;
     }
 
-    public async Task<ErrorOr<Article>> Create(
-        Article newArticle,
-        IEnumerable<Guid>? tagIds = null)
+    public async Task<ErrorOr<Article>> Create(Article newArticle, IEnumerable<Guid>? tagIds = null)
     {
         if (tagIds != null && tagIds.Any())
         {
@@ -94,9 +94,18 @@ public class ArticleService : IArticleService
         Guid? contentTypeId = null,
         Guid? categoryId = null,
         string? order = null,
-        IEnumerable<Guid>? tagIds = null)
+        IEnumerable<Guid>? tagIds = null
+    )
     {
-        var getArticlePageResult = await _articlesRepository.GetPage(currentPage, pageSize, userId, contentTypeId, categoryId, order, tagIds);
+        var getArticlePageResult = await _articlesRepository.GetPage(
+            currentPage,
+            pageSize,
+            userId,
+            contentTypeId,
+            categoryId,
+            order,
+            tagIds
+        );
         if (getArticlePageResult.IsError)
         {
             return getArticlePageResult.Errors;
@@ -114,7 +123,23 @@ public class ArticleService : IArticleService
         return getTotalItemsResult.Value;
     }
 
-    public async Task<ErrorOr<Article>> Update(Article updateArticle, IEnumerable<Guid>? tagIds = null)
+    public async Task<ErrorOr<Updated>> IncrementViews(Guid articleId)
+    {
+        var getArticleResult = await _articlesRepository.GetById(articleId);
+        if (getArticleResult.IsError)
+        {
+            return getArticleResult.Errors;
+        }
+        var article = getArticleResult.Value;
+        article.ViewsCount++;
+        await _articlesRepository.Update(article);
+        return Result.Updated;
+    }
+
+    public async Task<ErrorOr<Article>> Update(
+        Article updateArticle,
+        IEnumerable<Guid>? tagIds = null
+    )
     {
         var getArticleResult = await _articlesRepository.GetById(updateArticle.Id);
         if (getArticleResult.IsError)
@@ -132,7 +157,9 @@ public class ArticleService : IArticleService
                 }
             }
         }
-        var getContentTypeResult = await _contentTypeRepository.GetById(updateArticle.ContentTypeId);
+        var getContentTypeResult = await _contentTypeRepository.GetById(
+            updateArticle.ContentTypeId
+        );
         var getCategoryResult = await _categoryRepository.GetById(updateArticle.CategoryId);
         if (getContentTypeResult.IsError)
         {
@@ -149,6 +176,7 @@ public class ArticleService : IArticleService
         }
         return updateArticle;
     }
+
     public async Task<ErrorOr<bool>> UserHasAccess(Guid userId, Guid articleId)
     {
         var getUserResult = await _usersRepository.GetUserById(userId);

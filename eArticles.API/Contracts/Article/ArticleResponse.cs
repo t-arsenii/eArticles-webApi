@@ -13,6 +13,7 @@ public sealed record ArticleResponse(
     string PublishedDate,
     string ImgName,
     double AverageRating,
+    int viewsCount,
     IEnumerable<string>? Tags,
     UserResponse User
 );
