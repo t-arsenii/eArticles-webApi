@@ -41,7 +41,6 @@ public class ArticlesRepository : IArticlesRepository
             .Include(ar => ar.ContentType)
             .Include(ar => ar.Category)
             .Include(ar => ar.Ratings)
-            .AsNoTracking()
             .FirstOrDefaultAsync(ar => ar.Id == id);
         if (article is null)
         {
