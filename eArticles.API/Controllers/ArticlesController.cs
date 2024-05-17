@@ -185,7 +185,15 @@ public class ArticlesController : ControllerBase
         }
         else
         {
-            path = Path.Combine(_environment.WebRootPath, "images", articleRequest.image.FileName);
+            string imageGuid = Guid.NewGuid().ToString();
+            string imageDate = DateTime.Now.ToString("ddmmyy");
+            string imageName =
+                "image-"
+                + imageDate
+                + "-"
+                + imageGuid
+                + Path.GetExtension(articleRequest.image.FileName);
+            path = Path.Combine(_environment.WebRootPath, "images", imageName);
             using (var stream = articleRequest.image.OpenReadStream())
             {
                 var newImage = new Bitmap(stream);
