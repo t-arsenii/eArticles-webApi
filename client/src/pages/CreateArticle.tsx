@@ -79,7 +79,7 @@ export default function CreateArticle() {
     }
     const fetchCategories = async () => {
         try {
-            const { data } = await axios.get<ICategory[]>("http://localhost:5000/api/category");
+            const { data } = await axios.get<ICategory[]>("http://localhost:5000/api/categories");
             setAllCategories(data);
             setCategoryId(data[0].id);
         } catch (err: any) {
@@ -88,7 +88,7 @@ export default function CreateArticle() {
     }
     const fetchContentTypes = async () => {
         try {
-            const { data } = await axios.get<IContentType[]>("http://localhost:5000/api/contentType");
+            const { data } = await axios.get<IContentType[]>("http://localhost:5000/api/contentTypes");
             setAllContentTypes(data);
             setContentTypeId(data[0].id);
         } catch (err: any) {
