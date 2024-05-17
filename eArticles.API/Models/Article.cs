@@ -20,4 +20,5 @@ public class Article
     public double AverageRating { get; set; }
     public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
     public int ViewsCount { get; set; }
+    public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
 }

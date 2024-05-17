@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eArticles.API.Data;
 
@@ -11,9 +12,11 @@ using eArticles.API.Data;
 namespace eArticles.API.Migrations
 {
     [DbContext(typeof(eArticlesDbContext))]
-    partial class eArticlesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240517101201_bookmark_model")]
+    partial class bookmarkmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +29,9 @@ namespace eArticles.API.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArticldeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArticleId")
@@ -41,8 +47,7 @@ namespace eArticles.API.Migrations
 
                     b.HasIndex("ArticleId");
 
-                    b.HasIndex("UserId", "ArticleId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bookmarks");
                 });
@@ -426,7 +431,7 @@ namespace eArticles.API.Migrations
             modelBuilder.Entity("Bookmark", b =>
                 {
                     b.HasOne("eArticles.API.Models.Article", "Article")
-                        .WithMany("Bookmarks")
+                        .WithMany()
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -577,8 +582,6 @@ namespace eArticles.API.Migrations
 
             modelBuilder.Entity("eArticles.API.Models.Article", b =>
                 {
-                    b.Navigation("Bookmarks");
-
                     b.Navigation("Ratings");
                 });
 
