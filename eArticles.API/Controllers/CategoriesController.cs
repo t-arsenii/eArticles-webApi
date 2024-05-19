@@ -8,11 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eArticles.API.Controllers;
-[ApiController]
-[Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
 [Authorize(Roles = "Admin")]
-public class CategoriesController : ControllerBase
+public class CategoriesController : ApiController
 {
     ICategoryService _categoryService;
     public CategoriesController(ICategoryService categoryService)

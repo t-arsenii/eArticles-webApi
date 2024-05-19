@@ -6,11 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eArticles.API.Controllers;
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
 [Authorize(Roles = "Admin")]
-[ApiController]
-[Route("api/[controller]")]
-public class ContentTypesController : ControllerBase
+public class ContentTypesController : ApiController
 {
     IContentTypeService _contentTypeService;
     public ContentTypesController(IContentTypeService contentTypeService)

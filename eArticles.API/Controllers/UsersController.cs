@@ -12,23 +12,19 @@ using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace eArticles.API.Controllers;
 
-[Route("api/[controller]")]
-[ApiController]
-public class UsersController : ControllerBase
+public class UsersController : ApiController
 {
     IUserService _userService;
+
     public UsersController(IUserService userService)
     {
         _userService = userService;
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         var user = new User()
         {
             FirstName = createUserDto.FirstName,
@@ -53,28 +49,27 @@ public class UsersController : ControllerBase
             return BadRequest(addRoleResult.FirstError.Description);
         }
         var createdUser = getUserResult.Value;
-        var userResponse = new UserResponse(Id: createdUser.Id.ToString(),
-                              FirstName: createdUser.FirstName,
-                              LastName: createdUser.LastName,
-                              UserName: createdUser.LastName,
-                              Email: createdUser.Email,
-                              PhoneNumber: createdUser.PhoneNumber);
+        var userResponse = new UserResponse(
+            Id: createdUser.Id.ToString(),
+            FirstName: createdUser.FirstName,
+            LastName: createdUser.LastName,
+            UserName: createdUser.LastName,
+            Email: createdUser.Email,
+            PhoneNumber: createdUser.PhoneNumber
+        );
 
-        return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = userResponse.Id }, value: userResponse);
+        return CreatedAtAction(
+            actionName: (nameof(GetById)),
+            routeValues: new { id = userResponse.Id },
+            value: userResponse
+        );
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet]
     public async Task<IActionResult> GetByToken()
     {
-        Guid userId;
-        if (!Guid.TryParse(
-           User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-           out userId
-       ))
-        {
-            return BadRequest("Wrong user id format");
-        }
+        Guid userId = GetLoggedUserId();
+
         var getUserResult = await _userService.GetUserById(userId);
         if (getUserResult.IsError)
         {
@@ -94,6 +89,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id)
     {
         var getUserResult = await _userService.GetUserById(id);
@@ -115,6 +111,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{username}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByUserName(string username)
     {
         var getUserResult = await _userService.GetUserByUserName(username);
@@ -135,6 +132,7 @@ public class UsersController : ControllerBase
         );
     }
 
+    [AllowAnonymous]
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] AuthenticationRequest userData)
     {

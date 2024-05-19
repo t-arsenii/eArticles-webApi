@@ -1,4 +1,5 @@
 using eArticles.API.Data;
+using eArticles.API.Middleware;
 using eArticles.API.Models;
 using eArticles.API.Persistance.Articles;
 using eArticles.API.Persistance.Bookmarks;
@@ -83,6 +84,8 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IBookmarksService, BookmarksService>();
 
+builder.Services.AddScoped<ResizeImageService>();
+
 builder.Services
     .AddIdentity<User, IdentityRole<Guid>>(options =>
     {
@@ -135,6 +138,7 @@ app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<GetUserIdMiddleware>();
 app.MapControllers();
 bool cmdLineInit = (app.Configuration["INITDB"] ?? "false") == "true";
 if (app.Environment.IsDevelopment())

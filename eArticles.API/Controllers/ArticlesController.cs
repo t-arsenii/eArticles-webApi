@@ -17,10 +17,7 @@ using eArticles.API.Services.Users;
 
 namespace eArticles.API.Controllers;
 
-[Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[ApiController]
-public class ArticlesController : ControllerBase
+public class ArticlesController : ApiController
 {
     readonly IArticleService _articlesService;
     readonly IUserService _usersService;
@@ -39,7 +36,7 @@ public class ArticlesController : ControllerBase
 
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         var getArticleResult = await _articlesService.GetById(id);
         if (getArticleResult.IsError)
@@ -49,8 +46,10 @@ public class ArticlesController : ControllerBase
         return Ok(getArticleResult.Value.AsDto());
     }
 
-    [HttpGet("my")]
+    [HttpGet("user/{id:guid}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetUserPage(
+        [FromRoute(Name = "id")] Guid userId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
         [FromQuery] Guid? contentTypeId = null,
@@ -63,33 +62,53 @@ public class ArticlesController : ControllerBase
         {
             return NotFound("PageNumber can't be less or equal to 0");
         }
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
-        var getUserResult = await _usersService.GetUserById(userId);
-        if (getUserResult.IsError)
-        {
-            return BadRequest(getUserResult.FirstError.Description);
-        }
-        var user = getUserResult.Value;
         var getArticlesPageResult = await _articlesService.GetPage(
-            pageNumber,
-            pageSize,
-            userId: user.Id,
+            currentPage: pageNumber,
+            pageSize: pageSize,
+            userId: userId,
             contentTypeId: contentTypeId,
             categoryId: categoryId,
             order: order,
             tagIds: tagIds
         );
-        var getTotalItemsResult = await _articlesService.GetTotalItems(user.Id);
+        var getTotalItemsResult = await _articlesService.GetTotalItems(userId);
+        if (getArticlesPageResult.IsError)
+        {
+            return NotFound(getArticlesPageResult.FirstError);
+        }
+        var articleDTOs = new List<ArticleResponse>();
+        foreach (var article in getArticlesPageResult.Value)
+        {
+            articleDTOs.Add(article.AsDto());
+        }
+        return Ok(new ArticlePageResponse(articleDTOs, getTotalItemsResult.Value));
+    }
+
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyPage(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5,
+        [FromQuery] Guid? contentTypeId = null,
+        [FromQuery] Guid? categoryId = null,
+        [FromQuery] string? order = null,
+        [FromQuery] IEnumerable<Guid>? tagIds = null
+    )
+    {
+        if (pageNumber <= 0)
+        {
+            return NotFound("PageNumber can't be less or equal to 0");
+        }
+        Guid userId = GetLoggedUserId();
+        var getArticlesPageResult = await _articlesService.GetPage(
+            pageNumber,
+            pageSize,
+            userId: userId,
+            contentTypeId: contentTypeId,
+            categoryId: categoryId,
+            order: order,
+            tagIds: tagIds
+        );
+        var getTotalItemsResult = await _articlesService.GetTotalItems(userId);
         if (getArticlesPageResult.IsError)
         {
             return NotFound(getArticlesPageResult.FirstError);
@@ -141,7 +160,10 @@ public class ArticlesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] CreateArticleRequest articleRequest)
+    public async Task<IActionResult> Create(
+        [FromForm] CreateArticleRequest articleRequest,
+        [FromServices] ResizeImageService ImageResizer
+    )
     {
         var image = articleRequest.image;
         var articleDto = JsonSerializer.Deserialize<CreateArticleRequestDto>(articleRequest.json);
@@ -153,17 +175,9 @@ public class ArticlesController : ControllerBase
         {
             return ValidationProblem(ModelState);
         }
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+
+        Guid userId = GetLoggedUserId();
+
         var getUserResult = await _usersService.GetUserById(userId);
         if (getUserResult.IsError)
         {
@@ -197,7 +211,7 @@ public class ArticlesController : ControllerBase
             using (var stream = articleRequest.image.OpenReadStream())
             {
                 var newImage = new Bitmap(stream);
-                Bitmap resizedImage = ResizeImage(newImage, 1024, 576);
+                Bitmap resizedImage = ImageResizer.ResizeImage(newImage, 1024, 576);
                 resizedImage.Save(path);
                 stream.Close();
             }
@@ -227,17 +241,8 @@ public class ArticlesController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+        Guid userId = GetLoggedUserId();
+
         var userHasAccessResult = await _articlesService.UserHasAccess(userId, articleId);
         if (userHasAccessResult.IsError)
         {
@@ -273,17 +278,8 @@ public class ArticlesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete([FromRoute(Name = "id")] Guid articleId)
     {
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+        Guid userId = GetLoggedUserId();
+
         var userHasAccessResult = await _articlesService.UserHasAccess(userId, articleId);
         if (userHasAccessResult.IsError)
         {
@@ -312,34 +308,5 @@ public class ArticlesController : ControllerBase
             return NotFound(incrementViewsResult.FirstError.Description);
         }
         return NoContent();
-    }
-
-    public static Bitmap ResizeImage(Image image, int width, int height)
-    {
-        var destImage = new Bitmap(width, height);
-
-        using (var graphics = Graphics.FromImage(destImage))
-        {
-            graphics.CompositingMode = CompositingMode.SourceCopy;
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-            float scaleX = (float)width / image.Width;
-            float scaleY = (float)height / image.Height;
-
-            float scale = Math.Max(scaleX, scaleY);
-
-            int newWidth = (int)(image.Width * scale);
-            int newHeight = (int)(image.Height * scale);
-
-            int posX = (width - newWidth) / 2;
-            int posY = (height - newHeight) / 2;
-
-            graphics.DrawImage(image, posX, posY, newWidth, newHeight);
-        }
-
-        return destImage;
     }
 }

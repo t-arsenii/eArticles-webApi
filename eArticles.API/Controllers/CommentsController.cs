@@ -7,10 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eArticles.API.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class CommentsController : ControllerBase
+public class CommentsController : ApiController
 {
     private readonly ICommentService _commentService;
 
@@ -22,17 +19,8 @@ public class CommentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCommentRequest commentRequest)
     {
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+        Guid userId = GetLoggedUserId();
+
         var comment = new Comment()
         {
             Content = commentRequest.content,
@@ -60,21 +48,27 @@ public class CommentsController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetArticleComments([FromRoute(Name = "id")] Guid articleId) {
+    public async Task<IActionResult> GetArticleComments([FromRoute(Name = "id")] Guid articleId)
+    {
         var getCommentsResult = await _commentService.GetArticleComments(articleId);
-        if(getCommentsResult.IsError){
+        if (getCommentsResult.IsError)
+        {
             return NotFound(getCommentsResult.FirstError.Description);
         }
         var commentsResponse = new List<CommentResponse>();
-        foreach(var comment in getCommentsResult.Value){
-            commentsResponse.Add(new CommentResponse(
-                id: comment.Id,
-                content: comment.Content,
-                articleId: comment.ArticleId,
-                parentCommentId: comment.ParentCommentId,
-                published_Date: comment.Published_Date,
-                userId: comment.UserId));
+        foreach (var comment in getCommentsResult.Value)
+        {
+            commentsResponse.Add(
+                new CommentResponse(
+                    id: comment.Id,
+                    content: comment.Content,
+                    articleId: comment.ArticleId,
+                    parentCommentId: comment.ParentCommentId,
+                    published_Date: comment.Published_Date,
+                    userId: comment.UserId
+                )
+            );
         }
         return Ok(commentsResponse);
-     }
+    }
 }

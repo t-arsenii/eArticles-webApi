@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using eArticles.API.Controllers;
 using eArticles.API.Persistance.Bookmarks;
 using eArticles.API.Services.Bookmarks;
 using eArticles.API.Services.Users;
@@ -6,10 +7,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class BookmarksController : ControllerBase
+namespace eArticles.API.Controllers;
+
+public class BookmarksController : ApiController
 {
     private readonly IBookmarksService _bookmarksService;
     private readonly IUserService _userService;
@@ -23,17 +23,7 @@ public class BookmarksController : ControllerBase
     [HttpPost("{id}")]
     public async Task<IActionResult> CreateBookmark([FromRoute(Name = "id")] Guid articleId)
     {
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+        Guid userId = GetLoggedUserId();
         var bookmark = new Bookmark() { UserId = userId, ArticleId = articleId };
         var createBookmarkResult = await _bookmarksService.Create(bookmark);
         if (createBookmarkResult.IsError)
@@ -46,17 +36,8 @@ public class BookmarksController : ControllerBase
     [HttpGet("my")]
     public async Task<IActionResult> GetUserBookmarks()
     {
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+        Guid userId = GetLoggedUserId();
+
         var getUserResult = await _userService.GetUserById(userId);
         if (getUserResult.IsError)
         {
@@ -85,17 +66,8 @@ public class BookmarksController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBookmark([FromRoute(Name = "id")] Guid bookmarkId)
     {
-        Guid userId;
-        if (
-            !Guid.TryParse(
-                User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value,
-                out userId
-            )
-        )
-        {
-            return BadRequest("Wrong user id format");
-        }
-        ;
+        Guid userId = GetLoggedUserId();
+
         var userHasAccessResult = await _bookmarksService.UserHasAccess(userId, bookmarkId);
         if (userHasAccessResult.IsError)
         {
@@ -110,6 +82,6 @@ public class BookmarksController : ControllerBase
         {
             return NotFound(deleteBookmarkResult.FirstError.Description);
         }
-        return NoContent(); 
+        return NoContent();
     }
 }
