@@ -6,6 +6,7 @@ using eArticles.API.Persistance.Bookmarks;
 using eArticles.API.Persistance.Categories;
 using eArticles.API.Persistance.Comments;
 using eArticles.API.Persistance.ContentTypes;
+using eArticles.API.Persistance.Followers;
 using eArticles.API.Persistance.Ratings;
 using eArticles.API.Persistance.Tags;
 using eArticles.API.Persistance.Users;
@@ -15,6 +16,7 @@ using eArticles.API.Services.Bookmarks;
 using eArticles.API.Services.Categories;
 using eArticles.API.Services.Comments;
 using eArticles.API.Services.ContentTypes;
+using eArticles.API.Services.Followers;
 using eArticles.API.Services.Ratings;
 using eArticles.API.Services.Tags;
 using eArticles.API.Services.Users;
@@ -42,29 +44,35 @@ builder.Services.AddHostedService<DbConnectionTestService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
-    });
-    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
- {
-     {
-           new OpenApiSecurityScheme
-             {
-                 Reference = new OpenApiReference
-                 {
-                     Type = ReferenceType.SecurityScheme,
-                     Id = "Bearer"
-                 }
-             },
-             new string[] {}
-     }
- });
+    opt.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme()
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+        }
+    );
+    opt.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] { }
+            }
+        }
+    );
 });
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
@@ -74,6 +82,7 @@ builder.Services.AddScoped<IRatingsRepository, RatingsRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IBookmarksRepository, BookmarksRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IFollowersRepository, FollowersRepository>();
 
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ITagsService, TagsService>();
@@ -83,6 +92,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IBookmarksService, BookmarksService>();
+builder.Services.AddScoped<IFollowersService, FollowersService>();
 
 builder.Services.AddScoped<ResizeImageService>();
 

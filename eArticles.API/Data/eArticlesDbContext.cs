@@ -15,6 +15,7 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
     public DbSet<Rating> Ratings => Set<Rating>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Bookmark> Bookmarks => Set<Bookmark>();
+    public DbSet<Follower> Followers => Set<Follower>();
 
     public eArticlesDbContext(DbContextOptions<eArticlesDbContext> options)
         : base(options) { }
@@ -29,30 +30,15 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
             .WithMany(e => e.Articles)
             .UsingEntity<ArticleTag>();
 
-        modelBuilder
-            .Entity<Article>()
-            .HasOne(e => e.ContentType)
-            .WithMany(e => e.Articles);
+        modelBuilder.Entity<Article>().HasOne(e => e.ContentType).WithMany(e => e.Articles);
 
-        modelBuilder
-            .Entity<Article>()
-            .HasOne(e => e.Category)
-            .WithMany(e => e.Articles);
+        modelBuilder.Entity<Article>().HasOne(e => e.Category).WithMany(e => e.Articles);
 
-        modelBuilder
-            .Entity<Tag>()
-            .HasIndex(t => t.Title)
-            .IsUnique();
+        modelBuilder.Entity<Tag>().HasIndex(t => t.Title).IsUnique();
 
-        modelBuilder
-            .Entity<ContentType>()
-            .HasIndex(e => e.Title)
-            .IsUnique();
+        modelBuilder.Entity<ContentType>().HasIndex(e => e.Title).IsUnique();
 
-        modelBuilder
-            .Entity<Category>()
-            .HasIndex(e => e.Title)
-            .IsUnique();
+        modelBuilder.Entity<Category>().HasIndex(e => e.Title).IsUnique();
 
         modelBuilder
             .Entity<User>()
@@ -61,10 +47,7 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
             .HasForeignKey(article => article.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder
-            .Entity<Rating>()
-            .HasIndex(e => new { e.UserId, e.ArticleId })
-            .IsUnique();
+        modelBuilder.Entity<Rating>().HasIndex(e => new { e.UserId, e.ArticleId }).IsUnique();
 
         modelBuilder
             .Entity<Comment>()
@@ -85,9 +68,32 @@ public class eArticlesDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
             .WithMany(e => e.Bookmarks)
             .HasForeignKey(e => e.UserId);
 
+        modelBuilder.Entity<Bookmark>().HasIndex(e => new { e.UserId, e.ArticleId }).IsUnique();
+
         modelBuilder
-            .Entity<Bookmark>()
-            .HasIndex(e => new { e.UserId, e.ArticleId })
+            .Entity<Follower>()
+            .HasKey(e => new { e.FollowingUserId, e.FollowedUserId })
+            .IsClustered();
+
+        modelBuilder
+            .Entity<Follower>()
+            .HasIndex(e => new { e.FollowingUserId, e.FollowedUserId })
             .IsUnique();
+
+        modelBuilder
+            .Entity<Follower>()
+            .HasOne(e => e.FollowingUser)
+            .WithMany(e => e.Followings)
+            .HasForeignKey(e => e.FollowingUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        ;
+
+        modelBuilder
+            .Entity<Follower>()
+            .HasOne(e => e.FollowedUser)
+            .WithMany(e => e.Followers)
+            .HasForeignKey(e => e.FollowedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        ;
     }
 }

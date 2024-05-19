@@ -13,10 +13,12 @@ namespace eArticles.API.Controllers;
 public class CategoriesController : ApiController
 {
     ICategoryService _categoryService;
+
     public CategoriesController(ICategoryService categoryService)
     {
         _categoryService = categoryService;
     }
+
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id)
@@ -26,8 +28,14 @@ public class CategoriesController : ApiController
         {
             return NotFound(getCategoryResult.FirstError.Description);
         }
-        return Ok(new CategoryResponse(Id: getCategoryResult.Value.Id, Title: getCategoryResult.Value.Title));
+        return Ok(
+            new CategoryResponse(
+                Id: getCategoryResult.Value.Id,
+                Title: getCategoryResult.Value.Title
+            )
+        );
     }
+
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()
@@ -44,6 +52,7 @@ public class CategoriesController : ApiController
         }
         return Ok(categoryDtos);
     }
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(CreateCategoryRequest createCategoryDto)
@@ -55,12 +64,22 @@ public class CategoriesController : ApiController
         {
             return BadRequest(createdCategory.IsError);
         }
-        var categoryResponse = new CategoryResponse(createdCategory.Value.Id, createdCategory.Value.Title);
-        return CreatedAtAction(actionName: (nameof(GetById)), routeValues: new { id = categoryResponse.Id }, value: categoryResponse);
+        var categoryResponse = new CategoryResponse(
+            createdCategory.Value.Id,
+            createdCategory.Value.Title
+        );
+        return CreatedAtAction(
+            actionName: (nameof(GetById)),
+            routeValues: new { id = categoryResponse.Id },
+            value: categoryResponse
+        );
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateCategoryRequest updateCategoryDto)
+    public async Task<IActionResult> Update(
+        [FromRoute] Guid id,
+        [FromBody] UpdateCategoryRequest updateCategoryDto
+    )
     {
         Category category = new Category() { Id = id, Title = updateCategoryDto.Title };
         var updateCategoryResult = await _categoryService.Update(category);
@@ -82,4 +101,3 @@ public class CategoriesController : ApiController
         return NoContent();
     }
 }
-
