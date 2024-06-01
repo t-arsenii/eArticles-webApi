@@ -60,7 +60,7 @@ export function Navbar() {
     });
     return (
         <AppBar position="static">
-            <Toolbar variant="dense" sx={{ justifyContent: "space-between" }}>
+            <Toolbar variant="dense" sx={{ justifyContent: "space-between", marginY:"10px" }}>
                 <Typography variant="h6" component="div">
                     <Link to="/" className='titleText'>
                         eArticles

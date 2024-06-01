@@ -30,7 +30,7 @@ export function Article({ article }: ArticleProps) {
                     image={getImagePath(article.imgName)}
                 />
                 <CardContent>
-                    <Typography variant="h6" component="div">
+                    <Typography variant="h6" component="div" color="text.primary">
                         {article.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
