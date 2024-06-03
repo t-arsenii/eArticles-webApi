@@ -1,4 +1,4 @@
-import { Box, Chip, ListItem, Rating, Stack, Typography } from "@mui/material"
+import { Box, Chip, IconButton, ListItem, Menu, MenuItem, Rating, Stack, Typography } from "@mui/material"
 import { IArticle } from "../models/articles"
 import { useEffect, useState } from "react"
 import axios from "axios"
@@ -9,13 +9,22 @@ import { useSelector } from "react-redux"
 import { RootState } from "../store/store"
 import { ConfirmationModal } from "../components/ConfirmationModal"
 import { getImagePath } from "../utils/getImagePath"
+import { CommentsSection } from "../components/CommentsSection"
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 export default function FullArticle() {
-    const [open, setOpen] = useState(false);
     const [article, setArticle] = useState<IArticle>()
     const navigate = useNavigate()
     const { id } = useParams()
     const userInfo = useSelector((state: RootState) => state.user.user)
     const token = useSelector((state: RootState) => state.user.token)
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     useEffect(() => {
         const fetchArticle = async () => {
             const resArticle = await axios.get<IArticle>(`http://localhost:5000/api/Articles/${id}`)
@@ -28,9 +37,9 @@ export default function FullArticle() {
             console.error(e);
         }
     }, [])
-    const handleDeleteButton = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        setOpen(true)
-    }
+    // const handleDeleteButton = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    //     setOpen(true)
+    // }
     const confirmDelete = async () => {
         if (!article) {
             return
@@ -64,28 +73,28 @@ export default function FullArticle() {
                 <>
                     <Stack>
                         <Box sx={{ display: "flex", justifyContent: "center", marginY: "20px" }}>
-                            <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
+                            <Box sx={{ height: "2px", backgroundColor: "black", width: "100%", margin: "0 10px", alignSelf: "center" }} />
                             <Box sx={{ color: "black", padding: "5px", width: "100px", textAlign: "center" }}>
                                 <Typography sx={{ fontSize: "30px", fontStyle: "italic", lineHeight: "5px", verticalAlign: "middle" }}>{article.category}</Typography>
                             </Box>
-                            <Box sx={{ height: "2px", backgroundColor: "black", width: "40%", margin: "0 10px", alignSelf: "center" }} />
+                            <Box sx={{ height: "2px", backgroundColor: "black", width: "100%", margin: "0 10px", alignSelf: "center" }} />
                         </Box>
-                        <Box sx={{ marginY: "20px" }}>
-                            <Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}>
-                                <Typography sx={{ fontSize: "20px", fontStyle: "italic" }}>{article.contentType}</Typography>
-                            </Box>
-                        </Box>
-                        {article.user.id === userInfo.id &&
+                        {/* {article.user.id === userInfo.id &&
                             <Stack direction="row">
                                 <Box onClick={handleDeleteButton}><DeleteIcon /></Box>
                                 <Box><Link to={`/article/edit/${article.id}`}><EditIcon /></Link></Box>
                             </Stack>
-                        }
+                        } */}
                         <Box>
                             <Typography sx={{ fontWeight: "bold" }} variant="h2">{article.title}</Typography>
                         </Box>
                         <Box>
                             <Typography variant="h5">{article.description}</Typography>
+                        </Box>
+                        <Box sx={{ marginY: "10px" }}>
+                            <Box sx={{ backgroundColor: "purple", color: "white", padding: "5px", width: "100px", textAlign: "center" }}>
+                                <Typography sx={{ fontSize: "15px", fontStyle: "italic" }}>{article.contentType}</Typography>
+                            </Box>
                         </Box>
                         <Box sx={{ marginTop: "10px" }}>
                             {article.tags && article.tags.map((tag, key) => (
@@ -118,8 +127,8 @@ export default function FullArticle() {
                             }}></Box>
                             <Box>
                                 <Stack direction="row">
-                                    <Typography>Rate this article:</Typography>
-                                    <Rating
+                                    <Box><Typography>Rate this article:</Typography></Box>
+                                    <Box><Rating
                                         name="simple-controlled"
                                         value={article.averageRating}
                                         onChange={(event, newValue) => {
@@ -127,19 +136,59 @@ export default function FullArticle() {
                                         }}
                                         precision={0.5}
                                         size="medium"
-                                        sx={{ marginLeft: "5px", marginRight: "3px" }}
-                                    />
-                                    <Typography fontSize="20px" sx={{color:"#4287f5"}}>{article.averageRating}</Typography>
+                                        sx={{ marginY: 0, marginLeft: "5px", marginRight: "3px" }}
+                                    /></Box>
+                                    <Box><Typography fontSize="20px" sx={{ color: "#4287f5", }}>{article.averageRating}</Typography></Box>
+                                    {article.user.id === userInfo.id &&
+                                        <Box>
+                                            <IconButton
+                                                sx={{ padding: 0 }}
+                                                aria-label="more"
+                                                id="long-button"
+                                                aria-controls={open ? 'long-menu' : undefined}
+                                                aria-expanded={open ? 'true' : undefined}
+                                                aria-haspopup="true"
+                                                onClick={handleClick}
+                                            >
+                                                <MoreVertIcon />
+                                            </IconButton>
+                                            <Menu
+                                                id="long-menu"
+                                                MenuListProps={{
+                                                    'aria-labelledby': 'long-button',
+                                                }}
+                                                anchorEl={anchorEl}
+                                                open={open}
+                                                onClose={handleClose}
+                                                PaperProps={{
+                                                    style: {
+                                                        maxHeight: 48 * 4.5,
+                                                        width: '20ch',
+                                                    },
+                                                }}
+                                            >
+                                                <MenuItem onClick={handleClose}>
+                                                    Edit
+                                                </MenuItem>
+                                                <MenuItem onClick={handleClose}>
+                                                    Delete
+                                                </MenuItem>
+                                            </Menu>
+                                        </Box>
+                                    }
                                 </Stack>
                             </Box>
                             <Box>
                                 <Typography sx={{ width: "100%", wordWrap: "break-word", fontSize: "18px", lineHeight: "29px", fontFamily: "Times New Roman" }} variant="body1" dangerouslySetInnerHTML={{ __html: article.content }} />
                             </Box>
                         </Box>
+                        <Box>
+                            <CommentsSection />
+                        </Box>
                     </Stack >
-                    <ConfirmationModal open={open} onClose={() => {
+                    {/* <ConfirmationModal open={open} onClose={() => {
                         setOpen(false)
-                    }} onConfirm={confirmDelete} title={"You sure to delete?"} content={"The article will be deleted"} />
+                    }} onConfirm={confirmDelete} title={"You sure to delete?"} content={"The article will be deleted"} /> */}
                 </>
             }
         </>
