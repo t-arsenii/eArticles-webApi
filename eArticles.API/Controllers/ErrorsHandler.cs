@@ -6,6 +6,7 @@ namespace eArticles.API.Controllers;
 [Route("/error")]
 public class ErrorsHandler : ControllerBase
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public IActionResult Error()
     {
         return Problem();
