@@ -2,18 +2,22 @@ import * as React from 'react';
 import { createTheme, ThemeProvider, Container, Typography, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useState } from 'react';
-import { IUserAuthReq, IUserAuthRes, IUser, IUserRegReq, IUserRegRes } from "../models/user"
 import { useForm } from "react-hook-form"
 import PhoneInput from 'react-phone-number-input';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { updateToken, updateUser } from '../store/userStore'
 import { Link, useNavigate } from 'react-router-dom'
+import { IUserCreateRequest } from '../contracts/user/IUserCreateRequest';
+import { IUserCreateResponse } from '../contracts/user/IUserCreateResponse';
+import { IUserAuthRequest } from '../contracts/user/IUserAuthRequest';
+import { IUser } from '../contracts/user/IUser';
+import { IUserAuthResponse } from '../contracts/user/IUserAuthResponse';
 
 export function RegForm() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const form = useForm<IUserRegReq>({
+    const form = useForm<IUserCreateRequest>({
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -25,19 +29,19 @@ export function RegForm() {
     })
     const { register, handleSubmit, formState } = form;
     const { errors } = formState;
-    const OnSubmit = async (data: IUserRegReq) => {
+    const OnSubmit = async (data: IUserCreateRequest) => {
         try {
-            const resReg = await axios.post<IUserRegRes>("http://localhost:5000/api/users", data);
+            const resReg = await axios.post<IUserCreateResponse>("http://localhost:5000/api/users", data);
             const resRegData = resReg.data
             const userInfo: IUser = { ...resRegData }
             dispatch(updateUser(userInfo))
 
-            const authData: IUserAuthReq = {
+            const authData: IUserAuthRequest = {
                 userName: resRegData.userName,
                 password: resRegData.password
             }
 
-            const resAuth = await axios.post<IUserAuthRes>("http://localhost:5000/api/users/login", authData);
+            const resAuth = await axios.post<IUserAuthResponse>("http://localhost:5000/api/users/login", authData);
             const resAuthData = resAuth.data
             localStorage.setItem('token', resAuthData.token);
             dispatch(updateToken(resAuthData.token))

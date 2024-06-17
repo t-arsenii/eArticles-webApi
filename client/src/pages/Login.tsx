@@ -2,18 +2,20 @@ import * as React from 'react';
 import { createTheme, ThemeProvider, Container, Typography, Grid, Box, Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useState } from 'react';
-import { IUserAuthReq, IUserAuthRes, IUser } from "../models/user"
 import { useForm } from "react-hook-form"
 import PhoneInput from 'react-phone-number-input';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { updateToken, updateUser } from '../store/userStore'
 import { Link, useNavigate } from 'react-router-dom'
+import { IUserAuthRequest } from '../contracts/user/IUserAuthRequest';
+import { IUserAuthResponse } from '../contracts/user/IUserAuthResponse';
+import { IUser } from '../contracts/user/IUser';
 
 export function Login() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const form = useForm<IUserAuthReq>({
+    const form = useForm<IUserAuthRequest>({
         defaultValues: {
             userName: '',
             password: ''
@@ -22,9 +24,9 @@ export function Login() {
     const { register, handleSubmit, formState } = form
     const { errors } = formState
 
-    const OnSubmit = async (data: IUserAuthReq) => {
+    const OnSubmit = async (data: IUserAuthRequest) => {
         try {
-            const authRes = await axios.post<IUserAuthRes>("http://localhost:5000/api/users/login", data);
+            const authRes = await axios.post<IUserAuthResponse>("http://localhost:5000/api/users/login", data);
             const resAuthData = authRes.data
             
             localStorage.setItem('token', resAuthData.token);

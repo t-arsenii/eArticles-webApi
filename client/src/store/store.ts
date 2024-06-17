@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import userReducer from './userStore'
 import localDataRecucer from './localDataStore'
+import articlesReducer from './articlesStore'
 import { useDispatch } from 'react-redux'
 
 export const store = configureStore({
     reducer: {
         user: userReducer,
-        localData: localDataRecucer
+        localData: localDataRecucer,
+        articles: articlesReducer
     },
 })
 

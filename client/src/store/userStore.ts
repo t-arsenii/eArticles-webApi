@@ -1,7 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { IUser, IUserState } from '../models/user'
 import axios from 'axios'
+import { IUser } from '../contracts/user/IUser';
+
+interface IUserState {
+    user: IUser;
+    token: string | null;
+}
 
 export const getMe = createAsyncThunk<IUser, string, { rejectValue: { message: string } }>(
     "users/getMe",

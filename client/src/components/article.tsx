@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import { IArticle } from "../models/articles"
 import { Card, CardContent, CardMedia, Typography, Chip, Box, Theme, styled, useTheme } from '@mui/material';
 import { RootState } from "../store/store";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getImagePath } from "../utils/getImagePath";
+import { IArticle } from "../contracts/article/IArticle";
 const StyledCard = styled(Card)(({ theme }: { theme: Theme}) => ({
     '&:hover': {
         boxShadow: theme.shadows[8],

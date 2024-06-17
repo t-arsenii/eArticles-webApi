@@ -2,19 +2,21 @@ import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typog
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom"
-import { IArticle, IArticleCreateForm, IArticleCreateReq } from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import SendIcon from '@mui/icons-material/Send';
 import axios from "axios";
-import { ITag } from "../models/tag";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 import { Image } from "@mui/icons-material";
-import { ICategory } from "../models/category";
-import { IContentType } from "../models/contentType";
 import DeleteIcon from '@mui/icons-material/Delete';
 import toast from "react-hot-toast";
+import { ICategory } from "../contracts/category/ICategory";
+import { IContentType } from "../contracts/contentType/IContentType";
+import { ITag } from "../contracts/tag/ITag";
+import { IArticleCreateForm } from "../contracts/article/IArticleCreateForm";
+import { IArticleCreateRequest } from "../contracts/article/IArticleCreateRequest";
+import { IArticle } from "../contracts/article/IArticle";
 
 const DEFAULT_IMAGE_PREVIEW_URL = "https://placehold.co/1920x1080/png?text=16x9"
 const textEditorModules = {
@@ -129,7 +131,7 @@ export default function CreateArticle() {
     const { errors } = formState;
     const OnSubmit = async (data: IArticleCreateForm) => {
         var formData = new FormData();
-        var dataRequest: IArticleCreateReq = {
+        var dataRequest: IArticleCreateRequest = {
             title: "",
             description: "",
             content: "",

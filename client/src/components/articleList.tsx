@@ -1,8 +1,8 @@
 import { Grid, Pagination } from "@mui/material";
-import { IArticle } from "../models/articles";
 import { Article } from "./Article";
 import { Container } from '@mui/material';
 import { ChangeEvent } from "react";
+import { IArticle } from "../contracts/article/IArticle";
 interface ArticleProps {
     articles: IArticle[]
 }

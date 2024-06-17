@@ -1,5 +1,4 @@
 import { Box, Chip, IconButton, ListItem, Menu, MenuItem, Rating, Stack, Typography } from "@mui/material"
-import { IArticle } from "../models/articles"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { Link, useNavigate, useParams } from "react-router-dom"
@@ -11,6 +10,7 @@ import { ConfirmationModal } from "../components/ConfirmationModal"
 import { getImagePath } from "../utils/getImagePath"
 import { CommentsSection } from "../components/CommentsSection"
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { IArticle } from "../contracts/article/IArticle";
 export default function FullArticle() {
     const [article, setArticle] = useState<IArticle>()
     const navigate = useNavigate()

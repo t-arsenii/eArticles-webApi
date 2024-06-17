@@ -2,12 +2,13 @@ import { Avatar, Box, Button, Checkbox, FormControlLabel, Grid, TextField, Typog
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { IArticle, IArticleCreateForm} from "../models/articles";
 import { useSelector } from "react-redux";
 import { RootState } from '../store/store';
 import axios from "axios";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
+import { IArticle } from "../contracts/article/IArticle";
+import { IArticleCreateForm } from "../contracts/article/IArticleCreateForm";
 export default function EditArticle() {
     const [articleType, setArticleType] = useState("Review")
     // const [initArticle, setInitArticle] = useState<IArticle>()
@@ -43,7 +44,7 @@ export default function EditArticle() {
     const OnSubmit = async (data: IArticleCreateForm) => {
         try {
             data.contentTypeId = articleType
-            const resArticle = await axios.put<IArticleCreateForm, IArticle>("http://localhost:5000/api/articles", data, {
+            const resArticle = await axios.put<IArticle>("http://localhost:5000/api/articles", data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'

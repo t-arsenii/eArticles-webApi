@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { IArticle } from "../models/articles";
 import { ArticleList } from "./ArticleList";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { Pagination, Box } from "@mui/material";
+import { IArticle } from "../contracts/article/IArticle";
 interface IArticleProps {
     url: string,
     isToken?: boolean,
